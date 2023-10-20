@@ -116,7 +116,7 @@ class IPv6RoutingTest(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.set_egress_port",
             action_params={
-                "set_egress_port": self.port2
+                "port_num": self.port2
             }
         ))
         # ---- END SOLUTION ----
