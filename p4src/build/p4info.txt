@@ -51,6 +51,29 @@ tables {
 }
 tables {
   preamble {
+    id: 33592650
+    name: "IngressPipeImpl.ndp_reply_table"
+    alias: "ndp_reply_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ndp.target_ipv6_addr"
+    bitwidth: 128
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16819947
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 318767233
+  size: 1024
+}
+tables {
+  preamble {
     id: 33557865
     name: "IngressPipeImpl.acl_table"
     alias: "acl_table"
@@ -160,6 +183,18 @@ actions {
 }
 actions {
   preamble {
+    id: 16819947
+    name: "IngressPipeImpl.ndp_ns_to_ndp_na"
+    alias: "ndp_ns_to_ndp_na"
+  }
+  params {
+    id: 1
+    name: "target_mac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
     id: 16833331
     name: "IngressPipeImpl.send_to_cpu"
     alias: "send_to_cpu"
@@ -193,6 +228,17 @@ direct_counters {
     unit: BOTH
   }
   direct_table_id: 33573501
+}
+direct_counters {
+  preamble {
+    id: 318767233
+    name: "ndp_reply_table_counter"
+    alias: "ndp_reply_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33592650
 }
 direct_counters {
   preamble {
