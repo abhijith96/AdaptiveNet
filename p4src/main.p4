@@ -541,6 +541,10 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             // If this is an NDP NS packet, i.e., if a matching entry is found,
             // unset the "do_l3_l2" flag to skip the L3 and L2 tables, as the
             // "ndp_ns_to_na" action already set an egress port.
+
+            if(ndp_reply_table.apply().hit){
+                do_l3_l2 = false;
+            }
         }
 
         if (do_l3_l2) {
