@@ -462,6 +462,20 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     //    block below should use the result (table.hit) to decide how to process
     //    the packet.
     //
+
+    table my_station_table {
+        key = {
+            hdr.ethernet.dst_addr : exact;
+        }
+        actions = {
+            NoAction;
+        }
+        @name("my_station_table_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+
+
     // 3. Create a table for IPv6 routing. An action selector should be use to
     //    pick a next hop MAC address according to a hash of packet header
     //    fields (IPv6 source/destination address and the flow label). Look in
@@ -469,6 +483,33 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     //
     // You can name your tables whatever you like. You will need to fill
     // the name in elsewhere in this exercise.
+    action_selector(HashAlgorithm.crc16, 32w1024, 32w16) ecmp_selector;
+
+        action set_next_hop(mac_addr_t next_hop_mac){
+            hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+            hdr.ethernet.dst_addr = next_hop_mac;
+            hdr.ipv6.hop_limit = hdr.ipv6.hop_limit - 1;
+        }
+
+        table routing_v6_table{
+            key = {
+              hdr.ipv6.dst_addr : lpm;
+              hdr.ipv6.dst_addr:          selector;
+              hdr.ipv6.src_addr:          selector;
+              hdr.ipv6.flow_label:        selector;
+              // The rest of the 5-tuple is optional per RFC6438
+              hdr.ipv6.next_hdr:          selector;
+              local_metadata.l4_src_port: selector;
+              local_metadata.l4_dst_port: selector;
+            }
+            actions = {
+                set_next_hop;
+            }
+            implementation = ecmp_selector;
+            @name("routing_v6_table_counter")
+            counters = direct_counter(CounterType.packets_and_bytes);
+        }
+
 
 
     // *** TODO EXERCISE 6 (SRV6)
