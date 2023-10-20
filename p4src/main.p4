@@ -595,6 +595,13 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             // routing table. You should also add a conditional to drop the
             // packet if the hop_limit reaches 0.
 
+            if(my_station_table.apply().hit){
+                routing_v6_table.apply();
+                if(hdr.ipv6.hop_limit == 0){
+                    drop();
+                }
+            }
+
             // *** TODO EXERCISE 6
             // Insert logic to match the SRv6 My SID and Transit tables as well
             // as logic to perform PSP behavior. HINT: This logic belongs
