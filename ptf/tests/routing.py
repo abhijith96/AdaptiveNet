@@ -83,7 +83,7 @@ class IPv6RoutingTest(P4RuntimeTest):
             group_id=1,
             actions=[
                 # List of tuples (action name, action param dict)
-                ("IngressPipeImpl.set_next_hop", {"set_next_hop": next_hop_mac}),
+                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
             ]
         ))
         # ---- END SOLUTION ----
@@ -114,7 +114,7 @@ class IPv6RoutingTest(P4RuntimeTest):
                 # Exact match
                 "hdr.ethernet.dst_addr": next_hop_mac
             },
-            action_name="MODIFY ME",
+            action_name="IngressPipeImpl.set_egress_port",
             action_params={
                 "set_egress_port": self.port2
             }
