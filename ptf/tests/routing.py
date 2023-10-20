@@ -149,14 +149,14 @@ class NdpReplyGenTest(P4RuntimeTest):
         # qualified name of tables, match fields, and actions.
         # ---- START SOLUTION ----
         self.insert(self.helper.build_table_entry(
-            table_name="MODIFY ME",
+            table_name="IngressPipeImpl.ndp_reply_table",
             match_fields={
                 # Exact match.
-                "MODIFY ME": switch_ip
+                "hdr.ndp.target_ipv6_addr": switch_ip
             },
-            action_name="MODIFY ME",
+            action_name="IngressPipeImpl.ndp_ns_to_ndp_na",
             action_params={
-                "MODIFY ME": target_mac
+                "target_mac": target_mac
             }
         ))
         # ---- END SOLUTION ----
