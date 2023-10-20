@@ -447,7 +447,9 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             standard_metadata.egress_spec = standard_metadata.ingress_port;
     }
     table ndp_reply_table{
-        key = hdr.ndp.target_ipv6_addr : exact;
+        key = {
+            hdr.ndp.target_ipv6_addr : exact;
+        }
         actions = {
             ndp_ns_to_ndp_na;
         }
