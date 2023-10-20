@@ -4,19 +4,20 @@
       "name" : "scalars_0",
       "id" : 0,
       "fields" : [
-        ["tmp_1", 1, false],
         ["tmp_2", 1, false],
+        ["tmp_3", 1, false],
         ["host_ipv6_tmp_0", 128, false],
         ["do_l3_l2_0", 1, false],
         ["tmp", 1, false],
         ["tmp_0", 1, false],
+        ["tmp_1", 1, false],
         ["local_metadata_t.l4_src_port", 16, false],
         ["local_metadata_t.l4_dst_port", 16, false],
         ["local_metadata_t.is_multicast", 1, false],
         ["local_metadata_t.next_srv6_sid", 128, false],
         ["local_metadata_t.ip_proto", 8, false],
         ["local_metadata_t.icmp_type", 8, false],
-        ["_padding_0", 2, false]
+        ["_padding_0", 1, false]
       ]
     },
     {
@@ -325,7 +326,7 @@
       "name" : "fl",
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 498,
+        "line" : 539,
         "column" : 34,
         "source_fragment" : "{ standard_metadata.ingress_port }"
       },
@@ -814,7 +815,7 @@
               "parameters" : [
                 {
                   "type" : "field",
-                  "value" : ["scalars", "tmp_1"]
+                  "value" : ["scalars", "tmp_2"]
                 },
                 {
                   "type" : "expression",
@@ -904,7 +905,7 @@
           "transition_key" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_1"]
+              "value" : ["scalars", "tmp_2"]
             }
           ]
         },
@@ -946,7 +947,7 @@
               "parameters" : [
                 {
                   "type" : "field",
-                  "value" : ["scalars", "tmp_2"]
+                  "value" : ["scalars", "tmp_3"]
                 },
                 {
                   "type" : "expression",
@@ -1017,7 +1018,7 @@
           "transition_key" : [
             {
               "type" : "field",
-              "value" : ["scalars", "tmp_2"]
+              "value" : ["scalars", "tmp_3"]
             }
           ]
         },
@@ -1067,7 +1068,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 635,
+        "line" : 683,
         "column" : 8,
         "source_fragment" : "DeparserImpl"
       },
@@ -1089,8 +1090,32 @@
       "binding" : "IngressPipeImpl.ndp_reply_table"
     },
     {
-      "name" : "l2_exact_table_counter",
+      "name" : "my_station_table_counter",
       "id" : 1,
+      "source_info" : {
+        "filename" : "p4src/main.p4",
+        "line" : 474,
+        "column" : 8,
+        "source_fragment" : "counters"
+      },
+      "is_direct" : true,
+      "binding" : "IngressPipeImpl.my_station_table"
+    },
+    {
+      "name" : "routing_v6_table_counter",
+      "id" : 2,
+      "source_info" : {
+        "filename" : "p4src/main.p4",
+        "line" : 510,
+        "column" : 12,
+        "source_fragment" : "counters"
+      },
+      "is_direct" : true,
+      "binding" : "IngressPipeImpl.routing_v6_table"
+    },
+    {
+      "name" : "l2_exact_table_counter",
+      "id" : 3,
       "source_info" : {
         "filename" : "p4src/main.p4",
         "line" : 399,
@@ -1102,7 +1127,7 @@
     },
     {
       "name" : "l2_ternary_table_counter",
-      "id" : 2,
+      "id" : 4,
       "source_info" : {
         "filename" : "p4src/main.p4",
         "line" : 423,
@@ -1114,10 +1139,10 @@
     },
     {
       "name" : "acl_table_counter",
-      "id" : 3,
+      "id" : 5,
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 518,
+        "line" : 559,
         "column" : 8,
         "source_fragment" : "counters"
       },
@@ -1132,7 +1157,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 613,
+        "line" : 661,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
       },
@@ -1205,48 +1230,16 @@
       "primitives" : []
     },
     {
-      "name" : "IngressPipeImpl.drop",
+      "name" : "NoAction",
       "id" : 2,
       "runtime_data" : [],
-      "primitives" : [
-        {
-          "op" : "mark_to_drop",
-          "parameters" : [
-            {
-              "type" : "header",
-              "value" : "standard_metadata"
-            }
-          ],
-          "source_info" : {
-            "filename" : "p4src/main.p4",
-            "line" : 351,
-            "column" : 8,
-            "source_fragment" : "mark_to_drop(standard_metadata)"
-          }
-        }
-      ]
+      "primitives" : []
     },
     {
-      "name" : "IngressPipeImpl.drop",
+      "name" : "NoAction",
       "id" : 3,
       "runtime_data" : [],
-      "primitives" : [
-        {
-          "op" : "mark_to_drop",
-          "parameters" : [
-            {
-              "type" : "header",
-              "value" : "standard_metadata"
-            }
-          ],
-          "source_info" : {
-            "filename" : "p4src/main.p4",
-            "line" : 351,
-            "column" : 8,
-            "source_fragment" : "mark_to_drop(standard_metadata)"
-          }
-        }
-      ]
+      "primitives" : []
     },
     {
       "name" : "IngressPipeImpl.drop",
@@ -1271,8 +1264,74 @@
       ]
     },
     {
-      "name" : "IngressPipeImpl.set_egress_port",
+      "name" : "IngressPipeImpl.drop",
       "id" : 5,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 351,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "IngressPipeImpl.drop",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 351,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "IngressPipeImpl.drop",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 351,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "IngressPipeImpl.set_egress_port",
+      "id" : 8,
       "runtime_data" : [
         {
           "name" : "port_num",
@@ -1303,7 +1362,7 @@
     },
     {
       "name" : "IngressPipeImpl.set_multicast_group",
-      "id" : 6,
+      "id" : 9,
       "runtime_data" : [
         {
           "name" : "gid",
@@ -1363,7 +1422,7 @@
     },
     {
       "name" : "IngressPipeImpl.ndp_ns_to_ndp_na",
-      "id" : 7,
+      "id" : 10,
       "runtime_data" : [
         {
           "name" : "target_mac",
@@ -1602,8 +1661,100 @@
       ]
     },
     {
+      "name" : "IngressPipeImpl.set_next_hop",
+      "id" : 11,
+      "runtime_data" : [
+        {
+          "name" : "next_hop_mac",
+          "bitwidth" : 48
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "src_addr"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dst_addr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 489,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.src_addr = hdr.ethernet.dst_addr"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "dst_addr"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 490,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.dst_addr = next_hop_mac"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv6", "hop_limit"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["ipv6", "hop_limit"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0xff"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 491,
+            "column" : 12,
+            "source_fragment" : "hdr.ipv6.hop_limit = hdr.ipv6.hop_limit - 1"
+          }
+        }
+      ]
+    },
+    {
       "name" : "IngressPipeImpl.send_to_cpu",
-      "id" : 8,
+      "id" : 12,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1620,7 +1771,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 490,
+            "line" : 531,
             "column" : 8,
             "source_fragment" : "standard_metadata.egress_spec = 255"
           }
@@ -1629,7 +1780,7 @@
     },
     {
       "name" : "IngressPipeImpl.clone_to_cpu",
-      "id" : 9,
+      "id" : 13,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1646,7 +1797,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 498,
+            "line" : 539,
             "column" : 8,
             "source_fragment" : "clone3(CloneType.I2E, 99, { standard_metadata.ingress_port })"
           }
@@ -1655,7 +1806,7 @@
     },
     {
       "name" : "act",
-      "id" : 10,
+      "id" : 14,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1672,7 +1823,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 530,
+            "line" : 571,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_spec = hdr.cpu_out.egress_port"
           }
@@ -1687,7 +1838,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 531,
+            "line" : 572,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.setInvalid()"
           }
@@ -1697,7 +1848,7 @@
           "parameters" : [],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 532,
+            "line" : 573,
             "column" : 12,
             "source_fragment" : "exit"
           }
@@ -1706,7 +1857,7 @@
     },
     {
       "name" : "act_0",
-      "id" : 11,
+      "id" : 15,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1736,7 +1887,7 @@
     },
     {
       "name" : "act_1",
-      "id" : 12,
+      "id" : 16,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1766,7 +1917,7 @@
     },
     {
       "name" : "act_2",
-      "id" : 13,
+      "id" : 17,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1793,7 +1944,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 546,
+            "line" : 587,
             "column" : 16,
             "source_fragment" : "do_l3_l2 = false"
           }
@@ -1802,7 +1953,7 @@
     },
     {
       "name" : "act_3",
-      "id" : 14,
+      "id" : 18,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1829,7 +1980,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 535,
+            "line" : 576,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
           }
@@ -1838,7 +1989,7 @@
     },
     {
       "name" : "act_4",
-      "id" : 15,
+      "id" : 19,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1868,7 +2019,7 @@
     },
     {
       "name" : "act_5",
-      "id" : 16,
+      "id" : 20,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1898,7 +2049,67 @@
     },
     {
       "name" : "act_6",
-      "id" : 17,
+      "id" : 21,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "b2d",
+                  "left" : null,
+                  "right" : {
+                    "type" : "bool",
+                    "value" : true
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name" : "act_7",
+      "id" : 22,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "b2d",
+                  "left" : null,
+                  "right" : {
+                    "type" : "bool",
+                    "value" : false
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name" : "act_8",
+      "id" : 23,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1911,7 +2122,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 590,
+            "line" : 638,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid()"
           }
@@ -1930,7 +2141,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 591,
+            "line" : 639,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.ingress_port = standard_metadata.ingress_port"
           }
@@ -1938,8 +2149,8 @@
       ]
     },
     {
-      "name" : "act_7",
-      "id" : 18,
+      "name" : "act_9",
+      "id" : 24,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -1952,7 +2163,7 @@
           ],
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 600,
+            "line" : 648,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           }
@@ -1977,7 +2188,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 530,
+            "line" : 571,
             "column" : 42,
             "source_fragment" : "= hdr.cpu_out.egress_port; ..."
           },
@@ -1988,14 +2199,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [10],
+          "action_ids" : [14],
           "actions" : ["act"],
           "base_default_next" : "tbl_act_0",
           "next_tables" : {
             "act" : "tbl_act_0"
           },
           "default_entry" : {
-            "action_id" : 10,
+            "action_id" : 14,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2006,7 +2217,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 535,
+            "line" : 576,
             "column" : 8,
             "source_fragment" : "bool do_l3_l2 = true;"
           },
@@ -2017,14 +2228,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [14],
+          "action_ids" : [18],
           "actions" : ["act_3"],
           "base_default_next" : "node_5",
           "next_tables" : {
             "act_3" : "node_5"
           },
           "default_entry" : {
-            "action_id" : 14,
+            "action_id" : 18,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2053,7 +2264,7 @@
           "with_counters" : true,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [7, 0],
+          "action_ids" : [10, 0],
           "actions" : ["IngressPipeImpl.ndp_ns_to_ndp_na", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
@@ -2077,14 +2288,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [11],
+          "action_ids" : [15],
           "actions" : ["act_0"],
           "base_default_next" : "node_9",
           "next_tables" : {
             "act_0" : "node_9"
           },
           "default_entry" : {
-            "action_id" : 11,
+            "action_id" : 15,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2100,14 +2311,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [12],
+          "action_ids" : [16],
           "actions" : ["act_1"],
           "base_default_next" : "node_9",
           "next_tables" : {
             "act_1" : "node_9"
           },
           "default_entry" : {
-            "action_id" : 12,
+            "action_id" : 16,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2118,7 +2329,7 @@
           "id" : 5,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 546,
+            "line" : 587,
             "column" : 25,
             "source_fragment" : "="
           },
@@ -2129,14 +2340,158 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [13],
+          "action_ids" : [17],
           "actions" : ["act_2"],
           "base_default_next" : "node_11",
           "next_tables" : {
             "act_2" : "node_11"
           },
           "default_entry" : {
-            "action_id" : 13,
+            "action_id" : 17,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "IngressPipeImpl.my_station_table",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 466,
+            "column" : 10,
+            "source_fragment" : "my_station_table"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ethernet.dst_addr",
+              "target" : ["ethernet", "dst_addr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : true,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1],
+          "actions" : ["NoAction"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "__HIT__" : "tbl_act_4",
+            "__MISS__" : "tbl_act_5"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "tbl_act_4",
+          "id" : 7,
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [19],
+          "actions" : ["act_4"],
+          "base_default_next" : "node_15",
+          "next_tables" : {
+            "act_4" : "node_15"
+          },
+          "default_entry" : {
+            "action_id" : 19,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_act_5",
+          "id" : 8,
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [20],
+          "actions" : ["act_5"],
+          "base_default_next" : "node_15",
+          "next_tables" : {
+            "act_5" : "node_15"
+          },
+          "default_entry" : {
+            "action_id" : 20,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "IngressPipeImpl.routing_v6_table",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 494,
+            "column" : 14,
+            "source_fragment" : "routing_v6_table"
+          },
+          "key" : [
+            {
+              "match_type" : "lpm",
+              "name" : "hdr.ipv6.dst_addr",
+              "target" : ["ipv6", "dst_addr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "lpm",
+          "type" : "indirect_ws",
+          "action_profile" : "IngressPipeImpl.ecmp_selector",
+          "max_size" : 1024,
+          "with_counters" : true,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [11, 2],
+          "actions" : ["IngressPipeImpl.set_next_hop", "NoAction"],
+          "base_default_next" : "node_17",
+          "next_tables" : {
+            "IngressPipeImpl.set_next_hop" : "node_17",
+            "NoAction" : "node_17"
+          }
+        },
+        {
+          "name" : "tbl_drop",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 601,
+            "column" : 20,
+            "source_fragment" : "drop()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7],
+          "actions" : ["IngressPipeImpl.drop"],
+          "base_default_next" : "IngressPipeImpl.l2_exact_table",
+          "next_tables" : {
+            "IngressPipeImpl.drop" : "IngressPipeImpl.l2_exact_table"
+          },
+          "default_entry" : {
+            "action_id" : 7,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2144,7 +2499,7 @@
         },
         {
           "name" : "IngressPipeImpl.l2_exact_table",
-          "id" : 6,
+          "id" : 11,
           "source_info" : {
             "filename" : "p4src/main.p4",
             "line" : 386,
@@ -2165,23 +2520,23 @@
           "with_counters" : true,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [5, 2],
+          "action_ids" : [8, 4],
           "actions" : ["IngressPipeImpl.set_egress_port", "IngressPipeImpl.drop"],
           "base_default_next" : null,
           "next_tables" : {
-            "__HIT__" : "tbl_act_4",
-            "__MISS__" : "tbl_act_5"
+            "__HIT__" : "tbl_act_6",
+            "__MISS__" : "tbl_act_7"
           },
           "default_entry" : {
-            "action_id" : 2,
+            "action_id" : 4,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
           }
         },
         {
-          "name" : "tbl_act_4",
-          "id" : 7,
+          "name" : "tbl_act_6",
+          "id" : 12,
           "key" : [],
           "match_type" : "exact",
           "type" : "simple",
@@ -2189,22 +2544,22 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [15],
-          "actions" : ["act_4"],
-          "base_default_next" : "node_15",
+          "action_ids" : [21],
+          "actions" : ["act_6"],
+          "base_default_next" : "node_22",
           "next_tables" : {
-            "act_4" : "node_15"
+            "act_6" : "node_22"
           },
           "default_entry" : {
-            "action_id" : 15,
+            "action_id" : 21,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
           }
         },
         {
-          "name" : "tbl_act_5",
-          "id" : 8,
+          "name" : "tbl_act_7",
+          "id" : 13,
           "key" : [],
           "match_type" : "exact",
           "type" : "simple",
@@ -2212,14 +2567,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [16],
-          "actions" : ["act_5"],
-          "base_default_next" : "node_15",
+          "action_ids" : [22],
+          "actions" : ["act_7"],
+          "base_default_next" : "node_22",
           "next_tables" : {
-            "act_5" : "node_15"
+            "act_7" : "node_22"
           },
           "default_entry" : {
-            "action_id" : 16,
+            "action_id" : 22,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2227,7 +2582,7 @@
         },
         {
           "name" : "IngressPipeImpl.l2_ternary_table",
-          "id" : 9,
+          "id" : 14,
           "source_info" : {
             "filename" : "p4src/main.p4",
             "line" : 413,
@@ -2248,7 +2603,7 @@
           "with_counters" : true,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [6, 3],
+          "action_ids" : [9, 5],
           "actions" : ["IngressPipeImpl.set_multicast_group", "IngressPipeImpl.drop"],
           "base_default_next" : "IngressPipeImpl.acl_table",
           "next_tables" : {
@@ -2256,7 +2611,7 @@
             "IngressPipeImpl.drop" : "IngressPipeImpl.acl_table"
           },
           "default_entry" : {
-            "action_id" : 3,
+            "action_id" : 5,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2264,10 +2619,10 @@
         },
         {
           "name" : "IngressPipeImpl.acl_table",
-          "id" : 10,
+          "id" : 15,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 501,
+            "line" : 542,
             "column" : 10,
             "source_fragment" : "acl_table"
           },
@@ -2327,7 +2682,7 @@
           "with_counters" : true,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [8, 9, 4, 1],
+          "action_ids" : [12, 13, 6, 3],
           "actions" : ["IngressPipeImpl.send_to_cpu", "IngressPipeImpl.clone_to_cpu", "IngressPipeImpl.drop", "NoAction"],
           "base_default_next" : null,
           "next_tables" : {
@@ -2337,21 +2692,62 @@
             "NoAction" : null
           },
           "default_entry" : {
-            "action_id" : 1,
+            "action_id" : 3,
             "action_const" : false,
             "action_data" : [],
             "action_entry_const" : false
           }
         }
       ],
-      "action_profiles" : [],
+      "action_profiles" : [
+        {
+          "name" : "IngressPipeImpl.ecmp_selector",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 486,
+            "column" : 57,
+            "source_fragment" : "ecmp_selector"
+          },
+          "max_size" : 1024,
+          "selector" : {
+            "algo" : "crc16",
+            "input" : [
+              {
+                "type" : "field",
+                "value" : ["ipv6", "dst_addr"]
+              },
+              {
+                "type" : "field",
+                "value" : ["ipv6", "src_addr"]
+              },
+              {
+                "type" : "field",
+                "value" : ["ipv6", "flow_label"]
+              },
+              {
+                "type" : "field",
+                "value" : ["ipv6", "next_hdr"]
+              },
+              {
+                "type" : "field",
+                "value" : ["scalars", "local_metadata_t.l4_src_port"]
+              },
+              {
+                "type" : "field",
+                "value" : ["scalars", "local_metadata_t.l4_dst_port"]
+              }
+            ]
+          }
+        }
+      ],
       "conditionals" : [
         {
           "name" : "node_2",
           "id" : 0,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 523,
+            "line" : 564,
             "column" : 12,
             "source_fragment" : "hdr.cpu_out.isValid()"
           },
@@ -2374,7 +2770,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 537,
+            "line" : 578,
             "column" : 12,
             "source_fragment" : "hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS"
           },
@@ -2434,7 +2830,7 @@
           "id" : 3,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 550,
+            "line" : 591,
             "column" : 12,
             "source_fragment" : "do_l3_l2"
           },
@@ -2449,15 +2845,58 @@
               }
             }
           },
-          "true_next" : "IngressPipeImpl.l2_exact_table",
+          "true_next" : "IngressPipeImpl.my_station_table",
           "false_next" : "IngressPipeImpl.acl_table"
         },
         {
           "name" : "node_15",
           "id" : 4,
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["scalars", "tmp_0"]
+              }
+            }
+          },
+          "true_next" : "IngressPipeImpl.routing_v6_table",
+          "false_next" : "IngressPipeImpl.l2_exact_table"
+        },
+        {
+          "name" : "node_17",
+          "id" : 5,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 564,
+            "line" : 600,
+            "column" : 19,
+            "source_fragment" : "hdr.ipv6.hop_limit == 0"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["ipv6", "hop_limit"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00"
+              }
+            }
+          },
+          "true_next" : "tbl_drop",
+          "false_next" : "IngressPipeImpl.l2_exact_table"
+        },
+        {
+          "name" : "node_22",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "p4src/main.p4",
+            "line" : 612,
             "column" : 16,
             "source_fragment" : "!l2_exact_table.apply().hit"
           },
@@ -2473,7 +2912,7 @@
                   "left" : null,
                   "right" : {
                     "type" : "field",
-                    "value" : ["scalars", "tmp_0"]
+                    "value" : ["scalars", "tmp_1"]
                   }
                 }
               }
@@ -2489,18 +2928,18 @@
       "id" : 1,
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 577,
+        "line" : 625,
         "column" : 8,
         "source_fragment" : "EgressPipeImpl"
       },
-      "init_table" : "node_20",
+      "init_table" : "node_27",
       "tables" : [
         {
-          "name" : "tbl_act_6",
-          "id" : 11,
+          "name" : "tbl_act_8",
+          "id" : 16,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 590,
+            "line" : 638,
             "column" : 12,
             "source_fragment" : "hdr.cpu_in.setValid(); ..."
           },
@@ -2511,25 +2950,25 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [17],
-          "actions" : ["act_6"],
-          "base_default_next" : "node_22",
+          "action_ids" : [23],
+          "actions" : ["act_8"],
+          "base_default_next" : "node_29",
           "next_tables" : {
-            "act_6" : "node_22"
+            "act_8" : "node_29"
           },
           "default_entry" : {
-            "action_id" : 17,
+            "action_id" : 23,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
           }
         },
         {
-          "name" : "tbl_act_7",
-          "id" : 12,
+          "name" : "tbl_act_9",
+          "id" : 17,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 600,
+            "line" : 648,
             "column" : 12,
             "source_fragment" : "mark_to_drop(standard_metadata)"
           },
@@ -2540,14 +2979,14 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [18],
-          "actions" : ["act_7"],
+          "action_ids" : [24],
+          "actions" : ["act_9"],
           "base_default_next" : null,
           "next_tables" : {
-            "act_7" : null
+            "act_9" : null
           },
           "default_entry" : {
-            "action_id" : 18,
+            "action_id" : 24,
             "action_const" : true,
             "action_data" : [],
             "action_entry_const" : true
@@ -2557,11 +2996,11 @@
       "action_profiles" : [],
       "conditionals" : [
         {
-          "name" : "node_20",
-          "id" : 5,
+          "name" : "node_27",
+          "id" : 7,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 582,
+            "line" : 630,
             "column" : 12,
             "source_fragment" : "standard_metadata.egress_port == 255"
           },
@@ -2579,15 +3018,15 @@
               }
             }
           },
-          "true_next" : "tbl_act_6",
-          "false_next" : "node_22"
+          "true_next" : "tbl_act_8",
+          "false_next" : "node_29"
         },
         {
-          "name" : "node_22",
-          "id" : 6,
+          "name" : "node_29",
+          "id" : 8,
           "source_info" : {
             "filename" : "p4src/main.p4",
-            "line" : 598,
+            "line" : 646,
             "column" : 12,
             "source_fragment" : "local_metadata.is_multicast == true && ..."
           },
@@ -2633,7 +3072,7 @@
             }
           },
           "false_next" : null,
-          "true_next" : "tbl_act_7"
+          "true_next" : "tbl_act_9"
         }
       ]
     }
@@ -2644,7 +3083,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "p4src/main.p4",
-        "line" : 613,
+        "line" : 661,
         "column" : 8,
         "source_fragment" : "update_checksum(hdr.ndp.isValid(), ..."
       },
