@@ -516,6 +516,87 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     //
     // Implement tables to provide SRV6 logic.
 
+    action srv6_end(){
+        hdr.srv6h.segment_left = hdr.srv6h.segment_left - 1;
+        hdr.ipv6.dst_addr = local_metadata.next_srv6_sid;
+    }
+
+    table srv6_my_sid {
+        key = {
+            hdr.ipv6.dst_addr : lpm;
+        }
+        @name("srv6_my_sid_table_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+
+    }
+
+    action insert_srv6h_header(bit<8> num_segments) {
+        hdr.srv6h.setValid();
+        hdr.srv6h.next_hdr = hdr.ipv6.next_hdr;
+        hdr.srv6h.hdr_ext_len =  num_segments * 2;
+        hdr.srv6h.routing_type = 4;
+        hdr.srv6h.segment_left = num_segments - 1;
+        hdr.srv6h.last_entry = num_segments - 1;
+        hdr.srv6h.flags = 0;
+        hdr.srv6h.tag = 0;
+        hdr.ipv6.next_hdr = IP_PROTO_SRV6;
+    }
+
+    action srv6_t_insert_2(ipv6_addr_t s1, ipv6_addr_t s2) {
+        hdr.ipv6.dst_addr = s1;
+        hdr.ipv6.payload_len = hdr.ipv6.payload_len + 40;
+        insert_srv6h_header(2);
+        hdr.srv6_list[0].setValid();
+        hdr.srv6_list[0].segment_id = s2;
+        hdr.srv6_list[1].setValid();
+        hdr.srv6_list[1].segment_id = s1;
+    }
+
+    action srv6_t_insert_3(ipv6_addr_t s1, ipv6_addr_t s2, ipv6_addr_t s3) {
+        hdr.ipv6.dst_addr = s1;
+        hdr.ipv6.payload_len = hdr.ipv6.payload_len + 56;
+        insert_srv6h_header(3);
+        hdr.srv6_list[0].setValid();
+        hdr.srv6_list[0].segment_id = s3;
+        hdr.srv6_list[1].setValid();
+        hdr.srv6_list[1].segment_id = s2;
+        hdr.srv6_list[2].setValid();
+        hdr.srv6_list[2].segment_id = s1;
+    }
+
+    table srv6_transit {
+      key = {
+
+            hdr.ipv6.dst_addr : lpm;
+          // TODO: Add match fields for SRv6 transit rules; we'll start with the
+          //  destination IP address.
+      }
+      actions = {
+          // Note: Single segment header doesn't make sense given PSP
+          // i.e. we will pop the SRv6 header when segments_left reaches 0
+          srv6_t_insert_2;
+          srv6_t_insert_3;
+          // Extra credit: set a metadata field, then push label stack in egress
+      }
+      @name("srv6_transit_table_counter")
+      counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+    action srv6_pop() {
+      hdr.ipv6.next_hdr = hdr.srv6h.next_hdr;
+      // SRv6 header is 8 bytes
+      // SRv6 list entry is 16 bytes each
+      // (((bit<16>)hdr.srv6h.last_entry + 1) * 16) + 8;
+      bit<16> srv6h_size = (((bit<16>)hdr.srv6h.last_entry + 1) << 4) + 8;
+      hdr.ipv6.payload_len = hdr.ipv6.payload_len - srv6h_size;
+
+      hdr.srv6h.setInvalid();
+      // Need to set MAX_HOPS headers invalid
+      hdr.srv6_list[0].setInvalid();
+      hdr.srv6_list[1].setInvalid();
+      hdr.srv6_list[2].setInvalid();
+    }
+
 
     // *** ACL
     //
@@ -595,7 +676,16 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             // routing table. You should also add a conditional to drop the
             // packet if the hop_limit reaches 0.
 
-            if(my_station_table.apply().hit){
+            if(hdr.ipv6.isValid() && my_station_table.apply().hit){
+                 if (srv6_my_sid.apply().hit) {
+                   // PSP logic -- enabled for all packets
+                   if (hdr.srv6h.isValid() && hdr.srv6h.segment_left == 0) {
+                       srv6_pop();
+                   }
+                 }
+                 else {
+                   srv6_transit.apply();
+                 }
                 routing_v6_table.apply();
                 if(hdr.ipv6.hop_limit == 0){
                     drop();
