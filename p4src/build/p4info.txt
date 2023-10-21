@@ -116,6 +116,55 @@ tables {
 }
 tables {
   preamble {
+    id: 33599257
+    name: "IngressPipeImpl.srv6_my_sid"
+    alias: "srv6_my_sid"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv6.dst_addr"
+    bitwidth: 128
+    match_type: LPM
+  }
+  action_refs {
+    id: 16798788
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 318793789
+  size: 1024
+}
+tables {
+  preamble {
+    id: 33559858
+    name: "IngressPipeImpl.srv6_transit"
+    alias: "srv6_transit"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.ipv6.dst_addr"
+    bitwidth: 128
+    match_type: LPM
+  }
+  action_refs {
+    id: 16788427
+  }
+  action_refs {
+    id: 16813960
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 318826973
+  size: 1024
+}
+tables {
+  preamble {
     id: 33557865
     name: "IngressPipeImpl.acl_table"
     alias: "acl_table"
@@ -249,6 +298,59 @@ actions {
 }
 actions {
   preamble {
+    id: 16798788
+    name: "IngressPipeImpl.srv6_end"
+    alias: "srv6_end"
+  }
+}
+actions {
+  preamble {
+    id: 16788427
+    name: "IngressPipeImpl.srv6_t_insert_2"
+    alias: "srv6_t_insert_2"
+  }
+  params {
+    id: 1
+    name: "s1"
+    bitwidth: 128
+  }
+  params {
+    id: 2
+    name: "s2"
+    bitwidth: 128
+  }
+}
+actions {
+  preamble {
+    id: 16813960
+    name: "IngressPipeImpl.srv6_t_insert_3"
+    alias: "srv6_t_insert_3"
+  }
+  params {
+    id: 1
+    name: "s1"
+    bitwidth: 128
+  }
+  params {
+    id: 2
+    name: "s2"
+    bitwidth: 128
+  }
+  params {
+    id: 3
+    name: "s3"
+    bitwidth: 128
+  }
+}
+actions {
+  preamble {
+    id: 16800825
+    name: "IngressPipeImpl.srv6_pop"
+    alias: "srv6_pop"
+  }
+}
+actions {
+  preamble {
     id: 16833331
     name: "IngressPipeImpl.send_to_cpu"
     alias: "send_to_cpu"
@@ -325,6 +427,28 @@ direct_counters {
     unit: BOTH
   }
   direct_table_id: 33594817
+}
+direct_counters {
+  preamble {
+    id: 318793789
+    name: "srv6_my_sid_table_counter"
+    alias: "srv6_my_sid_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33599257
+}
+direct_counters {
+  preamble {
+    id: 318826973
+    name: "srv6_transit_table_counter"
+    alias: "srv6_transit_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33559858
 }
 direct_counters {
   preamble {
