@@ -145,7 +145,7 @@ class Srv6InsertTest(P4RuntimeTest):
             group_id=1,
             actions=[
                 # List of tuples (action name, {action param: value})
-                ("set_next_hop", {"next_hop_mac": next_hop_mac}),
+                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
             ]
         ))
 
