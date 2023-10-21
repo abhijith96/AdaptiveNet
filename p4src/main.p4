@@ -525,7 +525,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         key = {
             hdr.ipv6.dst_addr : lpm;
         }
-        actions {
+        actions = {
             srv6_end;
         }
         @name("srv6_my_sid_table_counter")
