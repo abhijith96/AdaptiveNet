@@ -108,10 +108,10 @@ class Srv6InsertTest(P4RuntimeTest):
         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
         # as myStationMac address.
         self.insert(self.helper.build_table_entry(
-            table_name="MODIFY ME",
+            table_name="IngressPipeImpl.my_station_table",
             match_fields={
                 # Exact match.
-                "MODIFY ME": pkt[Ether].dst
+                "hdr.ethernet.dst_addr": pkt[Ether].dst
             },
             action_name="NoAction"
         ))
@@ -130,10 +130,10 @@ class Srv6InsertTest(P4RuntimeTest):
         actions_params = {"s%d" % (x + 1): sid_list[x] for x in range(sid_len)}
 
         self.insert(self.helper.build_table_entry(
-            table_name="MODIFY ME",
+            table_name="IngressPipeImpl.srv6_transit",
             match_fields={
                 # LPM match (value, prefix)
-                "MODIFY ME": (pkt[IPv6].dst, 128)
+                "hdr.ipv6.dst_addr": (pkt[IPv6].dst, 128)
             },
             action_name=action_name,
             action_params=actions_params
@@ -141,11 +141,11 @@ class Srv6InsertTest(P4RuntimeTest):
 
         # Insert ECMP group with only one member (next_hop_mac)
         self.insert(self.helper.build_act_prof_group(
-            act_prof_name="MODIFY ME",
+            act_prof_name="IngressPipeImpl.ecmp_selector",
             group_id=1,
             actions=[
                 # List of tuples (action name, {action param: value})
-                ("MODIFY ME", {"MODIFY ME": next_hop_mac}),
+                ("set_next_hop", {"next_hop_mac": next_hop_mac}),
             ]
         ))
 
@@ -154,7 +154,7 @@ class Srv6InsertTest(P4RuntimeTest):
         # Match on L3 routing table.
         first_sid = sid_list[0]
         self.insert(self.helper.build_table_entry(
-            table_name="MODIFY ME",
+            table_name="IngressPipeImpl.routing_v6_table",
             match_fields={
                 # LPM match (value, prefix)
                 "hdr.ipv6.dst_addr": (first_sid, 128)
@@ -164,14 +164,14 @@ class Srv6InsertTest(P4RuntimeTest):
 
         # Map next_hop_mac to output port
         self.insert(self.helper.build_table_entry(
-            table_name="MODIFY ME",
+            table_name="IngressPipeImpl.l2_exact_table",
             match_fields={
                 # Exact match
-                "MODIFY ME": next_hop_mac
+                "hdr.ethernet.dst_addr": next_hop_mac
             },
-            action_name="MODIFY ME",
+            action_name="IngressPipeImpl.set_egress_port",
             action_params={
-                "MODIFY ME": self.port2
+                "port_num": self.port2
             }
         ))
 
