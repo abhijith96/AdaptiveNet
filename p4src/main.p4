@@ -282,7 +282,8 @@ parser ParserImpl (packet_in packet,
         //     local_metadata.contains_vla = false;
         //     transition parse_ipv6_next;
         // }
-        int<32> level_size =  (int<32>)hdr.ipv6.dst_addr[last_bit_index + 4 : last_bit_index + 1];
+        // int<32> level_size =  (int<32>)hdr.ipv6.dst_addr[last_bit_index + 4 : last_bit_index + 1];
+        int<32> level_size =  4;
         // if(level_size == 0){
         //     local_metadata.contains_vla = true;
         //     transition parse_ipv6_next;
