@@ -199,6 +199,13 @@ struct local_metadata_t {
     l4_port_t   l4_src_port;
     l4_port_t   l4_dst_port;
     bool        is_multicast;
+    bool contains_vla;
+    bit<2> vla_address_type;
+    bit<32> vla_current_level;
+    bit<32> vla_number_of_levels;
+    bit<32> vla_current_level_value;
+    int<32> vla_temp_level_value;
+    int<32> vla_read_bit_index;
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
@@ -249,12 +256,45 @@ parser ParserImpl (packet_in packet,
     state parse_ipv6 {
         packet.extract(hdr.ipv6);
         local_metadata.ip_proto = hdr.ipv6.next_hdr;
-        transition select(hdr.ipv6.next_hdr) {
+        local_metadata.vla_address_type = hdr.ipv6.dst_addr[1:0];
+        local_metadata.vla_number_of_levels = hdr.ipv6.dst_addr[5:2];
+        local_metadata.vla_current_level = hdr.ipv6.flow_label;
+        local_metadata.vla_temp_level_value = 0;
+        local_metadata.vla_read_bit_index = 5;
+        transition parse_vla_level;
+        
+    }
+
+    state parse_ipv6_next{
+            transition select(hdr.ipv6.next_hdr) {
             IP_PROTO_TCP: parse_tcp;
             IP_PROTO_UDP: parse_udp;
             IP_PROTO_ICMPV6: parse_icmpv6;
             IP_PROTO_SRV6: parse_srv6;
             default: accept;
+        }
+    }
+
+    state parse_vla_level{
+        ++local_metadata.vla_temp_level_value;
+        int<32> last_bit_index = local_metadata.vla_read_bit_index;
+        if(last_bit_index + 4 >= 128){
+            local_metadata.contains_vla = false;
+            transition parse_ipv6_next;
+        }
+        int<32> level_size =  (int<32>)hdr.ipv6.dst_addr[last_bit_index + 4, last_bit_index + 1];
+        if(level_size == 0){
+            local_metadata.contains_vla = true;
+            transition parse_ipv6_next;
+        }
+        if(local_metadata.vla_temp_level_value == local_metadata.vla_current_level_value){
+            local_metadata.vla_current_level_value = hdr.ipv6.dst_addr[last_bit_index + 4 + level_size, last_bit_index 4 + 1];
+            local_metadata.contains_vla = true;
+            transition parse_ipv6_next;
+        }
+        else{
+            local_metadata.vla_read_bit_index = last_bit_index + 4 + level_size;
+            transition parse_vla_level;
         }
     }
 
