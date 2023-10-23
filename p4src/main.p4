@@ -276,7 +276,7 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_level{
-        ++local_metadata.vla_temp_level_value;
+        local_metadata.vla_temp_level_value = local_metadata.vla_temp_level_value + 1;
         int<32> last_bit_index = local_metadata.vla_read_bit_index;
         if(last_bit_index + 4 >= 128){
             local_metadata.contains_vla = false;
@@ -287,7 +287,7 @@ parser ParserImpl (packet_in packet,
             local_metadata.contains_vla = true;
             transition parse_ipv6_next;
         }
-        if(local_metadata.vla_temp_level_value == local_metadata.vla_current_level_value){
+        if(local_metadata.vla_temp_level_value == local_metadata.vla_current_level){
             local_metadata.vla_current_level_value = hdr.ipv6.dst_addr[last_bit_index + 4 + level_size, last_bit_index 4 + 1];
             local_metadata.contains_vla = true;
             transition parse_ipv6_next;
