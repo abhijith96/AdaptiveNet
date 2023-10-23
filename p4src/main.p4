@@ -288,7 +288,7 @@ parser ParserImpl (packet_in packet,
         //     transition parse_ipv6_next;
         // }
         //if(local_metadata.vla_temp_level_value == local_metadata.vla_current_level){
-            local_metadata.vla_current_level_value = hdr.ipv6.dst_addr[last_bit_index + 4 + level_size : last_bit_index 4 + 1];
+            local_metadata.vla_current_level_value = hdr.ipv6.dst_addr[last_bit_index + 4 + level_size : last_bit_index  + 4 + 1];
             local_metadata.contains_vla = true;
             transition parse_ipv6_next;
         //}
