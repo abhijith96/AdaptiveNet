@@ -302,7 +302,7 @@ parser ParserImpl (packet_in packet,
         local_metadata.contains_vla = true;
         transition select(last_segment){
             true: parse_vla_next_hdr;
-            false :vla_extract_next_hdr;
+            default :vla_extract_next_hdr;
         }
     }
 
@@ -317,7 +317,7 @@ parser ParserImpl (packet_in packet,
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)hdr.srv6_list.lastIndex + 1;
         transition select(last_segment) {
            true: parse_srv6_next_hdr;
-           false: parse_vla_list;
+           default: parse_vla_list;
         }
 
     }
