@@ -218,9 +218,8 @@ struct local_metadata_t {
     bool        is_multicast;
     bool contains_vla;
     bit<16> vla_previous_level_value;
-    bit<32> vla_current_level_value;
-    bit<32> vla_next_level_value;
-    bit<32> vla_current_level;
+    bit<16> vla_current_level_value;
+    bit<16> vla_next_level_value;
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
@@ -289,7 +288,7 @@ parser ParserImpl (packet_in packet,
     state parse_vla_list {
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index = (bit<32>)hdr.vla_list.lastIndex + 1;
-        bool is_list_val_current_level_index = current_level_index == hdr.vlah.current_level;
+        bool is_list_val_current_level_index = current_level_index == (bit<32>)hdr.vlah.current_level;
         transition select(is_list_val_current_level_index) {
             true: mark_current_vla;
             default: iterate_vla_again;
