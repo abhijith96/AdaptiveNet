@@ -110,6 +110,7 @@ header vlah_t {
     bit<2> address_type;
     bit<16> current_level;
     bit<16> num_levels;
+    bit<6> _pad;
 }
 
 header vla_list_t{
