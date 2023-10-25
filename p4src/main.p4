@@ -816,19 +816,41 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             // packet if the hop_limit reaches 0.
 
             if(hdr.ipv6.isValid() && my_station_table.apply().hit){
-                 if (srv6_my_sid.apply().hit) {
-                   // PSP logic -- enabled for all packets
-                   if (hdr.srv6h.isValid() && hdr.srv6h.segment_left == 0) {
-                       srv6_pop();
-                   }
-                 }
-                 else {
-                   srv6_transit.apply();
-                 }
-                routing_v6_table.apply();
-                if(hdr.ipv6.hop_limit == 0){
-                    drop();
+
+                if(hdr.vlah.isValid()){
+                    if(hdr.vlah.current_level > hdr.vlah.num_levels){
+                        vla_route_to_parent_table.apply();
+                    }
+                    else if(vla_level_table.apply() && vla_level_value_table.apply()){
+                        if(hdr.vlah.num_levels > hdr.vlah.current_level){
+                            vla_route_children_table.apply();
+                        }
+                        else{
+                            drop();
+                        }
+                    }
+                    else{
+                        drop();
+                    }
                 }
+                else {
+                
+                    if (srv6_my_sid.apply().hit) {
+                    // PSP logic -- enabled for all packets
+                        if (hdr.srv6h.isValid() && hdr.srv6h.segment_left == 0) {
+                            srv6_pop();
+                        }
+                    }
+                    else {
+                        srv6_transit.apply();
+                    }
+                    routing_v6_table.apply();
+                    if(hdr.ipv6.hop_limit == 0){
+                        drop();
+                    }
+                }
+               
+               
             }
 
             // *** TODO EXERCISE 6
