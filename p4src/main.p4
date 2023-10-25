@@ -300,15 +300,16 @@ parser ParserImpl (packet_in packet,
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)hdr.srv6_list.lastIndex + 1;
         local_metadata.contains_vla = true;
-        if(last_segment){
-            transition parse_vla_next_hdr;
+        transition select(last_segment){
+            true: parse_vla_next_hdr;
+            false :vla_extract_next_hdr;
         }
-        else{
-            packet.extract(hdr.vla_list.next);
-            local_metadata.vla_next_level_value = hdr.vla_list.last.level_id;
-            transition parse_vla_next_hdr;
-        }
-        
+    }
+
+    state vla_extract_next_hdr{
+        packet.extract(hdr.vla_list.next);
+        local_metadata.vla_next_level_value = hdr.vla_list.last.level_id;
+        transition parse_vla_next_hdr;
     }
 
     state iterate_vla_again{
