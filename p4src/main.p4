@@ -821,7 +821,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                     if(hdr.vlah.current_level > hdr.vlah.num_levels){
                         vla_route_to_parent_table.apply();
                     }
-                    else if(vla_level_table.apply().hit() && vla_level_value_table.apply().hit()){
+                    else if(vla_level_table.apply().hit && vla_level_value_table.apply().hit){
                         if(hdr.vlah.num_levels > hdr.vlah.current_level){
                             vla_route_children_table.apply();
                         }
