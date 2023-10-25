@@ -721,6 +721,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     action vla_route_to_parent (mac_addr_t target_mac){
         hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
         hdr.ethernet.dst_addr = target_mac;
+        hdr.vlah.current_level = hdr.vlah.current_level - 1;
     }
 
     table vla_route_to_parent_table{
@@ -821,12 +822,12 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                     if(hdr.vlah.current_level > hdr.vlah.num_levels){
                         vla_route_to_parent_table.apply();
                     }
-                    else if(vla_level_table.apply().hit && vla_level_value_table.apply().hit){
-                        if(hdr.vlah.num_levels > hdr.vlah.current_level){
+                    else if(vla_level_table.apply().hit){
+                        if(vla_level_value_table.apply().hit && hdr.vlah.num_levels > hdr.vlah.current_level){
                             vla_route_children_table.apply();
                         }
                         else{
-                            drop();
+                            vla_route_to_parent_table.apply();
                         }
                     }
                     else{
