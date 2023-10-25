@@ -675,6 +675,67 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
       hdr.srv6_list[2].setInvalid();
     }
 
+    // ****VLA TABLES//
+
+    table vla_level_table {
+        key = 
+        { 
+            hdr.vlah.current_level : exact;
+        
+        }
+        actions = {
+            NoAction;
+        }
+        @name("vla_level_table_counter")
+      counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+    table vla_level_value_table {
+        key = {
+            local_metadata.vla_current_level_value : exact;
+        }
+        actions = {
+            NoAction;
+        }
+        @name("vla_level_value_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+    action vla_route_to_child (mac_addr_t target_mac){
+        hdr.vlah.current_level = hdr.vlah.current_level + 1;
+        hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+        hdr.ethernet.dst_addr = target_mac;
+    }
+
+    table vla_route_children_table {
+        key = {
+            local_metadata.vla_next_level_value : exact;
+        }
+        actions = {
+            vla_route_to_child;
+        }
+        @name("vla_route_children_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+    action vla_route_to_parent (mac_addr_t target_mac){
+        hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+        hdr.ethernet.dst_addr = target_mac;
+    }
+
+    table vla_route_to_parent_table{
+        key = 
+        { 
+            local_metadata.vla_current_level_value : exact;
+
+        }
+        actions = {
+            vla_route_to_parent;
+          
+        }
+        @name("vla_route_to_parent_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
 
     // *** ACL
     //
