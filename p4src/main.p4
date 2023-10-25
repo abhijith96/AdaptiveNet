@@ -281,7 +281,7 @@ parser ParserImpl (packet_in packet,
         
     }
 
-    state vlah{
+    state parse_vlah{
         packet.extract(hdr.vlah);
         transition parse_vla_list;
     }
