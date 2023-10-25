@@ -36,6 +36,8 @@
 // Required for Exercise 7.
 #define SRV6_MAX_HOPS 4
 
+#define VLA_MAX_LEVELS 10
+
 typedef bit<9>   port_num_t;
 typedef bit<48>  mac_addr_t;
 typedef bit<16>  mcast_group_id_t;
@@ -50,6 +52,7 @@ const bit<8> IP_PROTO_ICMP   = 1;
 const bit<8> IP_PROTO_TCP    = 6;
 const bit<8> IP_PROTO_UDP    = 17;
 const bit<8> IP_PROTO_SRV6   = 43;
+const bit<8> IP_PROTO_VLA   = 48;
 const bit<8> IP_PROTO_ICMPV6 = 58;
 
 const mac_addr_t IPV6_MCAST_01 = 0x33_33_00_00_00_01;
@@ -99,6 +102,18 @@ header ipv6_t {
     bit<8>    hop_limit;
     bit<128>  src_addr;
     bit<128>  dst_addr;
+}
+
+header vlah_t {
+    bit<8> next_hdr;
+    bit<8> hdr_ext_len;
+    bit<2> address_type;
+    bit<16> current_level;
+    bit<16> num_levels;
+}
+
+header vla_list_t{
+    bit<16> level_id;
 }
 
 header srv6h_t {
@@ -186,6 +201,8 @@ struct parsed_headers_t {
     ethernet_t ethernet;
     ipv4_t ipv4;
     ipv6_t ipv6;
+    vlah_t vlah;
+    vla_list_t[VLA_MAX_LEVELS] vla_list;
     srv6h_t srv6h;
     srv6_list_t[SRV6_MAX_HOPS] srv6_list;
     tcp_t tcp;
@@ -200,12 +217,10 @@ struct local_metadata_t {
     l4_port_t   l4_dst_port;
     bool        is_multicast;
     bool contains_vla;
-    bit<2> vla_address_type;
-    bit<32> vla_current_level;
-    bit<32> vla_number_of_levels;
+    bit<16> vla_previous_level_value;
     bit<32> vla_current_level_value;
-    int<32> vla_temp_level_value;
-    int<32> vla_read_bit_index;
+    bit<32> vla_next_level_value;
+    bit<32> vla_current_level;
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
@@ -255,48 +270,66 @@ parser ParserImpl (packet_in packet,
 
     state parse_ipv6 {
         packet.extract(hdr.ipv6);
-        local_metadata.ip_proto = hdr.ipv6.next_hdr;
-        local_metadata.vla_address_type = hdr.ipv6.dst_addr[1:0];
-        local_metadata.vla_number_of_levels = hdr.ipv6.dst_addr[5:2];
-        local_metadata.vla_current_level = hdr.ipv6.flow_label;
-        local_metadata.vla_temp_level_value = 0;
-        local_metadata.vla_read_bit_index = 5;
-        transition parse_vla_level;
-        
-    }
-
-    state parse_ipv6_next{
-            transition select(hdr.ipv6.next_hdr) {
+        transition select(hdr.ipv6.next_hdr) {
             IP_PROTO_TCP: parse_tcp;
             IP_PROTO_UDP: parse_udp;
             IP_PROTO_ICMPV6: parse_icmpv6;
             IP_PROTO_SRV6: parse_srv6;
+            IP_PROTO_VLA : parse_vlah;
             default: accept;
+        }
+        
+    }
+
+    state vlah{
+        packet.extract(hdr.vlah);
+        transition parse_vla_list;
+    }
+
+    state parse_vla_list {
+        packet.extract(hdr.vla_list.next);
+        bit<32> current_level_index = (bit<32>)hdr.vla_list.lastIndex + 1;
+        bool is_list_val_current_level_index = current_level_index == hdr.vlah.current_level;
+        transition select(is_list_val_current_level_index) {
+            true: mark_current_vla;
+            default: iterate_vla_again;
         }
     }
 
-    state parse_vla_level{
-        local_metadata.vla_temp_level_value = local_metadata.vla_temp_level_value + 1;
-        int<32> last_bit_index = local_metadata.vla_read_bit_index;
-        // if(last_bit_index + 4 >= 128) {
-        //     local_metadata.contains_vla = false;
-        //     transition parse_ipv6_next;
-        // }
-        // int<32> level_size =  (int<32>)hdr.ipv6.dst_addr[last_bit_index + 4 : last_bit_index + 1];
-        int<32> level_size =  4;
-        // if(level_size == 0){
-        //     local_metadata.contains_vla = true;
-        //     transition parse_ipv6_next;
-        // }
-        //if(local_metadata.vla_temp_level_value == local_metadata.vla_current_level){
-            local_metadata.vla_current_level_value = hdr.ipv6.dst_addr[last_bit_index + 4 + level_size : last_bit_index  + 4 + 1];
-            local_metadata.contains_vla = true;
-            transition parse_ipv6_next;
-        //}
-        // else{
-        //     local_metadata.vla_read_bit_index = last_bit_index + 4 + level_size;
-        //     transition parse_vla_level;
-        // }
+    state mark_current_vla{
+        local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
+        bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)hdr.srv6_list.lastIndex + 1;
+        local_metadata.contains_vla = true;
+        if(last_segment){
+            transition parse_vla_next_hdr;
+        }
+        else{
+            packet.extract(hdr.vla_list.next);
+            local_metadata.vla_next_level_value = hdr.vla_list.last.level_id;
+            transition parse_vla_next_hdr;
+        }
+        
+    }
+
+    state iterate_vla_again{
+        local_metadata.vla_previous_level_value = hdr.vla_list.last.level_id;
+        bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)hdr.srv6_list.lastIndex + 1;
+        transition select(last_segment) {
+           true: parse_srv6_next_hdr;
+           false: parse_vla_list;
+        }
+
+    }
+
+    state parse_vla_next_hdr{
+       transition select(hdr.vlah.next_hdr) {
+            IP_PROTO_SRV6 : parse_srv6;
+            IP_PROTO_TCP: parse_tcp;
+            IP_PROTO_UDP: parse_udp;
+            IP_PROTO_ICMPV6: parse_icmpv6;
+            default: accept;
+        }
+      
     }
 
     state parse_tcp {
