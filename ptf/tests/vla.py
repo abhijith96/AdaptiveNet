@@ -60,7 +60,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
         len=sid_len * 2,
         address_type = 0b01,
         current_level = current_level_param,
-        num_levels= 0b10)
+        number_of_levels= 0b10)
     pkt[IPv6].nh = 48  # next IPv6 header is SR header
     pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
     return pkt
