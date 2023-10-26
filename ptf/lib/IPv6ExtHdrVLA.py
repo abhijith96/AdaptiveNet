@@ -13,9 +13,9 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                    ByteField("len", None),
                 BitField("address_type", 0, 2),
                    BitField("current_level", 0, 16),
-                   BitField("num_levels", 0, 16),
+                   BitField("number_of_levels", 0, 16),
                     PadField(BitField("pad", 0, 4), 8),
-                 FieldListField("addresses", [], BitField("num_levels", 0, 16), 
+                 FieldListField("addresses", [], BitField("number_of_levels_2", 0, 16), 
                                  count_from=lambda pkt: (pkt.num_levels))
     ]
 
