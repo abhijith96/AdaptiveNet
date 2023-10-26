@@ -102,7 +102,7 @@ class VlaRoute(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list)
+                pkt =insert_vla_header(pkt, sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_hop_mac)
