@@ -165,6 +165,88 @@ tables {
 }
 tables {
   preamble {
+    id: 33600562
+    name: "IngressPipeImpl.vla_level_table"
+    alias: "vla_level_table"
+  }
+  match_fields {
+    id: 1
+    name: "hdr.vlah.current_level"
+    bitwidth: 16
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16800567
+  }
+  direct_resource_ids: 318832611
+  size: 1024
+}
+tables {
+  preamble {
+    id: 33617984
+    name: "IngressPipeImpl.vla_level_value_table"
+    alias: "vla_level_value_table"
+  }
+  match_fields {
+    id: 1
+    name: "local_metadata.vla_current_level_value"
+    bitwidth: 16
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16800567
+  }
+  direct_resource_ids: 318807750
+  size: 1024
+}
+tables {
+  preamble {
+    id: 33580976
+    name: "IngressPipeImpl.vla_route_children_table"
+    alias: "vla_route_children_table"
+  }
+  match_fields {
+    id: 1
+    name: "local_metadata.vla_next_level_value"
+    bitwidth: 16
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16790158
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 318814167
+  size: 1024
+}
+tables {
+  preamble {
+    id: 33601749
+    name: "IngressPipeImpl.vla_route_to_parent_table"
+    alias: "vla_route_to_parent_table"
+  }
+  match_fields {
+    id: 1
+    name: "local_metadata.vla_current_level_value"
+    bitwidth: 16
+    match_type: EXACT
+  }
+  action_refs {
+    id: 16777264
+  }
+  action_refs {
+    id: 16800567
+    annotations: "@defaultonly"
+    scope: DEFAULT_ONLY
+  }
+  direct_resource_ids: 318809712
+  size: 1024
+}
+tables {
+  preamble {
     id: 33557865
     name: "IngressPipeImpl.acl_table"
     alias: "acl_table"
@@ -351,6 +433,30 @@ actions {
 }
 actions {
   preamble {
+    id: 16790158
+    name: "IngressPipeImpl.vla_route_to_child"
+    alias: "vla_route_to_child"
+  }
+  params {
+    id: 1
+    name: "target_mac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
+    id: 16777264
+    name: "IngressPipeImpl.vla_route_to_parent"
+    alias: "vla_route_to_parent"
+  }
+  params {
+    id: 1
+    name: "target_mac"
+    bitwidth: 48
+  }
+}
+actions {
+  preamble {
     id: 16833331
     name: "IngressPipeImpl.send_to_cpu"
     alias: "send_to_cpu"
@@ -449,6 +555,50 @@ direct_counters {
     unit: BOTH
   }
   direct_table_id: 33559858
+}
+direct_counters {
+  preamble {
+    id: 318832611
+    name: "vla_level_table_counter"
+    alias: "vla_level_table_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33600562
+}
+direct_counters {
+  preamble {
+    id: 318807750
+    name: "vla_level_value_counter"
+    alias: "vla_level_value_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33617984
+}
+direct_counters {
+  preamble {
+    id: 318814167
+    name: "vla_route_children_counter"
+    alias: "vla_route_children_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33580976
+}
+direct_counters {
+  preamble {
+    id: 318809712
+    name: "vla_route_to_parent_counter"
+    alias: "vla_route_to_parent_counter"
+  }
+  spec {
+    unit: BOTH
+  }
+  direct_table_id: 33601749
 }
 direct_counters {
   preamble {
