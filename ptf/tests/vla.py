@@ -42,7 +42,7 @@ from ptf.testutils import group
 
 from base_test import *
 
-import IPv6ExtHdrVLA
+from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
 
