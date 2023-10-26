@@ -204,6 +204,14 @@ class VlaRoute(P4RuntimeTest):
         set_cksum(pkt, 1)
         set_cksum(exp_pkt, 1)
 
+        print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+        print("packet  ip hex dump ", pkt[IPv6])
+
+        print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+
+
         testutils.send_packet(self, self.port1, str(pkt))
         testutils.verify_packet(self, exp_pkt, self.port2)
 
