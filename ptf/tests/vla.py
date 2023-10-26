@@ -59,8 +59,8 @@ def insert_vla_header(pkt, sid_list, current_level_param):
         addresses=sid_list,
         len=sid_len * 2,
         address_type = 0b01,
-        #current_level = current_level_param,
-        #number_of_levels= 0b10
+        current_level = current_level_param,
+        number_of_levels= 0b10
         )
     pkt[IPv6].nh = 48  # next IPv6 header is SR header
     pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
@@ -102,6 +102,8 @@ class VlaRoute(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
+                pkt =insert_vla_header(pkt, sid_list)
+
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_hop_mac)
 
@@ -215,8 +217,8 @@ class VlaRoute(P4RuntimeTest):
 
 
 
-        # testutils.send_packet(self, self.port1, str(pkt))
-        # testutils.verify_packet(self, exp_pkt, self.port2)
+        testutils.send_packet(self, self.port1, str(pkt))
+        testutils.verify_packet(self, exp_pkt, self.port2)
 
 
 @group("srv6")
