@@ -149,7 +149,7 @@ class VlaRoute(P4RuntimeTest):
             table_name="IngressPipeImpl.vla_route_to_parent_table",
             match_fields={
                 # Exact match.
-                "local_metadata.vla_current_level_value": current_level_index
+                "hdr.vlah.current_level": current_level_index
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
