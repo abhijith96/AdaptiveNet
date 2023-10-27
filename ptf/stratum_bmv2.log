@@ -1,0 +1,248 @@
+E1027 11:16:42.251797    74 main.cc:121] Starting bmv2 simple_switch and waiting for P4 pipeline
+[11:16:42.255] [bmv2] [D] [thread 74] Set default default entry for table 't_drop': a_drop - 
+[11:16:42.264] [bmv2] [D] [thread 74] Adding interface veth0 as port 1
+[11:16:42.286] [bmv2] [D] [thread 74] Adding interface veth2 as port 2
+[11:16:42.318] [bmv2] [D] [thread 74] Adding interface veth4 as port 3
+[11:16:42.350] [bmv2] [D] [thread 74] Adding interface veth6 as port 4
+[11:16:42.382] [bmv2] [D] [thread 74] Adding interface veth8 as port 5
+[11:16:42.414] [bmv2] [D] [thread 74] Adding interface veth10 as port 6
+[11:16:42.446] [bmv2] [D] [thread 74] Adding interface veth12 as port 7
+[11:16:42.478] [bmv2] [D] [thread 74] Adding interface veth14 as port 8
+E1027 11:16:42.531735626      74 server_chttp2.cc:40]        {"created":"@1698405402.531695439","description":"Only 1 addresses added out of total 2 resolved","file":"external/com_github_grpc_grpc/src/core/ext/transport/chttp2/server/chttp2_server.cc","file_line":406,"referenced_errors":[{"created":"@1698405402.531690420","description":"Address family not supported by protocol","errno":97,"file":"external/com_github_grpc_grpc/src/core/lib/iomgr/socket_utils_common_posix.cc","file_line":420,"os_error":"Address family not supported by protocol","syscall":"socket","target_address":"[::1]:28000"}]}
+E1027 11:16:42.531972    74 hal.cc:223] Stratum external facing services are listening to 0.0.0.0:28000, localhost:28000...
+[11:16:44.510] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act': act - 
+[11:16:44.510] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_0': act_3 - 
+[11:16:44.510] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.ndp_reply_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_1': act_0 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_2': act_1 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_3': act_2 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_4': act_4 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.my_station_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_5': act_5 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_6': act_6 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_7': act_7 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.vla_route_to_parent_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.vla_level_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_8': act_8 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_9': act_9 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.vla_level_value_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_10': act_10 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_11': act_11 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_12': act_12 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_13': act_13 - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.vla_route_children_table': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_drop': IngressPipeImpl.drop - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.srv6_my_sid': NoAction - 
+[11:16:44.511] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_14': act_14 - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_15': act_15 - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_srv6_pop': IngressPipeImpl.srv6_pop - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.srv6_transit': NoAction - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_drop_0': IngressPipeImpl.drop - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.l2_exact_table': IngressPipeImpl.drop - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_16': act_16 - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_17': act_17 - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.l2_ternary_table': IngressPipeImpl.drop - 
+[11:16:44.512] [bmv2] [D] [thread 108] Set default default entry for table 'IngressPipeImpl.acl_table': NoAction - 
+[11:16:44.513] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_18': act_18 - 
+[11:16:44.513] [bmv2] [D] [thread 108] Set default default entry for table 'tbl_act_19': act_19 - 
+[11:16:44.807] [bmv2] [D] [thread 108] Entry 0 added to table 'IngressPipeImpl.my_station_table'
+[11:16:44.807] [bmv2] [D] [thread 108] Dumping entry 0
+Match key:
+* hdr.ethernet.dst_addr: EXACT     000102030405
+Action entry: NoAction - 
+
+[11:16:44.808] [bmv2] [D] [thread 141] Entry 0 added to table 'IngressPipeImpl.vla_level_table'
+[11:16:44.808] [bmv2] [D] [thread 141] Dumping entry 0
+Match key:
+* hdr.vlah.current_level: EXACT     0003
+Action entry: NoAction - 
+
+[11:16:44.809] [bmv2] [D] [thread 108] Entry 0 added to table 'IngressPipeImpl.vla_level_value_table'
+[11:16:44.809] [bmv2] [D] [thread 108] Dumping entry 0
+Match key:
+* local_metadata.vla_current_level_value: EXACT     0001
+Action entry: NoAction - 
+
+[11:16:44.810] [bmv2] [D] [thread 141] Entry 0 added to table 'IngressPipeImpl.vla_route_to_parent_table'
+[11:16:44.810] [bmv2] [D] [thread 141] Dumping entry 0
+Match key:
+* local_metadata.vla_current_level_value: EXACT     0001
+Action entry: IngressPipeImpl.vla_route_to_parent - aa02,
+
+[11:16:44.811] [bmv2] [D] [thread 108] Added member 0 to action profile 'IngressPipeImpl.ecmp_selector'
+[11:16:44.812] [bmv2] [D] [thread 141] Created group 0 in action profile 'IngressPipeImpl.ecmp_selector'
+[11:16:44.812] [bmv2] [D] [thread 141] Added member 0 to group 0 in action profile 'IngressPipeImpl.ecmp_selector'
+[11:16:44.813] [bmv2] [D] [thread 108] Entry 0 added to table 'IngressPipeImpl.routing_v6_table'
+[11:16:44.813] [bmv2] [D] [thread 108] Dumping entry 0
+Match key:
+* hdr.ipv6.dst_addr   : LPM       00000000000000000000000000000001/128
+Index: group(0)
+Group members:
+  mbr 0: IngressPipeImpl.set_next_hop - aa02,
+
+[11:16:44.814] [bmv2] [D] [thread 141] Entry 0 added to table 'IngressPipeImpl.l2_exact_table'
+[11:16:44.814] [bmv2] [D] [thread 141] Dumping entry 0
+Match key:
+* hdr.ethernet.dst_addr: EXACT     00000000aa02
+Action entry: IngressPipeImpl.set_egress_port - 2,
+
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Processing packet received on port 1
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser': start
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'start': key is 0001
+[11:16:44.819] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 0
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ethernet'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting header 'ethernet'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_ethernet': key is 86dd
+[11:16:44.819] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 14
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv6'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting header 'ipv6'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_ipv6': key is 30
+[11:16:44.819] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 54
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_vlah'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting header 'vlah'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_vlah' has no switch, going to default next state
+[11:16:44.819] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 61
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_vla_list'
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting to header stack 0, next header is 14
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_7' from expression, new value is 0
+[11:16:44.819] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_vla_list': key is 00
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 63
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'iterate_vla_again'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.vla_previous_level_value' from expression, new value is 1
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_9' from expression, new value is 0
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'iterate_vla_again': key is 00
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 63
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_vla_list'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting to header stack 0, next header is 15
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_7' from expression, new value is 0
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_vla_list': key is 00
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 65
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'iterate_vla_again'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.vla_previous_level_value' from expression, new value is 1
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_9' from expression, new value is 0
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'iterate_vla_again': key is 00
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 65
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_vla_list'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting to header stack 0, next header is 16
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_7' from expression, new value is 1
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_vla_list': key is 01
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 67
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'mark_current_vla'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.vla_current_level_value' from expression, new value is 1234
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.contains_vla' from expression, new value is 1
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_8' from expression, new value is 0
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'mark_current_vla': key is 00
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 67
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'vla_extract_next_hdr'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting to header stack 0, next header is 17
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.vla_next_level_value' from expression, new value is 80
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'vla_extract_next_hdr' has no switch, going to default next state
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 69
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_vla_next_hdr'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_vla_next_hdr': key is 06
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 69
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser' entering state 'parse_tcp'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Extracting header 'tcp'
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.l4_src_port' from field 'tcp.src_port' (0)
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser set: setting field 'scalars.local_metadata_t.l4_dst_port' from field 'tcp.dst_port' (0)
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser state 'parse_tcp' has no switch, going to default next state
+[11:16:44.820] [bmv2] [T] [thread 78] [0.0] [cxt 0] Bytes parsed: 89
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Parser 'parser': end
+[11:16:44.820] [bmv2] [D] [thread 78] [0.0] [cxt 0] Pipeline 'ingress': start
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(785) Condition "hdr.cpu_out.isValid()" (node_2) is false
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'tbl_act_0'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'tbl_act_0': miss
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is act_3 - 
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action act_3
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(797) Primitive bool do_l3_l2 = true;
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(799) Condition "hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS" (node_5) is false
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(812) Condition "do_l3_l2" (node_11) is true
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(819) Condition "hdr.ipv6.isValid()" (node_12) is false
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'IngressPipeImpl.my_station_table'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+* hdr.ethernet.dst_addr: 000102030405
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'IngressPipeImpl.my_station_table': hit with handle 0
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Dumping entry 0
+Match key:
+* hdr.ethernet.dst_addr: EXACT     000102030405
+Action entry: NoAction - 
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is NoAction - 
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action NoAction
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'tbl_act_5'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'tbl_act_5': miss
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is act_5 - 
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action act_5
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Primitive (no source info)
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'tbl_act_7'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'tbl_act_7': miss
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is act_7 - 
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action act_7
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(819) Primitive hdr.ipv6.isValid() && my_station_table.apply().hit
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Condition "node_18" (node_18) is true
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(821) Condition "hdr.vlah.isValid()" (node_19) is true
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(822) Condition "hdr.vlah.current_level > hdr.vlah.num_levels" (node_20) is true
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'IngressPipeImpl.vla_route_to_parent_table'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+* local_metadata.vla_current_level_value: 04d2
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'IngressPipeImpl.vla_route_to_parent_table': miss
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is NoAction - 
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action NoAction
+[11:16:44.821] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'IngressPipeImpl.l2_exact_table'
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+* hdr.ethernet.dst_addr: 000102030405
+
+[11:16:44.821] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'IngressPipeImpl.l2_exact_table': miss
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is IngressPipeImpl.drop - 
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action IngressPipeImpl.drop
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(426) Primitive mark_to_drop(standard_metadata)
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'tbl_act_17'
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'tbl_act_17': miss
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is act_17 - 
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action act_17
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Primitive (no source info)
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(864) Condition "!l2_exact_table.apply().hit" (node_49) is true
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'IngressPipeImpl.l2_ternary_table'
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+* hdr.ethernet.dst_addr: 000102030405
+
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'IngressPipeImpl.l2_ternary_table': miss
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is IngressPipeImpl.drop - 
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action IngressPipeImpl.drop
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] p4src/main.p4(426) Primitive mark_to_drop(standard_metadata)
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Applying table 'IngressPipeImpl.acl_table'
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Looking up key:
+* standard_metadata.ingress_port: 0001
+* hdr.ethernet.dst_addr         : 000102030405
+* hdr.ethernet.src_addr         : 00060708090a
+* hdr.ethernet.ether_type       : 86dd
+* local_metadata.ip_proto       : 00
+* local_metadata.icmp_type      : 00
+* local_metadata.l4_src_port    : 0000
+* local_metadata.l4_dst_port    : 0000
+
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Table 'IngressPipeImpl.acl_table': miss
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Action entry is NoAction - 
+[11:16:44.822] [bmv2] [T] [thread 78] [0.0] [cxt 0] Action NoAction
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Pipeline 'ingress': end
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Egress port is 511
+[11:16:44.822] [bmv2] [D] [thread 78] [0.0] [cxt 0] Dropping packet at the end of ingress
+[11:16:46.822] [bmv2] [D] [thread 108] Removed entry 0 from table 'IngressPipeImpl.l2_exact_table'
+[11:16:46.822] [bmv2] [D] [thread 108] Entry 0 removed from table 'IngressPipeImpl.routing_v6_table'
+[11:16:46.822] [bmv2] [D] [thread 108] Removed group 0 from action profile 'IngressPipeImpl.ecmp_selector'
+[11:16:46.822] [bmv2] [D] [thread 108] Removed member 0 from action profile 'IngressPipeImpl.ecmp_selector'
+[11:16:46.822] [bmv2] [D] [thread 108] Removed entry 0 from table 'IngressPipeImpl.vla_route_to_parent_table'
+[11:16:46.822] [bmv2] [D] [thread 108] Removed entry 0 from table 'IngressPipeImpl.vla_level_value_table'
+[11:16:46.823] [bmv2] [D] [thread 108] Removed entry 0 from table 'IngressPipeImpl.vla_level_table'
+[11:16:46.823] [bmv2] [D] [thread 108] Removed entry 0 from table 'IngressPipeImpl.my_station_table'
