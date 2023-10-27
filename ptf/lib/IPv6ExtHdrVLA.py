@@ -39,7 +39,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
             tmp_len = (len(pkt) - 8) // 8
             pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
 
-        if self.num_levels is None:
+        if self.number_of_levels is None:
             tmp_len = len(self.addresses)
             if tmp_len:
                 tmp_len -= 1
