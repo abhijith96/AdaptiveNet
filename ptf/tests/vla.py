@@ -51,7 +51,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
     """Applies SRv6 insert transformation to the given packet.
     """
     # Set IPv6 dst to first SID...
-    pkt[IPv6].dst = sid_list[0]
+    pkt[IPv6].dst = HOST2_IPV6
     # Insert SRv6 header between IPv6 header and payload
     sid_len = len(sid_list)
     srv6_hdr = IPv6ExtHdrVLA(
