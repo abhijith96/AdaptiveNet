@@ -233,7 +233,7 @@ class VlaRoute(P4RuntimeTest):
 
 
         testutils.send_packet(self, self.port1, str(pkt))
-        #testutils.verify_packet(self, exp_pkt, self.port2)
+        testutils.verify_packet(self, exp_pkt, self.port2)
 
 
 @group("srv6")
