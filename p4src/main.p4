@@ -313,7 +313,7 @@ parser ParserImpl (packet_in packet,
     }
 
     state iterate_vla_again{
-        local_metadata.vla_previous_level_value = hdr.vla_list[lastIndex].level_id;
+        local_metadata.vla_previous_level_value = hdr.vla_list[hdr.vla_list.lastIndex].level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.srv6_list.lastIndex + 1);
         transition select(last_segment) {
            true: parse_vla_next_hdr;
