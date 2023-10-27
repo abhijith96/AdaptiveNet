@@ -223,10 +223,10 @@ class VlaRoute(P4RuntimeTest):
         # print("packet  ip hex dump ", pkt[IPv6])
 
         print ("packet contents")
-        pkt.show()
+        pkt.show2()
 
         print("expected packet is ")
-        exp_pkt.show()
+        exp_pkt.show2()
 
         # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
