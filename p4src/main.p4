@@ -938,6 +938,8 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
         packet.emit(hdr.ipv6);
+        packet.emit(hdr.vlah);
+        packet.emit(hdr.vla_list);
         packet.emit(hdr.srv6h);
         packet.emit(hdr.srv6_list);
         packet.emit(hdr.tcp);
