@@ -60,7 +60,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
         len=sid_len * 2,
         address_type = 0b01,
         current_level = current_level_param,
-        number_of_levels= 0b10
+        number_of_levels= sid_len
         )
     pkt[IPv6].nh = 48  # next IPv6 header is SR header
     pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
@@ -117,6 +117,16 @@ class VlaRoute(P4RuntimeTest):
 
         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
         # as myStationMac address.
+
+        self.insert(self.helper.build_table_entry(
+        table_name="IngressPipeImpl.my_station_table",
+        match_fields={
+                # Exact match.
+                "hdr.ethernet.dst_addr": pkt[Ether].dst
+            },
+            action_name="NoAction"
+        ))
+        
         self.insert(self.helper.build_table_entry(
             table_name="IngressPipeImpl.vla_level_table",
             match_fields={
@@ -139,7 +149,7 @@ class VlaRoute(P4RuntimeTest):
             table_name="IngressPipeImpl.vla_route_to_parent_table",
             match_fields={
                 # Exact match.
-                "local_metadata.vla_current_level_value": current_level_index
+                "local_metadata.vla_current_level_value": current_level_value
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
@@ -196,10 +206,12 @@ class VlaRoute(P4RuntimeTest):
         # ---- END SOLUTION ----
 
         # Build expected packet from the given one...
-        exp_pkt =insert_vla_header(pkt.copy(), sid_list, current_level_index)
+        exp_pkt = pkt.copy()
 
         # Route and decrement TTL
         pkt_route(exp_pkt, next_hop_mac)
+
+        exp_pkt[IPv6ExtHdrVLA]['current_level'] = 2;
         #pkt_decrement_ttl(exp_pkt)
 
         # Bonus: update P4 program to calculate correct checksum
