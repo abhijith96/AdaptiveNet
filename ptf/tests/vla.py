@@ -91,7 +91,7 @@ class VlaRoute(P4RuntimeTest):
 
     def runTest(self):
         sid_lists = (
-            [0b1, 10000000],
+            [0b1, 1],
         )
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
@@ -233,7 +233,7 @@ class VlaRoute(P4RuntimeTest):
 
 
         testutils.send_packet(self, self.port1, str(pkt))
-        # testutils.verify_packet(self, exp_pkt, self.port2)
+        testutils.verify_packet(self, exp_pkt, self.port2)
 
 
 @group("srv6")
