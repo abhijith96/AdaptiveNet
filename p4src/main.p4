@@ -727,7 +727,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     table vla_route_to_parent_table{
         key = 
         { 
-            local_metadata.vla_current_level_index : exact;
+            hdr.vlah.current_level : exact;
 
         }
         actions = {
