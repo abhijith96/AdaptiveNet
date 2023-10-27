@@ -57,7 +57,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
     srv6_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
         addresses=sid_list,
-        len=sid_len * 2,
+        len=(sid_len * 2) + 7,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= sid_len
