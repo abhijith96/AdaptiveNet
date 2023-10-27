@@ -126,7 +126,7 @@ class VlaRoute(P4RuntimeTest):
             },
             action_name="NoAction"
         ))
-        
+
         self.insert(self.helper.build_table_entry(
             table_name="IngressPipeImpl.vla_level_table",
             match_fields={
@@ -211,7 +211,7 @@ class VlaRoute(P4RuntimeTest):
         # Route and decrement TTL
         pkt_route(exp_pkt, next_hop_mac)
 
-        exp_pkt[IPv6ExtHdrVLA]['current_level'] = 2;
+        exp_pkt[IPv6ExtHdrVLA].current_level = 2;
         #pkt_decrement_ttl(exp_pkt)
 
         # Bonus: update P4 program to calculate correct checksum
