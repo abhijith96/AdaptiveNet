@@ -57,7 +57,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
     srv6_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
         addresses=sid_list,
-        len=(sid_len * 2) + 7,
+        len=(sid_len * 2) - 1,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= sid_len
@@ -91,7 +91,7 @@ class VlaRoute(P4RuntimeTest):
 
     def runTest(self):
         sid_lists = (
-            [0b1, 1],
+            [0b10, 1],
         )
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
