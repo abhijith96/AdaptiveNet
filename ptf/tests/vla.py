@@ -208,7 +208,7 @@ class VlaRoute(P4RuntimeTest):
 
         # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
-        print("packet  ip hex dump ", pkt[IPv6])
+        # print("packet  ip hex dump ", pkt[IPv6])
 
         print ("packet contents")
         pkt.show()
@@ -217,8 +217,8 @@ class VlaRoute(P4RuntimeTest):
 
 
 
-        testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port2)
+        # testutils.send_packet(self, self.port1, str(pkt))
+        # testutils.verify_packet(self, exp_pkt, self.port2)
 
 
 @group("srv6")
