@@ -91,7 +91,7 @@ class VlaRoute(P4RuntimeTest):
 
     def runTest(self):
         sid_lists = (
-            [0b1, 100000],
+            [0b1, 10000000],
         )
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
