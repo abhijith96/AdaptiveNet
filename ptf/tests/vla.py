@@ -155,7 +155,7 @@ class VlaRouteUpwards(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": incorrect_next_hop_mac
+                "target_mac": next_hop_mac
             }
         ))
 
@@ -243,6 +243,8 @@ class VlaRouteDownwards(P4RuntimeTest):
     inserts the SRv6 header
     """
 
+   
+
     def runTest(self):
         sid_lists = (
             [1, 2, 3, 1],
@@ -273,6 +275,9 @@ class VlaRouteDownwards(P4RuntimeTest):
 
         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
         # as myStationMac address.
+
+
+        incorrect_next_hop_mac = SWITCH3_MAC;
 
         self.insert(self.helper.build_table_entry(
         table_name="IngressPipeImpl.my_station_table",
@@ -322,7 +327,7 @@ class VlaRouteDownwards(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": next_hop_mac
+                "target_mac": incorrect_next_hop_mac
             }
         ))
 
@@ -335,7 +340,7 @@ class VlaRouteDownwards(P4RuntimeTest):
             group_id=1,
             actions=[
                 # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
+                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
             ]
         ))
 
