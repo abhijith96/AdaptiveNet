@@ -110,6 +110,8 @@ class VlaRouteUpwards(P4RuntimeTest):
     @autocleanup
     def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_hop_mac):
 
+        incorrect_next_hop_mac = SWITCH3_MAC;
+
         # *** TODO EXERCISE 6
         # Modify names to match content of P4Info file (look for the fully
         # qualified name of tables, match fields, and actions.
@@ -153,7 +155,7 @@ class VlaRouteUpwards(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": next_hop_mac
+                "target_mac": incorrect_next_hop_mac
             }
         ))
 
@@ -173,7 +175,7 @@ class VlaRouteUpwards(P4RuntimeTest):
             group_id=1,
             actions=[
                 # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
+                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
             ]
         ))
 
