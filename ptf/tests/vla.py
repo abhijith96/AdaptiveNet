@@ -50,7 +50,7 @@ VLA_LEVEL_ADDRESS_SIZE = 16
 
 
 def create_vla_current_address_entry(address_list, max_level_limit, level_size):
-    result = 0
+    result :int = 0
     for i in range(0, max_level_limit):
         if(i == 0):
             if i < len(address_list):
@@ -472,7 +472,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         table_name="IngressPipeImpl.current_vla_address_table",
         match_fields={
                 # Exact match.
-                "local_metadata.parser_local_metadata.destination_address_key": self.current_address_list_as_integer_key
+                "local_metadata.parser_local_metadata.destination_address_key": 10
             },
             action_name="NoAction"
         ))
