@@ -466,11 +466,13 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
             action_name="NoAction"
         ))
 
+        print("current vla address key: ",self.current_address_list_as_integer_key)
+
         self.insert(self.helper.build_table_entry(
-        table_name="IngressPipeImpl.vla_current_address_table",
+        table_name="IngressPipeImpl.current_vla_address_table",
         match_fields={
                 # Exact match.
-                "local_metadata.parser_local_metadata.dest_key": self.current_address_list_as_integer_key
+                "local_metadata.parser_local_metadata.destination_address_key": self.current_address_list_as_integer_key
             },
             action_name="NoAction"
         ))
