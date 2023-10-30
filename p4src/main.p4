@@ -360,8 +360,6 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_next_hdr{
-        local_metadata.parser_local_metadata.destination_address_key = 
-        local_metadata.parser_local_metadata.destination_address_key << (VLA_MAX_LEVELS - hdr.vlah.current_level) * 16;
        transition select(hdr.vlah.next_hdr) {
             IP_PROTO_SRV6 : parse_srv6;
             IP_PROTO_TCP: parse_tcp;
@@ -753,6 +751,17 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
     //     counters = direct_counter(CounterType.packets_and_bytes);
     // }
 
+    table current_vla_address_table {
+        key = {
+            local_metadata.parser_local_metadata.destination_address_key : exact;
+        }
+        actions = {
+            NoAction;
+        }
+        @name("current_vla_address_table_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
     action vla_route_to_child (mac_addr_t target_mac){
         hdr.vlah.current_level = hdr.vlah.current_level + 1;
         hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
@@ -871,6 +880,10 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             if(hdr.ipv6.isValid() && my_station_table.apply().hit){
 
                 if(hdr.vlah.isValid()){
+                    bit<8> shift_count = bit<8>((VLA_MAX_LEVELS - hdr.vlah.current_level)*16);
+                    local_metadata.parser_local_metadata.destination_address_key = 
+                    local_metadata.parser_local_metadata.destination_address_key << shift_count;
+
                      //add condition to drop if packet current level and level of switch does not match.
                     if(vla_level_table.apply().hit){
                         if(hdr.vlah.current_level > hdr.vlah.num_levels){
