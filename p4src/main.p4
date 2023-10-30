@@ -216,7 +216,7 @@ struct parsed_headers_t {
 struct parser_local_metadata_t{
      bit<32> active_level_index;
      bit<16> active_level_value;
-     vla_list_t[VLA_MAX_LEVELS] vla_list_2;
+     bool is_first_vla_level;
 }
 
 struct local_metadata_t {
@@ -233,6 +233,7 @@ struct local_metadata_t {
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
+    bit<160> destination_address_key;
 }
 
 
@@ -294,6 +295,8 @@ parser ParserImpl (packet_in packet,
 
     state parse_vlah{
         packet.extract(hdr.vlah);
+        local_metadata.parser_local_metadata.is_first_vla_level = true;
+        local_metadata.parser_local_metadata.destination_address_key = 0;
         transition parse_vla_list;
     }
 
@@ -301,20 +304,27 @@ parser ParserImpl (packet_in packet,
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
-        // vla_level_to_level_value_table.apply();
-        bool is_current_level_equal = local_metadata.parser_local_metadata.active_level_value == hdr.vla_list.last.level_id;
-        transition select(is_current_level_equal) {
-            true: parse_vla_list_remains;
-            default: vla_route_upwards;
+        local_metadata.parser_local_metadata.active_level_value = hdr.vla_list.last.level_id;
+        bool is_current_level_first = local_metadata.parser_local_metadata.is_current_level_first;
+        transition select(is_current_level_first) {
+            true: update_destination_address;
+            default: shift_destination_address;
         }
     }
 
-    state vla_route_upwards{
-        local_metadata.route_upwards = true;
-        transition parse_vla_next_hdr;
+    state shift_destination_address{
+        local_metadata.parser_local_metadata.destination_address_key =  local_metadata.parser_local_metadata.destination_address_key << 16;
+        transition update_destination_address;
+    }
+
+    state update_destination_address{
+        local_metadata.parser_local_metadata.is_current_level_first = false;
+        local_metadata.parser_local_metadata.destination_address_key = local_metadata.parser_local_metadata.destination_address_key + local_metadata.parser_local_metadata.active_level_value;
+        transition parse_vla_list_remains;
     }
 
     state parse_vla_list_remains {
+        packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         bool is_list_val_current_level_index = current_level_index == (bit<32>)hdr.vlah.current_level;
         transition select(is_list_val_current_level_index) {
@@ -357,7 +367,6 @@ parser ParserImpl (packet_in packet,
             IP_PROTO_ICMPV6: parse_icmpv6;
             default: accept;
         }
-      
     }
 
     state parse_tcp {
