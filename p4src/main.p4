@@ -256,6 +256,10 @@ control Test(){
      action vla_set_level_value (bit<16> level_value) {
         local_metadata.parser_local_metadata.active_level_value = level_value;
     }
+
+    apply {
+        
+    }
 }
 
 parser ParserImpl (packet_in packet,
