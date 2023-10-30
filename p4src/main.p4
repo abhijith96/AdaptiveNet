@@ -360,6 +360,8 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_next_hdr{
+        local_metadata.parser_local_metadata.destination_address_key = 
+        local_metadata.parser_local_metadata.destination_address_key << (VLA_MAX_LEVELS - hdr.vlah.current_level);
        transition select(hdr.vlah.next_hdr) {
             IP_PROTO_SRV6 : parse_srv6;
             IP_PROTO_TCP: parse_tcp;
