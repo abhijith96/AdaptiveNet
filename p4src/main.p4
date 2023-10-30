@@ -319,7 +319,7 @@ parser ParserImpl (packet_in packet,
 
     state update_destination_address{
         local_metadata.parser_local_metadata.is_current_level_first = false;
-        local_metadata.parser_local_metadata.destination_address_key = local_metadata.parser_local_metadata.destination_address_key + local_metadata.parser_local_metadata.active_level_value;
+        local_metadata.parser_local_metadata.destination_address_key = local_metadata.parser_local_metadata.destination_address_key + (bit<160>)local_metadata.parser_local_metadata.active_level_value;
         transition parse_vla_list_remains;
     }
 
