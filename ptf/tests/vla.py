@@ -50,7 +50,7 @@ VLA_LEVEL_ADDRESS_SIZE = 16
 
 
 def create_vla_current_address_entry(address_list, max_level_limit, level_size):
-    result  = int(0, 2)
+    result  = int("0", 2)
     for i in range(0, max_level_limit):
         if(i == 0):
             if i < len(address_list):
