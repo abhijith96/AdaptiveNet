@@ -245,9 +245,7 @@ parser ParserImpl (packet_in packet,
                    inout standard_metadata_t standard_metadata)
 {
 
-    action vla_set_level_value (bit<16> level_value) {
-        local_metadata.parser_local_metadata.active_level_value = level_value;
-    }
+   
     table vla_level_to_level_value_table {
         key = {
             local_metadata.parser_local_metadata.active_level_index : exact;
@@ -257,6 +255,10 @@ parser ParserImpl (packet_in packet,
         }
         @name("vla_level_to_level_value_table_counter")
         counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
+     action vla_set_level_value (bit<16> level_value) {
+        local_metadata.parser_local_metadata.active_level_value = level_value;
     }
 
     state start {
