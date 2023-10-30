@@ -47,7 +47,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 import sys
 
-sys.maxint = 1 << 159
+sys.maxint = 1 << 167
 
 VLA_MAX_LEVEL_LIMIT = 10
 VLA_LEVEL_ADDRESS_SIZE = 16
@@ -63,7 +63,7 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
             result = result << level_size
             if i < len(address_list):
                 result  += address_list[i]   
-    return result    
+    return int(result)    
 
 
 
