@@ -216,6 +216,7 @@ struct parsed_headers_t {
 struct parser_local_metadata_t{
      bit<32> active_level_index;
      bit<16> active_level_value;
+     vla_list_t[VLA_MAX_LEVELS] vla_list_2;
 }
 
 struct local_metadata_t {
@@ -239,28 +240,6 @@ struct local_metadata_t {
 // INGRESS PIPELINE
 //------------------------------------------------------------------------------
 
-
-control Test(inout local_metadata_t local_metadata, inout standard_metadata_t standard_metadata){
-
-    table vla_level_to_level_value_table {
-        key = {
-            local_metadata.parser_local_metadata.active_level_index : exact;
-        }
-        actions = {
-            vla_set_level_value;
-        }
-        @name("vla_level_to_level_value_table_counter")
-        counters = direct_counter(CounterType.packets_and_bytes);
-    }
-
-     action vla_set_level_value (bit<16> level_value) {
-        local_metadata.parser_local_metadata.active_level_value = level_value;
-    }
-
-    apply {
-        
-    }
-}
 
 parser ParserImpl (packet_in packet,
                    out parsed_headers_t hdr,
@@ -322,7 +301,7 @@ parser ParserImpl (packet_in packet,
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
-        vla_level_to_level_value_table.apply();
+        // vla_level_to_level_value_table.apply();
         bool is_current_level_equal = local_metadata.parser_local_metadata.active_level_value == hdr.vla_list.last.level_id;
         transition select(is_current_level_equal) {
             true: parse_vla_list_remains;
@@ -1018,7 +997,6 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
 
 
 V1Switch(
-    Test(),
     ParserImpl(),
     VerifyChecksumImpl(),
     IngressPipeImpl(),
