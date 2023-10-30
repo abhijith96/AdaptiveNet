@@ -217,6 +217,7 @@ struct parser_local_metadata_t{
      bit<32> active_level_index;
      bit<16> active_level_value;
      bool is_first_vla_level;
+    bit<160> destination_address_key;
 }
 
 struct local_metadata_t {
@@ -233,7 +234,6 @@ struct local_metadata_t {
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
-    bit<160> destination_address_key;
 }
 
 
@@ -305,7 +305,7 @@ parser ParserImpl (packet_in packet,
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
         local_metadata.parser_local_metadata.active_level_value = hdr.vla_list.last.level_id;
-        bool is_current_level_first = local_metadata.parser_local_metadata.is_current_level_first;
+        bool is_current_level_first = local_metadata.parser_local_metadata.is_first_vla_level;
         transition select(is_current_level_first) {
             true: update_destination_address;
             default: shift_destination_address;
