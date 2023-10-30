@@ -324,9 +324,7 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_list_remains {
-        packet.extract(hdr.vla_list.next);
-        bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
-        bool is_list_val_current_level_index = current_level_index == (bit<32>)hdr.vlah.current_level;
+        bool is_list_val_current_level_index = local_metadata.parser_local_metadata.active_level_index == (bit<32>)hdr.vlah.current_level;
         transition select(is_list_val_current_level_index) {
             true: mark_current_vla;
             default: iterate_vla_again;
