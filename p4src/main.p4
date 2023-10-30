@@ -298,6 +298,7 @@ parser ParserImpl (packet_in packet,
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
+        vla_level_table.apply();
         vla_level_to_level_value_table.apply();
         bool is_current_level_equal = local_metadata.parser_local_metadata.active_level_value == hdr.vla_list.last.level_id;
         transition select(is_current_level_equal) {
