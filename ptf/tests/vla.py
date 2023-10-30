@@ -85,8 +85,7 @@ def set_cksum(pkt, cksum):
 
 @group("vla")
 class VlaRouteUpwards(P4RuntimeTest):
-    """Tests SRv6 insert behavior, where the switch receives an IPv6 packet and
-    inserts the SRv6 header
+    """Tests Vla Behaviour, When Vla Address has less levels than level of current switch, it should forward packet to parent
     """
 
     def runTest(self):
@@ -239,8 +238,7 @@ class VlaRouteUpwards(P4RuntimeTest):
 
 @group("vla")
 class VlaRouteDownwards(P4RuntimeTest):
-    """Tests SRv6 insert behavior, where the switch receives an IPv6 packet and
-    inserts the SRv6 header
+    """Tests Vla Routing Behaviour when current device is in the path to the packet destination in a lower level
     """
 
    
@@ -398,32 +396,37 @@ class VlaRouteDownwards(P4RuntimeTest):
         testutils.verify_packet(self, exp_pkt, self.port2)
 
 
-@group("srv6")
-class Srv6TransitTest(P4RuntimeTest):
-    """Tests SRv6 transit behavior, where the switch ignores the SRv6 header
-    and routes the packet normally, without applying any SRv6-related
-    modifications.
+
+@group("vla")
+class VlaRouteToAnotherTree(P4RuntimeTest):
+    """Tests Vla Routing Behaviour when current device is in a different branch, so packet should go up to the common ancestor,
+    then go downwards.
     """
 
+   
+
     def runTest(self):
-        my_sid = SWITCH1_IPV6
         sid_lists = (
-            [SWITCH2_IPV6, SWITCH3_IPV6, HOST2_IPV6],
-            [SWITCH2_IPV6, HOST2_IPV6],
+            [1, 2, 3, 1],
         )
         next_hop_mac = SWITCH2_MAC
+        current_level_index = 3
+        current_level_value = 2
+        next_level_value = 1
+        destinationIp = HOST2_IPV6
 
         for sid_list in sid_lists:
             for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list)
+                pkt =insert_vla_header(pkt, sid_list, current_level_index)
 
-                self.testPacket(pkt, next_hop_mac, my_sid)
+
+                self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
 
     @autocleanup
-    def testPacket(self, pkt, next_hop_mac, my_sid):
+    def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_level_value, next_hop_mac, destinationIp):
 
         # *** TODO EXERCISE 6
         # Modify names to match content of P4Info file (look for the fully
@@ -432,24 +435,64 @@ class Srv6TransitTest(P4RuntimeTest):
 
         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
         # as myStationMac address.
+
+
+        incorrect_next_hop_mac = SWITCH3_MAC;
+
         self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.my_station_table",
-            match_fields={
+        table_name="IngressPipeImpl.my_station_table",
+        match_fields={
                 # Exact match.
                 "hdr.ethernet.dst_addr": pkt[Ether].dst
             },
             action_name="NoAction"
         ))
 
-        # This should be missed, this is plain IPv6 routing.
         self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.srv6_my_sid",
+            table_name="IngressPipeImpl.vla_level_table",
             match_fields={
-                # Longest prefix match (value, prefix length)
-                "hdr.ipv6.dst_addr": (my_sid, 128)
+                # Exact match.
+                "hdr.vlah.current_level": current_level_index
             },
-            action_name="IngressPipeImpl.srv6_end"
+            action_name="NoAction"
         ))
+
+        self.insert(self.helper.build_table_entry(
+            table_name="IngressPipeImpl.vla_level_value_table",
+            match_fields={
+                # Exact match.
+                "local_metadata.vla_current_level_value": current_level_value
+            },
+            action_name="NoAction"
+        ))
+
+        self.insert(self.helper.build_table_entry(
+            table_name="IngressPipeImpl.vla_route_children_table",
+            match_fields={
+                # Exact match.
+                "local_metadata.vla_next_level_value": next_level_value
+            },
+            action_name="IngressPipeImpl.vla_route_to_child",
+            action_params={
+                "target_mac": incorrect_next_hop_mac
+            }
+        ))
+
+
+        self.insert(self.helper.build_table_entry(
+            table_name="IngressPipeImpl.vla_route_to_parent_table",
+            match_fields={
+                # Exact match.
+                "hdr.vlah.current_level": current_level_index
+            },
+            action_name="IngressPipeImpl.vla_route_to_parent",
+            action_params={
+                "target_mac": next_hop_mac
+            }
+        ))
+
+
+
 
         # Insert ECMP group with only one member (next_hop_mac)
         self.insert(self.helper.build_act_prof_group(
@@ -457,16 +500,18 @@ class Srv6TransitTest(P4RuntimeTest):
             group_id=1,
             actions=[
                 # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
+                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
             ]
         ))
 
-        # Map pkt's IPv6 dst addr to group
+        # Add some IP to destination IP table
+
+        
         self.insert(self.helper.build_table_entry(
             table_name="IngressPipeImpl.routing_v6_table",
             match_fields={
                 # LPM match (value, prefix)
-                "hdr.ipv6.dst_addr": (pkt[IPv6].dst, 128)
+                "hdr.ipv6.dst_addr": (destinationIp, 128)
             },
             group_id=1
         ))
@@ -491,225 +536,23 @@ class Srv6TransitTest(P4RuntimeTest):
 
         # Route and decrement TTL
         pkt_route(exp_pkt, next_hop_mac)
-        pkt_decrement_ttl(exp_pkt)
+
+        exp_pkt[IPv6ExtHdrVLA].current_level = 2;
+        #pkt_decrement_ttl(exp_pkt)
 
         # Bonus: update P4 program to calculate correct checksum
         set_cksum(pkt, 1)
         set_cksum(exp_pkt, 1)
 
-        testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port2)
+        # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+        # print("packet  ip hex dump ", pkt[IPv6])
+
+   
+
+        # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
 
-@group("srv6")
-class Srv6EndTest(P4RuntimeTest):
-    """Tests SRv6 end behavior (without pop), where the switch forwards the
-    packet to the next SID found in the SRv6 header.
-    """
-
-    def runTest(self):
-        my_sid = SWITCH2_IPV6
-        sid_lists = (
-            [SWITCH2_IPV6, SWITCH3_IPV6, HOST2_IPV6],
-            [SWITCH2_IPV6, SWITCH3_IPV6, SWITCH4_IPV6, HOST2_IPV6],
-        )
-        next_hop_mac = SWITCH3_MAC
-
-        for sid_list in sid_lists:
-            for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
-                print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
-                pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-
-                pkt =insert_vla_header(pkt, sid_list)
-                self.testPacket(pkt, sid_list, next_hop_mac, my_sid)
-
-    @autocleanup
-    def testPacket(self, pkt, sid_list, next_hop_mac, my_sid):
-
-        # *** TODO EXERCISE 6
-        # Modify names to match content of P4Info file (look for the fully
-        # qualified name of tables, match fields, and actions.
-        # ---- START SOLUTION ----
-
-        # Add entry to "My Station" table. Consider the given pkt's eth dst addr
-        # as myStationMac address.
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.my_station_table",
-            match_fields={
-                # Exact match.
-                "hdr.ethernet.dst_addr": pkt[Ether].dst
-            },
-            action_name="NoAction"
-        ))
-
-        # This should be matched, we want SRv6 end behavior to be applied.
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.srv6_my_sid",
-            match_fields={
-                # Longest prefix match (value, prefix length)
-                "hdr.ipv6.dst_addr": (my_sid, 128)
-            },
-            action_name="IngressPipeImpl.srv6_end"
-        ))
-
-        # Insert ECMP group with only one member (next_hop_mac)
-        self.insert(self.helper.build_act_prof_group(
-            act_prof_name="IngressPipeImpl.ecmp_selector",
-            group_id=1,
-            actions=[
-                # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
-            ]
-        ))
-
-        # After applying the srv6_end action, we expect to IPv6 dst to be the
-        # next SID in the list, we should route based on that.
-        next_sid = sid_list[1]
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.routing_v6_table",
-            match_fields={
-                # LPM match (value, prefix)
-                "hdr.ipv6.dst_addr": (next_sid, 128)
-            },
-            group_id=1
-        ))
-
-        # Map next_hop_mac to output port
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.l2_exact_table",
-            match_fields={
-                # Exact match
-                "hdr.ethernet.dst_addr": next_hop_mac
-            },
-            action_name="IngressPipeImpl.set_egress_port",
-            action_params={
-                "port_num": self.port2
-            }
-        ))
-
-        # ---- END SOLUTION ----
-
-        # Build expected packet from the given one...
-        exp_pkt = pkt.copy()
-
-        # Set IPv6 dst to next SID and decrement segleft...
-        exp_pkt[IPv6].dst = next_sid
-        exp_pkt[IPv6ExtHdrSegmentRouting].segleft -= 1
-
-        # Route and decrement TTL...
-        pkt_route(exp_pkt, next_hop_mac)
-        pkt_decrement_ttl(exp_pkt)
-
-        # Bonus: update P4 program to calculate correct checksum
-        set_cksum(pkt, 1)
-        set_cksum(exp_pkt, 1)
-
-        testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port2)
-
-
-@group("srv6")
-class Srv6EndPspTest(P4RuntimeTest):
-    """Tests SRv6 End with Penultimate Segment Pop (PSP) behavior, where the
-    switch SID is the penultimate in the SID list and the switch removes the
-    SRv6 header before routing the packet to it's final destination (last SID in
-    the list).
-    """
-
-    def runTest(self):
-        my_sid = SWITCH3_IPV6
-        sid_lists = (
-            [SWITCH3_IPV6, HOST2_IPV6],
-        )
-        next_hop_mac = HOST2_MAC
-
-        for sid_list in sid_lists:
-            for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
-                print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
-                pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list)
-                self.testPacket(pkt, sid_list, next_hop_mac, my_sid)
-
-    @autocleanup
-    def testPacket(self, pkt, sid_list, next_hop_mac, my_sid):
-
-        # *** TODO EXERCISE 6
-        # Modify names to match content of P4Info file (look for the fully
-        # qualified name of tables, match fields, and actions.
-        # ---- START SOLUTION ----
-
-        # Add entry to "My Station" table. Consider the given pkt's eth dst addr
-        # as myStationMac address.
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.my_station_table",
-            match_fields={
-                # Exact match.
-                "hdr.ethernet.dst_addr": pkt[Ether].dst
-            },
-            action_name="NoAction"
-        ))
-
-        # This should be matched, we want SRv6 end behavior to be applied.
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.srv6_my_sid",
-            match_fields={
-                # Longest prefix match (value, prefix length)
-                "hdr.ipv6.dst_addr": (my_sid, 128)
-            },
-            action_name="IngressPipeImpl.srv6_end"
-        ))
-
-        # Insert ECMP group with only one member (next_hop_mac)
-        self.insert(self.helper.build_act_prof_group(
-            act_prof_name="IngressPipeImpl.ecmp_selector",
-            group_id=1,
-            actions=[
-                # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": next_hop_mac}),
-            ]
-        ))
-
-        # Map pkt's IPv6 dst addr to group
-        next_sid = sid_list[1]
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.routing_v6_table",
-            match_fields={
-                # LPM match (value, prefix)
-                "hdr.ipv6.dst_addr": (next_sid, 128)
-            },
-            group_id=1
-        ))
-
-        # Map next_hop_mac to output port
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.l2_exact_table",
-            match_fields={
-                # Exact match
-                "hdr.ethernet.dst_addr": next_hop_mac
-            },
-            action_name="IngressPipeImpl.set_egress_port",
-            action_params={
-                "port_num": self.port2
-            }
-        ))
-
-        # ---- END SOLUTION ----
-
-        # Build expected packet from the given one...
-        exp_pkt = pkt.copy()
-
-        # Expect IPv6 dst to be the next SID...
-        exp_pkt[IPv6].dst = next_sid
-        # Remove SRv6 header since we are performing PSP.
-        pop_srv6_header(exp_pkt)
-
-        # Route and decrement TTL
-        pkt_route(exp_pkt, next_hop_mac)
-        pkt_decrement_ttl(exp_pkt)
-
-        # Bonus: update P4 program to calculate correct checksum
-        set_cksum(pkt, 1)
-        set_cksum(exp_pkt, 1)
 
         testutils.send_packet(self, self.port1, str(pkt))
         testutils.verify_packet(self, exp_pkt, self.port2)
