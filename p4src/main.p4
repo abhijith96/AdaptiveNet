@@ -240,7 +240,7 @@ struct local_metadata_t {
 //------------------------------------------------------------------------------
 
 
-control Test{
+control Test(){
 
     table vla_level_to_level_value_table {
         key = {
