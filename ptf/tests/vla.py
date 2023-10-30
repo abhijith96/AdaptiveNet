@@ -45,6 +45,10 @@ from base_test import *
 
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
+import sys
+
+sys.maxint = 1 << 159
+
 VLA_MAX_LEVEL_LIMIT = 10
 VLA_LEVEL_ADDRESS_SIZE = 16
 
