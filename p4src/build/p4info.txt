@@ -183,20 +183,20 @@ tables {
 }
 tables {
   preamble {
-    id: 33617984
-    name: "IngressPipeImpl.vla_level_value_table"
-    alias: "vla_level_value_table"
+    id: 33617791
+    name: "IngressPipeImpl.current_vla_address_table"
+    alias: "current_vla_address_table"
   }
   match_fields {
     id: 1
-    name: "local_metadata.vla_current_level_value"
-    bitwidth: 16
+    name: "local_metadata.parser_local_metadata.destination_address_key"
+    bitwidth: 160
     match_type: EXACT
   }
   action_refs {
     id: 16800567
   }
-  direct_resource_ids: 318807750
+  direct_resource_ids: 318789883
   size: 1024
 }
 tables {
@@ -230,7 +230,7 @@ tables {
   }
   match_fields {
     id: 1
-    name: "local_metadata.vla_current_level_value"
+    name: "hdr.vlah.current_level"
     bitwidth: 16
     match_type: EXACT
   }
@@ -569,14 +569,14 @@ direct_counters {
 }
 direct_counters {
   preamble {
-    id: 318807750
-    name: "vla_level_value_counter"
-    alias: "vla_level_value_counter"
+    id: 318789883
+    name: "current_vla_address_table_counter"
+    alias: "current_vla_address_table_counter"
   }
   spec {
     unit: BOTH
   }
-  direct_table_id: 33617984
+  direct_table_id: 33617791
 }
 direct_counters {
   preamble {
