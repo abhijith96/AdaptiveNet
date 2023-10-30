@@ -301,6 +301,7 @@ parser ParserImpl (packet_in packet,
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
         local_metadata.contains_vla = true;
+        vla_level_table.apply();
         transition select(last_segment){
             true: parse_vla_next_hdr;
             default :vla_extract_next_hdr;
