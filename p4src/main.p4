@@ -239,13 +239,9 @@ struct local_metadata_t {
 // INGRESS PIPELINE
 //------------------------------------------------------------------------------
 
-parser ParserImpl (packet_in packet,
-                   out parsed_headers_t hdr,
-                   inout local_metadata_t local_metadata,
-                   inout standard_metadata_t standard_metadata)
-{
 
-   
+control Test{
+
     table vla_level_to_level_value_table {
         key = {
             local_metadata.parser_local_metadata.active_level_index : exact;
@@ -260,6 +256,13 @@ parser ParserImpl (packet_in packet,
      action vla_set_level_value (bit<16> level_value) {
         local_metadata.parser_local_metadata.active_level_value = level_value;
     }
+}
+
+parser ParserImpl (packet_in packet,
+                   out parsed_headers_t hdr,
+                   inout local_metadata_t local_metadata,
+                   inout standard_metadata_t standard_metadata)
+{
 
     state start {
         transition select(standard_metadata.ingress_port) {
