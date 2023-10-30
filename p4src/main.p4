@@ -240,7 +240,7 @@ struct local_metadata_t {
 //------------------------------------------------------------------------------
 
 
-control Test(){
+control Test(inout local_metadata_t local_metadata, inout standard_metadata_t standard_metadata){
 
     table vla_level_to_level_value_table {
         key = {
