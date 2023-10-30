@@ -880,10 +880,13 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             if(hdr.ipv6.isValid() && my_station_table.apply().hit){
 
                 if(hdr.vlah.isValid()){
-                    bit<16> shift_count = (bit<16>)((VLA_MAX_LEVELS - hdr.vlah.current_level)*16);
+                    bit<8> shift_count = (bit<8>)((VLA_MAX_LEVELS - 2 - hdr.vlah.current_level)*16);
                     local_metadata.parser_local_metadata.destination_address_key = 
                     local_metadata.parser_local_metadata.destination_address_key << shift_count;
-
+                    shift_count = (bit<8>)((VLA_MAX_LEVELS - hdr.vlah.current_level) -  (VLA_MAX_LEVELS - 2 - hdr.vlah.current_level));
+                    local_metadata.parser_local_metadata.destination_address_key = 
+                    local_metadata.parser_local_metadata.destination_address_key << shift_count;
+                   
                      //add condition to drop if packet current level and level of switch does not match.
                     if(vla_level_table.apply().hit){
                         if(hdr.vlah.current_level > hdr.vlah.num_levels){
