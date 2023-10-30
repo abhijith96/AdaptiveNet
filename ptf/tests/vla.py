@@ -38,21 +38,37 @@
 # ------------------------------------------------------------------------------
 
 
+from operator import add
 from ptf.testutils import group
 
 from base_test import *
 
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
+VLA_MAX_LEVEL_LIMIT = 10
+VLA_LEVEL_ADDRESS_SIZE = 16
+
+
+def create_vla_current_address_entry(address_list, max_level_limit, level_size):
+    result = 0
+    for i in range(0, max_level_limit):
+        if(i == 0):
+            if i < len(address_list):
+                result  += address_list[i]
+        else:
+            result = result << level_size
+            if i < len(address_list):
+                result  += address_list[i]   
+    return result    
 
 
 
 def insert_vla_header(pkt, sid_list, current_level_param):
     """Applies SRv6 insert transformation to the given packet.
     """
-    # Set IPv6 dst to first SID...
+    # Set IPv6 dst to some valid IPV6 Address
     pkt[IPv6].dst = HOST2_IPV6
-    # Insert SRv6 header between IPv6 header and payload
+    # Insert VLA header between IPv6 header and payload
     sid_len = len(sid_list)
     srv6_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
@@ -62,7 +78,7 @@ def insert_vla_header(pkt, sid_list, current_level_param):
         current_level = current_level_param,
         number_of_levels= sid_len
         )
-    pkt[IPv6].nh = 48  # next IPv6 header is SR header
+    pkt[IPv6].nh = 48  # next IPv6 header is VLA header
     pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
     return pkt
 
@@ -403,7 +419,9 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
     Currently at 10.3.6
     """
 
-    level_value_list = [10, 3, 6]
+    current_address_list = [10, 3, 6]
+    current_address_list_as_integer_key = create_vla_current_address_entry(current_address_list, VLA_MAX_LEVEL_LIMIT, VLA_LEVEL_ADDRESS_SIZE)
+
 
     def runTest(self):
         sid_lists = (
@@ -437,13 +455,22 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         # as myStationMac address.
 
 
-        incorrect_next_hop_mac = SWITCH3_MAC;
+        incorrect_next_hop_mac = SWITCH3_MAC
 
         self.insert(self.helper.build_table_entry(
         table_name="IngressPipeImpl.my_station_table",
         match_fields={
                 # Exact match.
                 "hdr.ethernet.dst_addr": pkt[Ether].dst
+            },
+            action_name="NoAction"
+        ))
+
+        self.insert(self.helper.build_table_entry(
+        table_name="IngressPipeImpl.vla_current_address_table",
+        match_fields={
+                # Exact match.
+                "local_metadata.parser_local_metadata.dest_key": self.current_address_list_as_integer_key
             },
             action_name="NoAction"
         ))
