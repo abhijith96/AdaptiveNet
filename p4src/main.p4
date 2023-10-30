@@ -244,6 +244,21 @@ parser ParserImpl (packet_in packet,
                    inout local_metadata_t local_metadata,
                    inout standard_metadata_t standard_metadata)
 {
+
+    action vla_set_level_value (bit<16> level_value) {
+        local_metadata.parser_local_metadata.active_level_value = level_value;
+    }
+    table vla_level_to_level_value_table {
+        key = {
+            local_metadata.parser_local_metadata.active_level_index : exact;
+        }
+        actions = {
+            vla_set_level_value;
+        }
+        @name("vla_level_to_level_value_table_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
     state start {
         transition select(standard_metadata.ingress_port) {
             CPU_PORT: parse_packet_out;
@@ -298,8 +313,7 @@ parser ParserImpl (packet_in packet,
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
-        // vla_level_table.apply();
-        // vla_level_to_level_value_table.apply();
+        vla_level_to_level_value_table.apply();
         bool is_current_level_equal = local_metadata.parser_local_metadata.active_level_value == hdr.vla_list.last.level_id;
         transition select(is_current_level_equal) {
             true: parse_vla_list_remains;
@@ -324,7 +338,6 @@ parser ParserImpl (packet_in packet,
     state mark_current_vla{
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
-        vla_level_table.apply();
         local_metadata.contains_vla = true;
         transition select(last_segment){
             true: parse_vla_next_hdr;
@@ -727,19 +740,19 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         counters = direct_counter(CounterType.packets_and_bytes);
     }
 
-    action vla_set_level_value (bit<16> level_value) {
-        local_metadata.parser_local_metadata.active_level_value = level_value;
-    }
-    table vla_level_to_level_value_table {
-        key = {
-            local_metadata.parser_local_metadata.active_level_index : exact;
-        }
-        actions = {
-            vla_set_level_value;
-        }
-        @name("vla_level_to_level_value_table_counter")
-        counters = direct_counter(CounterType.packets_and_bytes);
-    }
+    // action vla_set_level_value (bit<16> level_value) {
+    //     local_metadata.parser_local_metadata.active_level_value = level_value;
+    // }
+    // table vla_level_to_level_value_table {
+    //     key = {
+    //         local_metadata.parser_local_metadata.active_level_index : exact;
+    //     }
+    //     actions = {
+    //         vla_set_level_value;
+    //     }
+    //     @name("vla_level_to_level_value_table_counter")
+    //     counters = direct_counter(CounterType.packets_and_bytes);
+    // }
 
     action vla_route_to_child (mac_addr_t target_mac){
         hdr.vlah.current_level = hdr.vlah.current_level + 1;
