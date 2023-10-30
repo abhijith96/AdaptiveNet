@@ -472,7 +472,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         table_name="IngressPipeImpl.current_vla_address_table",
         match_fields={
                 # Exact match.
-                "local_metadata.parser_local_metadata.destination_address_key": 10
+                "local_metadata.parser_local_metadata.destination_address_key": self.current_address_list_as_integer_key
             },
             action_name="NoAction"
         ))
@@ -486,14 +486,14 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
             action_name="NoAction"
         ))
 
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_level_value_table",
-            match_fields={
-                # Exact match.
-                "local_metadata.vla_current_level_value": current_level_value
-            },
-            action_name="NoAction"
-        ))
+        # self.insert(self.helper.build_table_entry(
+        #     table_name="IngressPipeImpl.vla_level_value_table",
+        #     match_fields={
+        #         # Exact match.
+        #         "local_metadata.vla_current_level_value": current_level_value
+        #     },
+        #     action_name="NoAction"
+        # ))
 
         self.insert(self.helper.build_table_entry(
             table_name="IngressPipeImpl.vla_route_children_table",
