@@ -1018,6 +1018,7 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
 
 
 V1Switch(
+    Test(),
     ParserImpl(),
     VerifyChecksumImpl(),
     IngressPipeImpl(),
