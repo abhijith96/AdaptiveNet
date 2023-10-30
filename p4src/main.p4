@@ -213,11 +213,18 @@ struct parsed_headers_t {
     ndp_t ndp;
 }
 
+struct parser_local_metadata_t{
+     bit<32> active_level_index;
+     bit<16> active_level_value;
+}
+
 struct local_metadata_t {
+    parser_local_metadata_t parser_local_metadata;
     l4_port_t   l4_src_port;
     l4_port_t   l4_dst_port;
     bool        is_multicast;
     bool contains_vla;
+    bool route_upwards;
     bit<16> vla_previous_level_value;
     bit<16> vla_current_level_value;
     bit<16> vla_next_level_value;
@@ -290,6 +297,22 @@ parser ParserImpl (packet_in packet,
     state parse_vla_list {
         packet.extract(hdr.vla_list.next);
         bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
+        local_metadata.parser_local_metadata.active_level_index = current_level_index;
+        vla_level_to_level_value_table.apply();
+        bool is_current_level_equal = local_metadata.parser_local_metadata.active_level_value == hdr.vla_list.last.level_id;
+        transition select(is_current_level_equal) {
+            true: parse_vla_list_remains;
+            default: vla_route_upwards;
+        }
+    }
+
+    state vla_route_upwards{
+        local_metadata.route_upwards = true;
+        transition parse_vla_next_hdr;
+    }
+
+    state parse_vla_list_remains {
+        bit<32> current_level_index  = (bit<32>)hdr.vla_list.lastIndex + 1;
         bool is_list_val_current_level_index = current_level_index == (bit<32>)hdr.vlah.current_level;
         transition select(is_list_val_current_level_index) {
             true: mark_current_vla;
@@ -301,7 +324,6 @@ parser ParserImpl (packet_in packet,
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
         local_metadata.contains_vla = true;
-        vla_level_table.apply();
         transition select(last_segment){
             true: parse_vla_next_hdr;
             default :vla_extract_next_hdr;
@@ -703,6 +725,20 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         counters = direct_counter(CounterType.packets_and_bytes);
     }
 
+    action vla_set_level_value (bit<16> level_value) {
+        local_metadata.parser_local_metadata.active_level_value = level_value;
+    }
+    table vla_level_to_level_value_table {
+        key = {
+            local_metadata.parser_local_metadata.active_level_index : exact;
+        }
+        actions = {
+            vla_set_level_value;
+        }
+        @name("vla_level_to_level_value_table_counter")
+        counters = direct_counter(CounterType.packets_and_bytes);
+    }
+
     action vla_route_to_child (mac_addr_t target_mac){
         hdr.vlah.current_level = hdr.vlah.current_level + 1;
         hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
@@ -821,15 +857,19 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             if(hdr.ipv6.isValid() && my_station_table.apply().hit){
 
                 if(hdr.vlah.isValid()){
-                    if(hdr.vlah.current_level > hdr.vlah.num_levels){
-                        vla_route_to_parent_table.apply();
-                    }
-                    else if(vla_level_table.apply().hit){
-                        if(vla_level_value_table.apply().hit && hdr.vlah.num_levels > hdr.vlah.current_level){
+                     //add condition to drop if packet current level and level of switch does not match.
+                    if(vla_level_table.apply().hit){
+                        if(hdr.vlah.current_level > hdr.vlah.num_levels){
+                            vla_route_to_parent_table.apply();
+                        }
+                        else if(local_metadata.route_upwards){
+                            vla_route_to_parent_table.apply();
+                        }
+                        else if (hdr.vlah.num_levels > hdr.vlah.current_level){
                             vla_route_children_table.apply();
                         }
                         else{
-                            vla_route_to_parent_table.apply();
+                            drop();
                         }
                     }
                     else{

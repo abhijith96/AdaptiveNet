@@ -396,18 +396,18 @@ class VlaRouteDownwards(P4RuntimeTest):
         testutils.verify_packet(self, exp_pkt, self.port2)
 
 
-
+# Collection of test cases to mimic a normal vla routing from 10.3.6.2 to 10.2.4.1
 @group("vla")
-class VlaRouteToAnotherTree(P4RuntimeTest):
-    """Tests Vla Routing Behaviour when current device is in a different branch, so packet should go up to the common ancestor,
-    then go downwards.
+class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
+    """
+    Currently at 10.3.6
     """
 
-   
+    level_value_list = [10, 3, 6]
 
     def runTest(self):
         sid_lists = (
-            [1, 2, 3, 1],
+            [10,2,4,1],
         )
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
