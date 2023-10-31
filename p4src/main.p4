@@ -236,6 +236,7 @@ struct local_metadata_t {
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
+    bit<8> shift_count;
 }
 
 
@@ -881,6 +882,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
 
                 if(hdr.vlah.isValid()){
                     bit<8> shift_count = (bit<8>)(VLA_MAX_LEVELS- (bit<8>)(hdr.vlah.current_level) *16);
+                    local_metadata.shift_count = shift_count;
                     local_metadata.parser_local_metadata.destination_address_key = 
                     local_metadata.parser_local_metadata.destination_address_key << shift_count;
                     // shift_count = (bit<8>)((VLA_MAX_LEVELS - hdr.vlah.current_level) -  (VLA_MAX_LEVELS  - hdr.vlah.current_level - 2));
