@@ -36,7 +36,7 @@
 // Required for Exercise 7.
 #define SRV6_MAX_HOPS 4
 
-#define VLA_MAX_LEVELS 10
+// #define VLA_MAX_LEVELS 10
 
 const bit<8> VLA_MAX_LEVELS 10;
 
