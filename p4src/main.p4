@@ -335,7 +335,7 @@ parser ParserImpl (packet_in packet,
     state mark_current_vla{
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
-        local_metadata.s_current_vla_marked = true;
+        local_metadata.is_current_vla_marked = true;
         transition select(last_segment){
             true: parse_vla_next_hdr;
             default :vla_extract_next_hdr;
@@ -725,16 +725,16 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
       counters = direct_counter(CounterType.packets_and_bytes);
     }
 
-    table vla_level_value_table {
-        key = {
-            local_metadata.vla_current_level_value : exact;
-        }
-        actions = {
-            NoAction;
-        }
-        @name("vla_level_value_counter")
-        counters = direct_counter(CounterType.packets_and_bytes);
-    }
+    // table vla_level_value_table {
+    //     key = {
+    //         local_metadata.vla_current_level_value : exact;
+    //     }
+    //     actions = {
+    //         NoAction;
+    //     }
+    //     @name("vla_level_value_counter")
+    //     counters = direct_counter(CounterType.packets_and_bytes);
+    // }
 
     // action vla_set_level_value (bit<16> level_value) {
     //     local_metadata.parser_local_metadata.active_level_value = level_value;
