@@ -881,7 +881,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             if(hdr.ipv6.isValid() && my_station_table.apply().hit){
 
                 if(hdr.vlah.isValid()){
-                    bit<8> shift_count = (bit<8>)(10- (bit<8>)(hdr.vlah.current_level) *16);
+                    bit<8> shift_count = (bit<8>)((VLA_MAX_LEVELS- (bit<8>)(hdr.vlah.current_level)) *16);
                     local_metadata.shift_count = shift_count;
                     local_metadata.parser_local_metadata.destination_address_key = 
                     local_metadata.parser_local_metadata.destination_address_key << shift_count;
