@@ -852,7 +852,7 @@ class VlaRouteToAnotherTreeThirdSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_child",
             action_params={
-                "target_mac": incorrect_next_hop_mac
+                "target_mac": next_hop_mac
             }
         ))
 
@@ -865,7 +865,7 @@ class VlaRouteToAnotherTreeThirdSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": next_hop_mac
+                "target_mac": incorrect_next_hop_mac
             }
         ))
 
