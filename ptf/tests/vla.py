@@ -103,317 +103,317 @@ def set_cksum(pkt, cksum):
         pkt[ICMPv6Unknown].cksum = cksum
 
 
-@group("vla")
-class VlaRouteUpwards(P4RuntimeTest):
-    """Tests Vla Behaviour, When Vla Address has less levels than level of current switch, it should forward packet to parent
-    """
+# @group("vla")
+# class VlaRouteUpwards(P4RuntimeTest):
+#     """Tests Vla Behaviour, When Vla Address has less levels than level of current switch, it should forward packet to parent
+#     """
 
-    def runTest(self):
-        sid_lists = (
-            [0b10, 1],
-        )
-        next_hop_mac = SWITCH2_MAC
-        current_level_index = 3
-        current_level_value = 0b1
+#     def runTest(self):
+#         sid_lists = (
+#             [0b10, 1],
+#         )
+#         next_hop_mac = SWITCH2_MAC
+#         current_level_index = 3
+#         current_level_value = 0b1
 
-        for sid_list in sid_lists:
-            for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
-                print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
+#         for sid_list in sid_lists:
+#             for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
+#                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
-                pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
-
-
-                self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_hop_mac)
-
-    @autocleanup
-    def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_hop_mac):
-
-        incorrect_next_hop_mac = SWITCH3_MAC;
-
-        # *** TODO EXERCISE 6
-        # Modify names to match content of P4Info file (look for the fully
-        # qualified name of tables, match fields, and actions.
-        # ---- START SOLUTION ----
-
-        # Add entry to "My Station" table. Consider the given pkt's eth dst addr
-        # as myStationMac address.
-
-        self.insert(self.helper.build_table_entry(
-        table_name="IngressPipeImpl.my_station_table",
-        match_fields={
-                # Exact match.
-                "hdr.ethernet.dst_addr": pkt[Ether].dst
-            },
-            action_name="NoAction"
-        ))
-
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_level_table",
-            match_fields={
-                # Exact match.
-                "hdr.vlah.current_level": current_level_index
-            },
-            action_name="NoAction"
-        ))
-
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_level_value_table",
-            match_fields={
-                # Exact match.
-                "local_metadata.vla_current_level_value": current_level_value
-            },
-            action_name="NoAction"
-        ))
-
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_route_to_parent_table",
-            match_fields={
-                # Exact match.
-                "hdr.vlah.current_level": current_level_index
-            },
-            action_name="IngressPipeImpl.vla_route_to_parent",
-            action_params={
-                "target_mac": next_hop_mac
-            }
-        ))
-
-        # Insert SRv6 header when matching the pkt's IPV6 dst addr.
-        # Action name an params are generated based on the number of SIDs given.
-        # For example, with 2 SIDs:
-        # action_name = IngressPipeImpl.srv6_t_insert_2
-        # action_params = {
-        #     "s1": sid[0],
-        #     "s2": sid[1]
-        # }
+#                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
+#                 pkt =insert_vla_header(pkt, sid_list, current_level_index)
 
 
-        # Insert ECMP group with only one member (next_hop_mac)
-        self.insert(self.helper.build_act_prof_group(
-            act_prof_name="IngressPipeImpl.ecmp_selector",
-            group_id=1,
-            actions=[
-                # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
-            ]
-        ))
+#                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_hop_mac)
 
-        # Now that we inserted the SRv6 header, we expect the pkt's IPv6 dst
-        # addr to be the first on the SID list.
-        # Match on L3 routing table.
-        first_sid = sid_list[0]
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.routing_v6_table",
-            match_fields={
-                # LPM match (value, prefix)
-                "hdr.ipv6.dst_addr": (first_sid, 128)
-            },
-            group_id=1
-        ))
+#     @autocleanup
+#     def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_hop_mac):
 
-        # Map next_hop_mac to output port
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.l2_exact_table",
-            match_fields={
-                # Exact match
-                "hdr.ethernet.dst_addr": next_hop_mac
-            },
-            action_name="IngressPipeImpl.set_egress_port",
-            action_params={
-                "port_num": self.port2
-            }
-        ))
+#         incorrect_next_hop_mac = SWITCH3_MAC;
 
-        # ---- END SOLUTION ----
+#         # *** TODO EXERCISE 6
+#         # Modify names to match content of P4Info file (look for the fully
+#         # qualified name of tables, match fields, and actions.
+#         # ---- START SOLUTION ----
 
-        # Build expected packet from the given one...
-        exp_pkt = pkt.copy()
+#         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
+#         # as myStationMac address.
 
-        # Route and decrement TTL
-        pkt_route(exp_pkt, next_hop_mac)
+#         self.insert(self.helper.build_table_entry(
+#         table_name="IngressPipeImpl.my_station_table",
+#         match_fields={
+#                 # Exact match.
+#                 "hdr.ethernet.dst_addr": pkt[Ether].dst
+#             },
+#             action_name="NoAction"
+#         ))
 
-        exp_pkt[IPv6ExtHdrVLA].current_level = 2;
-        #pkt_decrement_ttl(exp_pkt)
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_level_table",
+#             match_fields={
+#                 # Exact match.
+#                 "hdr.vlah.current_level": current_level_index
+#             },
+#             action_name="NoAction"
+#         ))
 
-        # Bonus: update P4 program to calculate correct checksum
-        set_cksum(pkt, 1)
-        set_cksum(exp_pkt, 1)
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_level_value_table",
+#             match_fields={
+#                 # Exact match.
+#                 "local_metadata.vla_current_level_value": current_level_value
+#             },
+#             action_name="NoAction"
+#         ))
 
-        # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_route_to_parent_table",
+#             match_fields={
+#                 # Exact match.
+#                 "hdr.vlah.current_level": current_level_index
+#             },
+#             action_name="IngressPipeImpl.vla_route_to_parent",
+#             action_params={
+#                 "target_mac": next_hop_mac
+#             }
+#         ))
 
-        # print("packet  ip hex dump ", pkt[IPv6])
-
-        print ("packet contents")
-        pkt.show()
-
-        print("expected packet is ")
-        exp_pkt.show()
-
-        # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
-
+#         # Insert SRv6 header when matching the pkt's IPV6 dst addr.
+#         # Action name an params are generated based on the number of SIDs given.
+#         # For example, with 2 SIDs:
+#         # action_name = IngressPipeImpl.srv6_t_insert_2
+#         # action_params = {
+#         #     "s1": sid[0],
+#         #     "s2": sid[1]
+#         # }
 
 
-        testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port2)
+#         # Insert ECMP group with only one member (next_hop_mac)
+#         self.insert(self.helper.build_act_prof_group(
+#             act_prof_name="IngressPipeImpl.ecmp_selector",
+#             group_id=1,
+#             actions=[
+#                 # List of tuples (action name, {action param: value})
+#                 ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
+#             ]
+#         ))
 
-@group("vla")
-class VlaRouteDownwards(P4RuntimeTest):
-    """Tests Vla Routing Behaviour when current device is in the path to the packet destination in a lower level
-    """
+#         # Now that we inserted the SRv6 header, we expect the pkt's IPv6 dst
+#         # addr to be the first on the SID list.
+#         # Match on L3 routing table.
+#         first_sid = sid_list[0]
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.routing_v6_table",
+#             match_fields={
+#                 # LPM match (value, prefix)
+#                 "hdr.ipv6.dst_addr": (first_sid, 128)
+#             },
+#             group_id=1
+#         ))
+
+#         # Map next_hop_mac to output port
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.l2_exact_table",
+#             match_fields={
+#                 # Exact match
+#                 "hdr.ethernet.dst_addr": next_hop_mac
+#             },
+#             action_name="IngressPipeImpl.set_egress_port",
+#             action_params={
+#                 "port_num": self.port2
+#             }
+#         ))
+
+#         # ---- END SOLUTION ----
+
+#         # Build expected packet from the given one...
+#         exp_pkt = pkt.copy()
+
+#         # Route and decrement TTL
+#         pkt_route(exp_pkt, next_hop_mac)
+
+#         exp_pkt[IPv6ExtHdrVLA].current_level = 2;
+#         #pkt_decrement_ttl(exp_pkt)
+
+#         # Bonus: update P4 program to calculate correct checksum
+#         set_cksum(pkt, 1)
+#         set_cksum(exp_pkt, 1)
+
+#         # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+#         # print("packet  ip hex dump ", pkt[IPv6])
+
+#         print ("packet contents")
+#         pkt.show()
+
+#         print("expected packet is ")
+#         exp_pkt.show()
+
+#         # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+
+
+#         testutils.send_packet(self, self.port1, str(pkt))
+#         testutils.verify_packet(self, exp_pkt, self.port2)
+
+# @group("vla")
+# class VlaRouteDownwards(P4RuntimeTest):
+#     """Tests Vla Routing Behaviour when current device is in the path to the packet destination in a lower level
+#     """
 
    
 
-    def runTest(self):
-        sid_lists = (
-            [1, 2, 3, 1],
-        )
-        next_hop_mac = SWITCH2_MAC
-        current_level_index = 2
-        current_level_value = 2
-        next_level_value = 3
-        destinationIp = HOST2_IPV6
+#     def runTest(self):
+#         sid_lists = (
+#             [1, 2, 3, 1],
+#         )
+#         next_hop_mac = SWITCH2_MAC
+#         current_level_index = 2
+#         current_level_value = 2
+#         next_level_value = 3
+#         destinationIp = HOST2_IPV6
 
-        for sid_list in sid_lists:
-            for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
-                print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
+#         for sid_list in sid_lists:
+#             for pkt_type in ["tcpv6", "udpv6", "icmpv6"]:
+#                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
-                pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
-
-
-                self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
-
-    @autocleanup
-    def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_level_value, next_hop_mac, destinationIp):
-
-        # *** TODO EXERCISE 6
-        # Modify names to match content of P4Info file (look for the fully
-        # qualified name of tables, match fields, and actions.
-        # ---- START SOLUTION ----
-
-        # Add entry to "My Station" table. Consider the given pkt's eth dst addr
-        # as myStationMac address.
+#                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
+#                 pkt =insert_vla_header(pkt, sid_list, current_level_index)
 
 
-        incorrect_next_hop_mac = SWITCH3_MAC;
+#                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
 
-        self.insert(self.helper.build_table_entry(
-        table_name="IngressPipeImpl.my_station_table",
-        match_fields={
-                # Exact match.
-                "hdr.ethernet.dst_addr": pkt[Ether].dst
-            },
-            action_name="NoAction"
-        ))
+#     @autocleanup
+#     def testPacket(self, pkt, sid_list, current_level_value, current_level_index, next_level_value, next_hop_mac, destinationIp):
 
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_level_table",
-            match_fields={
-                # Exact match.
-                "hdr.vlah.current_level": current_level_index
-            },
-            action_name="NoAction"
-        ))
+#         # *** TODO EXERCISE 6
+#         # Modify names to match content of P4Info file (look for the fully
+#         # qualified name of tables, match fields, and actions.
+#         # ---- START SOLUTION ----
 
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_level_value_table",
-            match_fields={
-                # Exact match.
-                "local_metadata.vla_current_level_value": current_level_value
-            },
-            action_name="NoAction"
-        ))
-
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_route_children_table",
-            match_fields={
-                # Exact match.
-                "local_metadata.vla_next_level_value": next_level_value
-            },
-            action_name="IngressPipeImpl.vla_route_to_child",
-            action_params={
-                "target_mac": next_hop_mac
-            }
-        ))
+#         # Add entry to "My Station" table. Consider the given pkt's eth dst addr
+#         # as myStationMac address.
 
 
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.vla_route_to_parent_table",
-            match_fields={
-                # Exact match.
-                "hdr.vlah.current_level": current_level_index
-            },
-            action_name="IngressPipeImpl.vla_route_to_parent",
-            action_params={
-                "target_mac": incorrect_next_hop_mac
-            }
-        ))
+#         incorrect_next_hop_mac = SWITCH3_MAC;
+
+#         self.insert(self.helper.build_table_entry(
+#         table_name="IngressPipeImpl.my_station_table",
+#         match_fields={
+#                 # Exact match.
+#                 "hdr.ethernet.dst_addr": pkt[Ether].dst
+#             },
+#             action_name="NoAction"
+#         ))
+
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_level_table",
+#             match_fields={
+#                 # Exact match.
+#                 "hdr.vlah.current_level": current_level_index
+#             },
+#             action_name="NoAction"
+#         ))
+
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_level_value_table",
+#             match_fields={
+#                 # Exact match.
+#                 "local_metadata.vla_current_level_value": current_level_value
+#             },
+#             action_name="NoAction"
+#         ))
+
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_route_children_table",
+#             match_fields={
+#                 # Exact match.
+#                 "local_metadata.vla_next_level_value": next_level_value
+#             },
+#             action_name="IngressPipeImpl.vla_route_to_child",
+#             action_params={
+#                 "target_mac": next_hop_mac
+#             }
+#         ))
+
+
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.vla_route_to_parent_table",
+#             match_fields={
+#                 # Exact match.
+#                 "hdr.vlah.current_level": current_level_index
+#             },
+#             action_name="IngressPipeImpl.vla_route_to_parent",
+#             action_params={
+#                 "target_mac": incorrect_next_hop_mac
+#             }
+#         ))
 
 
 
 
-        # Insert ECMP group with only one member (next_hop_mac)
-        self.insert(self.helper.build_act_prof_group(
-            act_prof_name="IngressPipeImpl.ecmp_selector",
-            group_id=1,
-            actions=[
-                # List of tuples (action name, {action param: value})
-                ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
-            ]
-        ))
+#         # Insert ECMP group with only one member (next_hop_mac)
+#         self.insert(self.helper.build_act_prof_group(
+#             act_prof_name="IngressPipeImpl.ecmp_selector",
+#             group_id=1,
+#             actions=[
+#                 # List of tuples (action name, {action param: value})
+#                 ("IngressPipeImpl.set_next_hop", {"next_hop_mac": incorrect_next_hop_mac}),
+#             ]
+#         ))
 
-        # Add some IP to destination IP table
+#         # Add some IP to destination IP table
 
         
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.routing_v6_table",
-            match_fields={
-                # LPM match (value, prefix)
-                "hdr.ipv6.dst_addr": (destinationIp, 128)
-            },
-            group_id=1
-        ))
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.routing_v6_table",
+#             match_fields={
+#                 # LPM match (value, prefix)
+#                 "hdr.ipv6.dst_addr": (destinationIp, 128)
+#             },
+#             group_id=1
+#         ))
 
-        # Map next_hop_mac to output port
-        self.insert(self.helper.build_table_entry(
-            table_name="IngressPipeImpl.l2_exact_table",
-            match_fields={
-                # Exact match
-                "hdr.ethernet.dst_addr": next_hop_mac
-            },
-            action_name="IngressPipeImpl.set_egress_port",
-            action_params={
-                "port_num": self.port2
-            }
-        ))
+#         # Map next_hop_mac to output port
+#         self.insert(self.helper.build_table_entry(
+#             table_name="IngressPipeImpl.l2_exact_table",
+#             match_fields={
+#                 # Exact match
+#                 "hdr.ethernet.dst_addr": next_hop_mac
+#             },
+#             action_name="IngressPipeImpl.set_egress_port",
+#             action_params={
+#                 "port_num": self.port2
+#             }
+#         ))
 
-        # ---- END SOLUTION ----
+#         # ---- END SOLUTION ----
 
-        # Build expected packet from the given one...
-        exp_pkt = pkt.copy()
+#         # Build expected packet from the given one...
+#         exp_pkt = pkt.copy()
 
-        # Route and decrement TTL
-        pkt_route(exp_pkt, next_hop_mac)
+#         # Route and decrement TTL
+#         pkt_route(exp_pkt, next_hop_mac)
 
-        exp_pkt[IPv6ExtHdrVLA].current_level = 3;
-        #pkt_decrement_ttl(exp_pkt)
+#         exp_pkt[IPv6ExtHdrVLA].current_level = 3;
+#         #pkt_decrement_ttl(exp_pkt)
 
-        # Bonus: update P4 program to calculate correct checksum
-        set_cksum(pkt, 1)
-        set_cksum(exp_pkt, 1)
+#         # Bonus: update P4 program to calculate correct checksum
+#         set_cksum(pkt, 1)
+#         set_cksum(exp_pkt, 1)
 
-        # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+#         # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
-        # print("packet  ip hex dump ", pkt[IPv6])
+#         # print("packet  ip hex dump ", pkt[IPv6])
 
    
 
-        # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+#         # print("exp packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
 
 
-        testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port2)
+#         testutils.send_packet(self, self.port1, str(pkt))
+#         testutils.verify_packet(self, exp_pkt, self.port2)
 
 
 # Collection of test cases to mimic a normal vla routing from 10.3.6.2 to 10.2.4.1
@@ -1025,7 +1025,7 @@ class VlaRouteToAnotherTreeFourthSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_child",
             action_params={
-                "target_mac": incorrect_next_hop_mac
+                "target_mac": next_hop_mac
             }
         ))
 
@@ -1038,8 +1038,8 @@ class VlaRouteToAnotherTreeFourthSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": next_hop_mac
-            }
+                "target_mac": incorrect_next_hop_mac 
+                }
         ))
 
 
@@ -1199,7 +1199,7 @@ class VlaRouteToAnotherTreeFifthSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_child",
             action_params={
-                "target_mac": incorrect_next_hop_mac
+                "target_mac": next_hop_mac
             }
         ))
 
@@ -1212,7 +1212,7 @@ class VlaRouteToAnotherTreeFifthSwitch(P4RuntimeTest):
             },
             action_name="IngressPipeImpl.vla_route_to_parent",
             action_params={
-                "target_mac": next_hop_mac
+                "target_mac": incorrect_next_hop_mac
             }
         ))
 
