@@ -227,8 +227,7 @@ struct local_metadata_t {
     l4_port_t   l4_src_port;
     l4_port_t   l4_dst_port;
     bool        is_multicast;
-    bool contains_vla;
-    bool route_upwards;
+    bool is_current_vla_marked;
     bit<16> vla_previous_level_value;
     bit<16> vla_current_level_value;
     bit<16> vla_next_level_value;
@@ -236,7 +235,6 @@ struct local_metadata_t {
     ipv6_addr_t next_srv6_sid;
     bit<8>      ip_proto;
     bit<8>      icmp_type;
-    bit<8> shift_count;
 }
 
 
@@ -337,7 +335,7 @@ parser ParserImpl (packet_in packet,
     state mark_current_vla{
         local_metadata.vla_current_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
-        local_metadata.contains_vla = true;
+        local_metadata.s_current_vla_marked = true;
         transition select(last_segment){
             true: parse_vla_next_hdr;
             default :vla_extract_next_hdr;
@@ -859,7 +857,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         bool do_l3_l2 = true;
 
         if (hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS) {
-            // *** TODO EXERCISE 5
+           
             // Insert logic to handle NDP messages to resolve the MAC address of the
             // switch. You should apply the NDP reply table created before.
             // If this is an NDP NS packet, i.e., if a matching entry is found,
@@ -882,12 +880,9 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
 
                 if(hdr.vlah.isValid()){
                     bit<8> shift_count = (bit<8>)((VLA_MAX_LEVELS- (bit<8>)(hdr.vlah.current_level)) *16);
-                    local_metadata.shift_count = shift_count;
                     local_metadata.parser_local_metadata.destination_address_key = 
                     local_metadata.parser_local_metadata.destination_address_key << shift_count;
-                    // shift_count = (bit<8>)((VLA_MAX_LEVELS - hdr.vlah.current_level) -  (VLA_MAX_LEVELS  - hdr.vlah.current_level - 2));
-                    // local_metadata.parser_local_metadata.destination_address_key = 
-                    // local_metadata.parser_local_metadata.destination_address_key << shift_count;
+                    
                    
                      //add condition to drop if packet current level and level of switch does not match.
                     if(vla_level_table.apply().hit){
@@ -928,11 +923,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                
             }
 
-            // *** TODO EXERCISE 6
-            // Insert logic to match the SRv6 My SID and Transit tables as well
-            // as logic to perform PSP behavior. HINT: This logic belongs
-            // somewhere between checking the switch's my station table and
-            // applying the routing table.
+
 
             // L2 bridging logic. Apply the exact table first...
             if (!l2_exact_table.apply().hit) {
