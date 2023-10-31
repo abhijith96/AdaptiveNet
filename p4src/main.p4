@@ -38,7 +38,7 @@
 
 // #define VLA_MAX_LEVELS 10
 
-const bit<8> VLA_MAX_LEVELS 10;
+const bit<8> VLA_MAX_LEVELS = 10;
 
 typedef bit<9>   port_num_t;
 typedef bit<48>  mac_addr_t;
