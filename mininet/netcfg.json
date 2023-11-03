@@ -12,7 +12,8 @@
       "fabricDeviceConfig": {
         "myStationMac": "00:aa:00:00:00:01",
         "mySid": "3:101:2::",
-        "isSpine": false
+        "isSpine": false,
+        "isRoot": false
       }
     },
     "device:leaf2": {
@@ -27,7 +28,8 @@
       "fabricDeviceConfig": {
         "myStationMac": "00:aa:00:00:00:02",
         "mySid": "3:102:2::",
-        "isSpine": false
+        "isSpine": false,
+        "isRoot": false
       }
     },
     "device:spine1": {
@@ -58,7 +60,8 @@
       "fabricDeviceConfig": {
         "myStationMac": "00:bb:00:00:00:02",
         "mySid": "3:202:2::",
-        "isSpine": true
+        "isSpine": true,
+        "isRoot": false
       }
     }
   },
