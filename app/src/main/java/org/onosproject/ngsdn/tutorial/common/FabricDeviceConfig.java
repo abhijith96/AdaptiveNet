@@ -31,6 +31,8 @@ public class FabricDeviceConfig extends Config<DeviceId> {
     private static final String MY_SID = "mySid";
     private static final String IS_SPINE = "isSpine";
 
+    private static final String IS_ROOT = "isRoot";
+
     @Override
     public boolean isValid() {
         return hasOnlyFields(MY_STATION_MAC, MY_SID, IS_SPINE) &&
@@ -67,5 +69,10 @@ public class FabricDeviceConfig extends Config<DeviceId> {
     public boolean isSpine() {
         String isSpine = get(IS_SPINE, null);
         return isSpine != null && Boolean.valueOf(isSpine);
+    }
+
+    public boolean isRoot(){
+        String isRoot = get(IS_ROOT, null);
+        return isRoot != null && Boolean.valueOf(isRoot);
     }
 }

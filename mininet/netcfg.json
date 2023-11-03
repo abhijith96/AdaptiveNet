@@ -42,7 +42,8 @@
       "fabricDeviceConfig": {
         "myStationMac": "00:bb:00:00:00:01",
         "mySid": "3:201:2::",
-        "isSpine": true
+        "isSpine": true,
+        "isRoot": true
       }
     },
     "device:spine2": {

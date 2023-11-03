@@ -1,4 +1,12 @@
 package org.onosproject.ngsdn.tutorial;
+import org.apache.commons.lang3.tuple.Pair;
+import org.onosproject.net.Link;
+import org.onosproject.net.link.LinkService;
+import org.onosproject.store.service.ConsistentMap;
+import org.onosproject.store.service.AtomicValue;
+import org.onosproject.net.ConnectPoint;
+
+import org.onosproject.store.service.Serializer;
 
 /*
  * Copyright 2019-present Open Networking Foundation
@@ -48,8 +56,7 @@ import org.onosproject.ngsdn.tutorial.common.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.google.common.collect.Streams.stream;
 import static org.onosproject.ngsdn.tutorial.AppConstants.INITIAL_SETUP_DELAY;
@@ -65,6 +72,25 @@ import static org.onosproject.ngsdn.tutorial.AppConstants.INITIAL_SETUP_DELAY;
         service = VlaComponent.class
 )
 public class VlaComponent {
+
+    class DeviceLevelPair{
+
+        DeviceId deviceId;
+        Integer level;
+
+       public DeviceLevelPair(DeviceId deviceId, Integer level){
+            this.deviceId = deviceId;
+            this.level = level;
+        }
+
+        public DeviceId getDeviceId() {
+            return deviceId;
+        }
+
+        public Integer GetLevel(){
+           return level;
+        }
+    }
 
     private static final Logger log = LoggerFactory.getLogger(VlaComponent.class);
 
@@ -84,6 +110,10 @@ public class VlaComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private DeviceService deviceService;
 
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private LinkService linkService;
+
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private NetworkConfigService networkConfigService;
 
@@ -93,6 +123,21 @@ public class VlaComponent {
     private final DeviceListener deviceListener = new VlaComponent.InternalDeviceListener();
 
     private ApplicationId appId;
+
+    private ConsistentMap<DeviceId, Integer>  deviceLevelMap;
+
+    private ConsistentMap<DeviceId, Integer>  deviceIdMap;
+    private ConsistentMap<DeviceId, ArrayList<DeviceId>>  parentMap;
+
+    private ConsistentMap<DeviceId, ArrayList<DeviceId>>  childrenMap;
+
+
+
+    private AtomicValue<DeviceId> rootDeviceId;
+
+
+
+
 
     //--------------------------------------------------------------------------
     // COMPONENT ACTIVATION.
@@ -117,7 +162,7 @@ public class VlaComponent {
     @Deactivate
     protected void deactivate() {
         deviceService.removeListener(deviceListener);
-
+        deviceLevelMap.clear();
         log.info("Stopped");
     }
 
@@ -131,19 +176,80 @@ public class VlaComponent {
      * Populate the My SID table from the network configuration for the
      * specified device.
      *
-     * @param deviceId the device Id
+//     * @param  DeviceId device Id
+     *
      */
+    private void DoDfsFromRoot(DeviceId rootDeviceId){
+        HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
+        Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
+       deviceIdQueue.add(new DeviceLevelPair(rootDeviceId, 1));
+
+        while(!deviceIdQueue.isEmpty()){
+            DeviceId currentDevice = deviceIdQueue.peek().getDeviceId();
+            Integer currentLevel = deviceIdQueue.peek().GetLevel();
+            visitedDeviceLevelMap.put(currentDevice, currentLevel);
+            deviceLevelMap.put(currentDevice, currentLevel);
+            deviceIdQueue.remove();
+            Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
+            for (Link link : deviceLinks) {
+                if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
+                    if(link.src().deviceId() == currentDevice){
+                        DeviceId dst = link.dst().deviceId();
+                        if(!visitedDeviceLevelMap.containsKey(dst)){
+                            deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
+                            if(childrenMap.containsKey(currentDevice)){
+                                childrenMap.get(currentDevice).value().add(dst);
+                            }
+                            else{
+                                childrenMap.put(currentDevice, new ArrayList<>());
+                                childrenMap.get(currentDevice).value().add(dst);
+                            }
+                            parentMap.put(dst, new ArrayList<>());
+                            parentMap.get(dst).value().add(currentDevice);
+                        }
+                        else{
+                            DeviceId previousParent = parentMap.get(dst).value().get(0);
+                            if(Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
+                                parentMap.get(dst).value().add(currentDevice);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
     private void setUpMySidTable(DeviceId deviceId) {
 
         Ip6Address mySid = getMySid(deviceId);
 
-        log.info("Adding mySid rule on {} (sid {})...", deviceId, mySid);
+        log.info("Adding current Level rule on {} (sid {})...", deviceId, mySid);
 
         // *** TODO EXERCISE 6
         // Fill in the table ID for the SRv6 my segment identifier table
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_level_table";
-        int tempLevel = 1;
+        if(IsRootDevice(deviceId)) {
+           if(!deviceLevelMap.containsKey(deviceId)){
+               rootDeviceId.set(deviceId);
+               DoDfsFromRoot(deviceId);
+           }
+        }
+        else {
+
+            if (!deviceLevelMap.containsKey(deviceId)) {
+                rootDeviceId.set(deviceId);
+                DoDfsFromRoot(rootDeviceId.get());
+            }
+        }
+
+        int tempLevel = deviceLevelMap.get(deviceId).value();
+
+
+
+
+
         // ---- END SOLUTION ----
 
         // *** TODO EXERCISE 6
@@ -318,6 +424,13 @@ public class VlaComponent {
     private Ip6Address getMySid(DeviceId deviceId) {
         return getDeviceConfig(deviceId)
                 .map(FabricDeviceConfig::mySid)
+                .orElseThrow(() -> new RuntimeException(
+                        "Missing mySid config for " + deviceId));
+    }
+
+    private boolean IsRootDevice(DeviceId deviceId){
+        return getDeviceConfig(deviceId)
+                .map(FabricDeviceConfig::isRoot)
                 .orElseThrow(() -> new RuntimeException(
                         "Missing mySid config for " + deviceId));
     }
