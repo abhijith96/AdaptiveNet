@@ -202,6 +202,7 @@ public class VlaComponent {
             return false;
         }
         if(deviceLevelMap.containsKey(source)){
+            log.info("Update based on link VLA source part of level tree, linkSrc={}, linkDst={}", source, destination);
             deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
             if(!childrenMap.containsKey(source)){
                 childrenMap.put(source, new ArrayList<>());
@@ -214,7 +215,34 @@ public class VlaComponent {
             DoBfs(destination, deviceLevelMap.get(source) + 1);
             return true;
         }
+        else if(deviceLevelMap.containsKey(destination)){
+            log.info("Update based on link VLA destination part of level tree, linkSrc={}, linkDst={}", source, destination);
+                DeviceId temp = source;
+                source = destination;
+                destination = temp;
+                deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
+                if(!childrenMap.containsKey(source)){
+                    childrenMap.put(source, new ArrayList<>());
+                }
+                childrenMap.get(source).add(destination);
+                if(!parentMap.containsKey(destination)){
+                    parentMap.put(destination, new ArrayList<>());
+                }
+                parentMap.get(destination).add(source);
+                DoBfs(destination, deviceLevelMap.get(source) + 1);
+                return true;
+        }
         return false;
+    }
+
+    private void UpdateDevice(DeviceId deviceId){
+        if(IsRootDevice(deviceId)){
+            log.info("Adding Level rule on root device {} )...", deviceId);
+            rootDeviceId = Optional.of(deviceId);
+            setUpMySidTable(deviceId, 1);
+            deviceIdMap.put(deviceId, 1);
+            DoBfsFromRoot(deviceId);
+        }
     }
 
     private void DoBfs(DeviceId deviceId, int level){
@@ -227,14 +255,14 @@ public class VlaComponent {
             Integer currentLevel = deviceIdQueue.peek().GetLevel();
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
-            setUpMySidTable(deviceId);
+            setUpMySidTable(deviceId, currentLevel);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
                 if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
                     if(link.src().deviceId() == currentDevice){
                         DeviceId dst = link.dst().deviceId();
-                        if(!visitedDeviceLevelMap.containsKey(dst)){
+                        if(!visitedDeviceLevelMap.containsKey(dst) && deviceLevelMap.containsKey(dst)){
                             deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
                             if(childrenMap.containsKey(currentDevice)){
                                 childrenMap.get(currentDevice).add(dst);
@@ -258,7 +286,7 @@ public class VlaComponent {
         }
 
     }
-    private void DoDfsFromRoot(DeviceId rootDeviceId){
+    private void DoBfsFromRoot(DeviceId rootDeviceId){
         HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
         Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
        deviceIdQueue.add(new DeviceLevelPair(rootDeviceId, 1));
@@ -268,6 +296,7 @@ public class VlaComponent {
             Integer currentLevel = deviceIdQueue.peek().GetLevel();
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
+            setUpMySidTable(currentDevice, currentLevel);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -299,7 +328,7 @@ public class VlaComponent {
 
     }
 
-    private void setUpMySidTable(DeviceId deviceId) {
+    private void setUpMySidTable(DeviceId deviceId, int level) {
 
 
 
@@ -310,28 +339,6 @@ public class VlaComponent {
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_level_table";
 
-        int tempLevel = 10;
-        if(IsRootDevice(deviceId)) {
-            log.info("Found Vla root Device {}", deviceId);
-           if(!deviceLevelMap.containsKey(deviceId)){
-               rootDeviceId = Optional.of(deviceId);
-               DoDfsFromRoot(deviceId);
-           }
-           tempLevel = deviceLevelMap.get(deviceId);
-        }
-        else {
-            if(rootDeviceId.isPresent()){
-                log.info("Adding current Level rule on non root {} cool root is persisting", deviceId);
-              if(deviceLevelMap.containsKey(deviceId)){
-                  tempLevel = deviceLevelMap.get(deviceId);
-              }
-            }
-        }
-
-
-
-
-
 
         // ---- END SOLUTION ----
 
@@ -341,7 +348,7 @@ public class VlaComponent {
         PiCriterion match = PiCriterion.builder()
                 .matchExact(
                         PiMatchFieldId.of("hdr.vlah.current_level"),
-                        tempLevel)
+                        level)
                 .build();
 
         PiTableAction action = PiAction.builder()
@@ -461,7 +468,7 @@ public class VlaComponent {
                 mainComponent.getExecutorService().execute(() -> {
                     log.info("{} event! deviceId={}", event.type(), deviceId);
 
-                    setUpMySidTable(event.subject().id());
+                    UpdateDevice(event.subject().id());
                 });
             }
         }
@@ -518,7 +525,7 @@ public class VlaComponent {
                 .filter(mastershipService::isLocalMaster)
                 .forEach(deviceId -> {
                     log.info("*** SRV6 - Starting initial set up for {}...", deviceId);
-                    this.setUpMySidTable(deviceId);
+                    this.UpdateDevice(deviceId);
                 });
     }
 
