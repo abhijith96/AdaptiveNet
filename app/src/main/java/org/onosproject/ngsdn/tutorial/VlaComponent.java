@@ -230,22 +230,22 @@ public class VlaComponent {
         // Fill in the table ID for the SRv6 my segment identifier table
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_level_table";
+
+        int tempLevel = 10;
         if(IsRootDevice(deviceId)) {
             log.info("Found Vla root Device {}", deviceId);
            if(!deviceLevelMap.containsKey(deviceId)){
                rootDeviceId.set(deviceId);
                DoDfsFromRoot(deviceId);
            }
+           tempLevel = deviceLevelMap.get(deviceId).value();
         }
         else {
 
-            if (!deviceLevelMap.containsKey(deviceId)) {
-                rootDeviceId.set(deviceId);
-                DoDfsFromRoot(rootDeviceId.get());
-            }
+            //DoDfsFromRoot(rootDeviceId.get());
+
         }
 
-        int tempLevel = deviceLevelMap.get(deviceId).value();
 
 
 
