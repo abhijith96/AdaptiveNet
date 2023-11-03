@@ -1,14 +1,15 @@
 package org.onosproject.ngsdn.tutorial;
 import com.sun.source.tree.Tree;
 import org.apache.commons.lang3.tuple.Pair;
-import org.onosproject.net.Link;
+import org.onlab.packet.MacAddress;
+import org.onlab.util.ItemNotFoundException;
+import org.onosproject.net.*;
 import org.onosproject.net.link.LinkEvent;
 import org.onosproject.net.link.LinkListener;
 import org.onosproject.net.link.LinkService;
 import org.onosproject.store.primitives.DefaultConsistentMap;
 import org.onosproject.store.primitives.DefaultConsistentTreeMap;
 import org.onosproject.store.service.AsyncAtomicValue;
-import org.onosproject.net.ConnectPoint;
 
 /*
  * Copyright 2019-present Open Networking Foundation
@@ -31,8 +32,6 @@ import com.google.common.collect.Lists;
 import org.onlab.packet.Ip6Address;
 import org.onosproject.core.ApplicationId;
 import org.onosproject.mastership.MastershipService;
-import org.onosproject.net.Device;
-import org.onosproject.net.DeviceId;
 import org.onosproject.net.config.NetworkConfigService;
 import org.onosproject.net.device.DeviceEvent;
 import org.onosproject.net.device.DeviceListener;
@@ -239,7 +238,7 @@ public class VlaComponent {
         if(IsRootDevice(deviceId)){
             log.info("Adding Level rule on root device {} )...", deviceId);
             rootDeviceId = Optional.of(deviceId);
-            setUpMySidTable(deviceId, 1);
+            setUpCurrentLevelTable(deviceId, 1);
             deviceIdMap.put(deviceId, 1);
             DoBfsFromRoot(deviceId);
         }
@@ -255,7 +254,7 @@ public class VlaComponent {
             Integer currentLevel = deviceIdQueue.peek().GetLevel();
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
-            setUpMySidTable(deviceId, currentLevel);
+            setUpCurrentLevelTable(deviceId, currentLevel);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -271,8 +270,10 @@ public class VlaComponent {
                                 childrenMap.put(currentDevice, new ArrayList<>());
                                 childrenMap.get(currentDevice).add(dst);
                             }
+                            setUpChildTable(currentDevice, dst);
                             parentMap.put(dst, new ArrayList<>());
                             parentMap.get(dst).add(currentDevice);
+                            setUpParentTable(currentDevice, dst, currentLevel + 1);
                         }
                         else{
                             DeviceId previousParent = parentMap.get(dst).get(0);
@@ -296,7 +297,7 @@ public class VlaComponent {
             Integer currentLevel = deviceIdQueue.peek().GetLevel();
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
-            setUpMySidTable(currentDevice, currentLevel);
+            setUpCurrentLevelTable(currentDevice, currentLevel);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -306,18 +307,21 @@ public class VlaComponent {
                         if(!visitedDeviceLevelMap.containsKey(dst)){
                             deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
                             if(childrenMap.containsKey(currentDevice)){
-                                childrenMap.get(currentDevice).add(dst);
+                                if(!childrenMap.get(currentDevice).contains(dst))
+                                    childrenMap.get(currentDevice).add(dst);
                             }
                             else{
                                 childrenMap.put(currentDevice, new ArrayList<>());
                                 childrenMap.get(currentDevice).add(dst);
                             }
+                            setUpChildTable(currentDevice, dst);
                             parentMap.put(dst, new ArrayList<>());
                             parentMap.get(dst).add(currentDevice);
+                            setUpParentTable(currentDevice, dst, currentLevel + 1);
                         }
                         else{
                             DeviceId previousParent = parentMap.get(dst).get(0);
-                            if(Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
+                            if(Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel) && !parentMap.get(dst).contains(currentDevice)){
                                 parentMap.get(dst).add(currentDevice);
                             }
                         }
@@ -328,7 +332,7 @@ public class VlaComponent {
 
     }
 
-    private void setUpMySidTable(DeviceId deviceId, int level) {
+    private void setUpCurrentLevelTable(DeviceId deviceId, int level) {
 
 
 
@@ -361,6 +365,77 @@ public class VlaComponent {
 
         flowRuleService.applyFlowRules(myLevelRule);
 
+
+    }
+
+    private void setUpChildTable(DeviceId parent, DeviceId child) {
+
+
+        log.info("Adding child table rule on device {} for child {} )...", parent, child);
+
+
+        // Fill in the table ID for the VLA  route_to_child table
+        // ---- START SOLUTION ----
+        String tableId = "IngressPipeImpl.vla_route_children_table";
+
+        int childUniqueId = childrenMap.get(parent).indexOf(child);
+
+
+        // Modify the field and action id to match your P4Info
+        // ---- START SOLUTION ----
+        PiCriterion match = PiCriterion.builder()
+                .matchExact(
+                        PiMatchFieldId.of("local_metadata.vla_next_level_value"),childUniqueId
+                        )
+                .build();
+
+        PiTableAction action = PiAction.builder()
+                .withId(PiActionId.of("IngressPipeImpl.vla_route_to_child")).withParameter(
+                        new PiActionParam(
+                                PiActionParamId.of("target_mac"), getMyStationMac(child).toBytes()
+                        )
+                )
+                .build();
+
+
+        FlowRule routeToChildRule = Utils.buildFlowRule(
+                parent, appId, tableId, match, action);
+
+        flowRuleService.applyFlowRules(routeToChildRule);
+
+    }
+
+    private void setUpParentTable(DeviceId parent, DeviceId child, int childLevel) {
+
+
+        log.info("Adding child table rule on device {} for child {} )...", parent, child);
+
+
+        // Fill in the table ID for the VLA  route_to_child table
+        // ---- START SOLUTION ----
+        String tableId = "IngressPipeImpl.vla_route_to_parent_table";
+
+        // Modify the field and action id to match your P4Info
+        // ---- START SOLUTION ----
+        PiCriterion match = PiCriterion.builder()
+                .matchExact(
+                        PiMatchFieldId.of("hdr.vlah.current_level"),childLevel
+                )
+                .build();
+
+        PiTableAction action = PiAction.builder()
+                .withId(PiActionId.of("IngressPipeImpl.vla_route_to_parent")).withParameter(
+                        new PiActionParam(
+                                PiActionParamId.of("target_mac"), getMyStationMac(parent).toBytes()
+                        )
+                )
+                .build();
+
+
+        FlowRule routeToChildRule = Utils.buildFlowRule(
+                parent, appId, tableId, match, action);
+
+        flowRuleService.applyFlowRules(routeToChildRule);
 
     }
 
@@ -500,6 +575,7 @@ public class VlaComponent {
         public void event(LinkEvent event) {
             DeviceId srcDev = event.subject().src().deviceId();
             DeviceId dstDev = event.subject().dst().deviceId();
+            Link link = event.subject();
 
             if (mastershipService.isLocalMaster(srcDev) && mastershipService.isLocalMaster(dstDev)) {
                 mainComponent.getExecutorService().execute(() -> {
@@ -553,6 +629,13 @@ public class VlaComponent {
                 .map(FabricDeviceConfig::mySid)
                 .orElseThrow(() -> new RuntimeException(
                         "Missing mySid config for " + deviceId));
+    }
+
+    private MacAddress getMyStationMac(DeviceId deviceId) {
+        return getDeviceConfig(deviceId)
+                .map(FabricDeviceConfig::myStationMac)
+                .orElseThrow(() -> new ItemNotFoundException(
+                        "Missing myStationMac config for " + deviceId));
     }
 
     private boolean IsRootDevice(DeviceId deviceId){
