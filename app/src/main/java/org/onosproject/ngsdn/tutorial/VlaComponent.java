@@ -244,7 +244,10 @@ public class VlaComponent {
         }
         else {
             if(rootDeviceId.isPresent()){
-                log.info("VLa Tree Map is Persistent", deviceId);
+                log.info("Adding current Level rule on non root {} cool root is persisting", deviceId);
+              if(deviceLevelMap.containsKey(deviceId)){
+                  tempLevel = deviceLevelMap.get(deviceId);
+              }
             }
         }
 
