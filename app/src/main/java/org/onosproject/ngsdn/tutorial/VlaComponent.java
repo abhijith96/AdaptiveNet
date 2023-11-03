@@ -1,12 +1,12 @@
 package org.onosproject.ngsdn.tutorial;
+import com.sun.source.tree.Tree;
 import org.apache.commons.lang3.tuple.Pair;
 import org.onosproject.net.Link;
 import org.onosproject.net.link.LinkService;
-import org.onosproject.store.service.ConsistentMap;
-import org.onosproject.store.service.AtomicValue;
+import org.onosproject.store.primitives.DefaultConsistentMap;
+import org.onosproject.store.primitives.DefaultConsistentTreeMap;
+import org.onosproject.store.service.AsyncAtomicValue;
 import org.onosproject.net.ConnectPoint;
-
-import org.onosproject.store.service.Serializer;
 
 /*
  * Copyright 2019-present Open Networking Foundation
@@ -60,6 +60,8 @@ import java.util.*;
 
 import static com.google.common.collect.Streams.stream;
 import static org.onosproject.ngsdn.tutorial.AppConstants.INITIAL_SETUP_DELAY;
+
+
 
 /**
  * Application which handles VLA (Variable length addressing and level based routing)
@@ -124,16 +126,16 @@ public class VlaComponent {
 
     private ApplicationId appId;
 
-    private ConsistentMap<DeviceId, Integer>  deviceLevelMap;
+    private HashMap<DeviceId, Integer> deviceLevelMap = new HashMap<>();
 
-    private ConsistentMap<DeviceId, Integer>  deviceIdMap;
-    private ConsistentMap<DeviceId, ArrayList<DeviceId>>  parentMap;
+    private   HashMap<DeviceId, Integer>  deviceIdMap =  new HashMap<>();
+    private  HashMap<DeviceId, ArrayList<DeviceId>>  parentMap = new HashMap<>();
 
-    private ConsistentMap<DeviceId, ArrayList<DeviceId>>  childrenMap;
+    private  HashMap<DeviceId, ArrayList<DeviceId>>  childrenMap = new HashMap<>();
 
 
 
-    private AtomicValue<DeviceId> rootDeviceId;
+    private Optional<DeviceId> rootDeviceId  = Optional.empty();
 
 
 
@@ -198,19 +200,19 @@ public class VlaComponent {
                         if(!visitedDeviceLevelMap.containsKey(dst)){
                             deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
                             if(childrenMap.containsKey(currentDevice)){
-                                childrenMap.get(currentDevice).value().add(dst);
+                                childrenMap.get(currentDevice).add(dst);
                             }
                             else{
                                 childrenMap.put(currentDevice, new ArrayList<>());
-                                childrenMap.get(currentDevice).value().add(dst);
+                                childrenMap.get(currentDevice).add(dst);
                             }
                             parentMap.put(dst, new ArrayList<>());
-                            parentMap.get(dst).value().add(currentDevice);
+                            parentMap.get(dst).add(currentDevice);
                         }
                         else{
-                            DeviceId previousParent = parentMap.get(dst).value().get(0);
+                            DeviceId previousParent = parentMap.get(dst).get(0);
                             if(Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
-                                parentMap.get(dst).value().add(currentDevice);
+                                parentMap.get(dst).add(currentDevice);
                             }
                         }
                     }
@@ -235,15 +237,15 @@ public class VlaComponent {
         if(IsRootDevice(deviceId)) {
             log.info("Found Vla root Device {}", deviceId);
            if(!deviceLevelMap.containsKey(deviceId)){
-               rootDeviceId.set(deviceId);
+               rootDeviceId = Optional.of(deviceId);
                DoDfsFromRoot(deviceId);
            }
-           tempLevel = deviceLevelMap.get(deviceId).value();
+           tempLevel = deviceLevelMap.get(deviceId);
         }
         else {
-
-            //DoDfsFromRoot(rootDeviceId.get());
-
+            if(rootDeviceId.isPresent()){
+                log.info("VLa Tree Map is Persistent", deviceId);
+            }
         }
 
 
