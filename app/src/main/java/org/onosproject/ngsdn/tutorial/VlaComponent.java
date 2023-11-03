@@ -127,6 +127,8 @@ public class VlaComponent {
 
     private final DeviceListener deviceListener = new VlaComponent.InternalDeviceListener();
 
+    private final LinkListener linkListener = new VlaComponent.InternalLinkListener();
+
 
 
     private ApplicationId appId;
@@ -160,6 +162,8 @@ public class VlaComponent {
         // Register listeners to be informed about device and host events.
         deviceService.addListener(deviceListener);
 
+        linkService.addListener(linkListener);
+
         // Schedule set up for all devices.
         mainComponent.scheduleTask(this::setUpAllDevices, INITIAL_SETUP_DELAY);
 
@@ -169,7 +173,10 @@ public class VlaComponent {
     @Deactivate
     protected void deactivate() {
         deviceService.removeListener(deviceListener);
+        linkService.removeListener(linkListener);
         deviceLevelMap.clear();
+        parentMap.clear();
+        childrenMap.clear();
         log.info("Stopped");
     }
 
