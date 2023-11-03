@@ -262,7 +262,7 @@ public class VlaComponent {
                 if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
                     if(link.src().deviceId() == currentDevice){
                         DeviceId dst = link.dst().deviceId();
-                        if(!visitedDeviceLevelMap.containsKey(dst) && deviceLevelMap.containsKey(dst)){
+                        if(!visitedDeviceLevelMap.containsKey(dst) && !deviceLevelMap.containsKey(dst)){
                             deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
                             if(childrenMap.containsKey(currentDevice)){
                                 childrenMap.get(currentDevice).add(dst);
@@ -360,6 +360,8 @@ public class VlaComponent {
                 deviceId, appId, tableId, match, action);
 
         flowRuleService.applyFlowRules(myLevelRule);
+
+
     }
 
     /**
@@ -524,7 +526,7 @@ public class VlaComponent {
                 .map(Device::id)
                 .filter(mastershipService::isLocalMaster)
                 .forEach(deviceId -> {
-                    log.info("*** SRV6 - Starting initial set up for {}...", deviceId);
+                    log.info("*** Vla - Starting initial set up for {}...", deviceId);
                     this.UpdateDevice(deviceId);
                 });
     }
