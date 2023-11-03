@@ -211,6 +211,8 @@ public class VlaComponent {
                 parentMap.put(destination, new ArrayList<>());
             }
             parentMap.get(destination).add(source);
+            setUpChildTable(source, destination);
+            setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
             DoBfs(destination, deviceLevelMap.get(source) + 1);
             return true;
         }
@@ -228,6 +230,8 @@ public class VlaComponent {
                     parentMap.put(destination, new ArrayList<>());
                 }
                 parentMap.get(destination).add(source);
+                setUpChildTable(source, destination);
+                setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
                 DoBfs(destination, deviceLevelMap.get(source) + 1);
                 return true;
         }
