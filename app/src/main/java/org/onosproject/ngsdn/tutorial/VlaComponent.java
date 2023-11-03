@@ -436,10 +436,10 @@ public class VlaComponent {
                 .build();
 
 
-        FlowRule routeToChildRule = Utils.buildFlowRule(
-                parent, appId, tableId, match, action);
+        FlowRule routeToParentRule = Utils.buildFlowRule(
+                child, appId, tableId, match, action);
 
-        flowRuleService.applyFlowRules(routeToChildRule);
+        flowRuleService.applyFlowRules(routeToParentRule);
 
     }
 
