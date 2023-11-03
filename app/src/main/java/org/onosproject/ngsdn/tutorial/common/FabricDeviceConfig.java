@@ -35,7 +35,7 @@ public class FabricDeviceConfig extends Config<DeviceId> {
 
     @Override
     public boolean isValid() {
-        return hasOnlyFields(MY_STATION_MAC, MY_SID, IS_SPINE) &&
+        return hasOnlyFields(MY_STATION_MAC, MY_SID, IS_SPINE, IS_ROOT) &&
                 myStationMac() != null &&
                 mySid() != null;
     }
