@@ -224,13 +224,14 @@ public class VlaComponent {
 
         Ip6Address mySid = getMySid(deviceId);
 
-        log.info("Adding current Level rule on {} (sid {})...", deviceId, mySid);
+        log.info("Adding current Level rule on {} (vla {})...", deviceId, mySid);
 
         // *** TODO EXERCISE 6
         // Fill in the table ID for the SRv6 my segment identifier table
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_level_table";
         if(IsRootDevice(deviceId)) {
+            log.info("Found Vla root Device {}", deviceId);
            if(!deviceLevelMap.containsKey(deviceId)){
                rootDeviceId.set(deviceId);
                DoDfsFromRoot(deviceId);
@@ -430,9 +431,9 @@ public class VlaComponent {
 
     private boolean IsRootDevice(DeviceId deviceId){
 
-       return getDeviceConfig(deviceId)
-                .map(FabricDeviceConfig::mySid)
+        return getDeviceConfig(deviceId)
+                .map(FabricDeviceConfig::isRoot)
                 .orElseThrow(() -> new RuntimeException(
-                        "Missing mySid config for " + deviceId)).equals(Ip6Address.valueOf(("3:201:2::")));
+                        "Missing mySid config for " + deviceId));
     }
 }
