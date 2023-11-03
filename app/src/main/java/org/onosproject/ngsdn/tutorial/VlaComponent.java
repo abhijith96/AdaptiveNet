@@ -429,9 +429,10 @@ public class VlaComponent {
     }
 
     private boolean IsRootDevice(DeviceId deviceId){
-        return getDeviceConfig(deviceId)
-                .map(FabricDeviceConfig::isRoot)
+
+       return getDeviceConfig(deviceId)
+                .map(FabricDeviceConfig::mySid)
                 .orElseThrow(() -> new RuntimeException(
-                        "Missing mySid config for " + deviceId));
+                        "Missing mySid config for " + deviceId)).equals(Ip6Address.valueOf(("3:201:2::")));
     }
 }
