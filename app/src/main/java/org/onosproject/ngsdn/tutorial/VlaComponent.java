@@ -2,6 +2,8 @@ package org.onosproject.ngsdn.tutorial;
 import com.sun.source.tree.Tree;
 import org.apache.commons.lang3.tuple.Pair;
 import org.onosproject.net.Link;
+import org.onosproject.net.link.LinkEvent;
+import org.onosproject.net.link.LinkListener;
 import org.onosproject.net.link.LinkService;
 import org.onosproject.store.primitives.DefaultConsistentMap;
 import org.onosproject.store.primitives.DefaultConsistentTreeMap;
@@ -58,6 +60,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.google.common.collect.Streams.mapWithIndex;
 import static com.google.common.collect.Streams.stream;
 import static org.onosproject.ngsdn.tutorial.AppConstants.INITIAL_SETUP_DELAY;
 
@@ -124,6 +127,8 @@ public class VlaComponent {
 
     private final DeviceListener deviceListener = new VlaComponent.InternalDeviceListener();
 
+
+
     private ApplicationId appId;
 
     private HashMap<DeviceId, Integer> deviceLevelMap = new HashMap<>();
@@ -181,6 +186,71 @@ public class VlaComponent {
 //     * @param  DeviceId device Id
      *
      */
+
+    private boolean UpdateBasedOnLink(DeviceId source, DeviceId destination){
+        if(!deviceIdMap.containsKey(source) && !deviceLevelMap.containsKey(destination)){
+            return false;
+        }
+        if(deviceLevelMap.containsKey(source) && deviceLevelMap.containsKey(destination)){
+            return false;
+        }
+        if(deviceLevelMap.containsKey(source)){
+            deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
+            if(!childrenMap.containsKey(source)){
+                childrenMap.put(source, new ArrayList<>());
+            }
+            childrenMap.get(source).add(destination);
+            if(!parentMap.containsKey(destination)){
+                parentMap.put(destination, new ArrayList<>());
+            }
+            parentMap.get(destination).add(source);
+            DoBfs(destination, deviceLevelMap.get(source) + 1);
+            return true;
+        }
+        return false;
+    }
+
+    private void DoBfs(DeviceId deviceId, int level){
+        HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
+        Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
+        deviceIdQueue.add(new DeviceLevelPair(deviceId, level));
+
+        while(!deviceIdQueue.isEmpty()){
+            DeviceId currentDevice = deviceIdQueue.peek().getDeviceId();
+            Integer currentLevel = deviceIdQueue.peek().GetLevel();
+            visitedDeviceLevelMap.put(currentDevice, currentLevel);
+            deviceLevelMap.put(currentDevice, currentLevel);
+            setUpMySidTable(deviceId);
+            deviceIdQueue.remove();
+            Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
+            for (Link link : deviceLinks) {
+                if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
+                    if(link.src().deviceId() == currentDevice){
+                        DeviceId dst = link.dst().deviceId();
+                        if(!visitedDeviceLevelMap.containsKey(dst)){
+                            deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
+                            if(childrenMap.containsKey(currentDevice)){
+                                childrenMap.get(currentDevice).add(dst);
+                            }
+                            else{
+                                childrenMap.put(currentDevice, new ArrayList<>());
+                                childrenMap.get(currentDevice).add(dst);
+                            }
+                            parentMap.put(dst, new ArrayList<>());
+                            parentMap.get(dst).add(currentDevice);
+                        }
+                        else{
+                            DeviceId previousParent = parentMap.get(dst).get(0);
+                            if(previousParent != link.src().deviceId() && Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
+                                parentMap.get(dst).add(currentDevice);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
     private void DoDfsFromRoot(DeviceId rootDeviceId){
         HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
         Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
@@ -224,9 +294,9 @@ public class VlaComponent {
 
     private void setUpMySidTable(DeviceId deviceId) {
 
-        Ip6Address mySid = getMySid(deviceId);
 
-        log.info("Adding current Level rule on {} (vla {})...", deviceId, mySid);
+
+        log.info("Adding current Level rule on {} )...", deviceId);
 
         // *** TODO EXERCISE 6
         // Fill in the table ID for the SRv6 my segment identifier table
@@ -385,6 +455,41 @@ public class VlaComponent {
                     log.info("{} event! deviceId={}", event.type(), deviceId);
 
                     setUpMySidTable(event.subject().id());
+                });
+            }
+        }
+    }
+
+
+
+    class InternalLinkListener implements LinkListener {
+
+        @Override
+        public boolean isRelevant(LinkEvent event) {
+            switch (event.type()) {
+                case LINK_ADDED:
+                    break;
+                case LINK_UPDATED:
+                case LINK_REMOVED:
+                default:
+                    return false;
+            }
+            DeviceId srcDev = event.subject().src().deviceId();
+            DeviceId dstDev = event.subject().dst().deviceId();
+            return mastershipService.isLocalMaster(srcDev) ||
+                    mastershipService.isLocalMaster(dstDev);
+        }
+
+        @Override
+        public void event(LinkEvent event) {
+            DeviceId srcDev = event.subject().src().deviceId();
+            DeviceId dstDev = event.subject().dst().deviceId();
+
+            if (mastershipService.isLocalMaster(srcDev) && mastershipService.isLocalMaster(dstDev)) {
+                mainComponent.getExecutorService().execute(() -> {
+                    log.info("{} event!  VLA Configuring {}... linkSrc={}, linkDst={}",
+                            event.type(), srcDev, srcDev, dstDev);
+                    UpdateBasedOnLink(srcDev, dstDev);
                 });
             }
         }
