@@ -267,7 +267,7 @@ public class VlaComponent {
                 --currentLevel;
             }
             ByteBuffer buffer = ByteBuffer.allocate(vlaAddress.length * 2);
-            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.order(ByteOrder.BIG_ENDIAN);
             buffer.asShortBuffer().put(vlaAddress);
             byte[] byteArray = buffer.array();
             return Optional.of(byteArray);
