@@ -260,8 +260,8 @@ public class VlaComponent {
             int currentLevel = deviceLevel;
             DeviceId currentDevice = deviceId;
             while(currentLevel > 0){
-                DeviceId parentDevice = parentMap.get(currentDevice).get(0);
-                int currentLevelAddress = childrenMap.get(parentDevice).indexOf(currentDevice) + 1;
+                DeviceId parentDevice =  currentLevel > 1 ? parentMap.get(currentDevice).get(0) : null;
+                int currentLevelAddress = parentDevice != null ? childrenMap.get(parentDevice).indexOf(currentDevice) + 1 : 1;
                 vlaAddress[currentLevel - 1] = (short) currentLevelAddress;
                 currentDevice = parentDevice;
                 --currentLevel;
