@@ -308,7 +308,7 @@ public class VlaComponent {
                             parentMap.get(dst).add(currentDevice);
                             setUpParentTable(currentDevice, dst, currentLevel + 1);
                         }
-                        else{
+                        else if(parentMap.containsKey(dst)){
                             DeviceId previousParent = parentMap.get(dst).get(0);
                             if(previousParent != link.src().deviceId() && Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
                                 parentMap.get(dst).add(currentDevice);
