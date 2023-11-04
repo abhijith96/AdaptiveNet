@@ -57,11 +57,14 @@ import org.onosproject.ngsdn.tutorial.common.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.*;
 
 import static com.google.common.collect.Streams.mapWithIndex;
 import static com.google.common.collect.Streams.stream;
 import static org.onosproject.ngsdn.tutorial.AppConstants.INITIAL_SETUP_DELAY;
+import static org.onosproject.ngsdn.tutorial.AppConstants.VLA_MAX_LEVELS;
 
 
 
@@ -248,6 +251,31 @@ public class VlaComponent {
         }
     }
 
+    Optional<byte[]> GetVlaAddress(DeviceId deviceId){
+
+
+        if(deviceLevelMap.containsKey(deviceId)){
+            int deviceLevel = deviceLevelMap.get(deviceId);
+            short[] vlaAddress = new short[VLA_MAX_LEVELS];
+            int currentLevel = deviceLevel;
+            DeviceId currentDevice = deviceId;
+            while(currentLevel > 0){
+                DeviceId parentDevice = parentMap.get(currentDevice).get(0);
+                int currentLevelAddress = childrenMap.get(parentDevice).indexOf(currentDevice) + 1;
+                vlaAddress[currentLevel - 1] = (short) currentLevelAddress;
+                currentDevice = parentDevice;
+                --currentLevel;
+            }
+            ByteBuffer buffer = ByteBuffer.allocate(vlaAddress.length * 2);
+            buffer.order(ByteOrder.LITTLE_ENDIAN);
+            buffer.asShortBuffer().put(vlaAddress);
+            byte[] byteArray = buffer.array();
+            return Optional.of(byteArray);
+
+        }
+        return Optional.empty();
+    }
+
     private void DoBfs(DeviceId deviceId, int level){
         HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
         Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
@@ -259,6 +287,7 @@ public class VlaComponent {
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
             setUpCurrentLevelTable(deviceId, currentLevel);
+            setUpCurrentAddressTable(currentDevice);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -302,6 +331,7 @@ public class VlaComponent {
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
             setUpCurrentLevelTable(currentDevice, currentLevel);
+            setUpCurrentAddressTable(currentDevice);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -342,15 +372,11 @@ public class VlaComponent {
 
         log.info("Adding current Level rule on {} )...", deviceId);
 
-        // *** TODO EXERCISE 6
-        // Fill in the table ID for the SRv6 my segment identifier table
-        // ---- START SOLUTION ----
+
+        // Fill in the table ID for the VLA current level table
+
         String tableId = "IngressPipeImpl.vla_level_table";
 
-
-        // ---- END SOLUTION ----
-
-        // *** TODO EXERCISE 6
         // Modify the field and action id to match your P4Info
         // ---- START SOLUTION ----
         PiCriterion match = PiCriterion.builder()
@@ -382,7 +408,7 @@ public class VlaComponent {
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_route_children_table";
 
-        int childUniqueId = childrenMap.get(parent).indexOf(child);
+        int childUniqueId = childrenMap.get(parent).indexOf(child) + 1;
 
 
         // Modify the field and action id to match your P4Info
@@ -440,6 +466,43 @@ public class VlaComponent {
                 child, appId, tableId, match, action);
 
         flowRuleService.applyFlowRules(routeToParentRule);
+
+    }
+
+    private boolean setUpCurrentAddressTable(DeviceId deviceId) {
+
+        Optional<byte[]> currentAddress = GetVlaAddress(deviceId);
+
+        if (currentAddress.isPresent()) {
+
+        log.info("Adding current address table rule on device {})...", deviceId);
+
+
+        // Fill in the table ID for the VLA  route_to_child table
+        // ---- START SOLUTION ----
+        String tableId = "IngressPipeImpl.current_vla_address_table";
+
+        // Modify the field and action id to match your P4Info
+        // ---- START SOLUTION ----
+        PiCriterion match = PiCriterion.builder()
+                .matchExact(
+                        PiMatchFieldId.of("local_metadata.parser_local_metadata.destination_address_key"), currentAddress.get()
+                )
+                .build();
+
+        PiTableAction action = PiAction.builder()
+                .withId(PiActionId.of("NoAction"))
+                .build();
+
+
+        FlowRule currentAddressFlowRule = Utils.buildFlowRule(
+                deviceId, appId, tableId, match, action);
+
+        flowRuleService.applyFlowRules(currentAddressFlowRule);
+        return true;
+
+    }
+        return false;
 
     }
 
