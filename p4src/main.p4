@@ -283,6 +283,7 @@ parser ParserImpl (packet_in packet,
 
     state parse_ipv6 {
         packet.extract(hdr.ipv6);
+        local_metadata.ip_proto = hdr.ipv6.next_hdr;
         transition select(hdr.ipv6.next_hdr) {
             IP_PROTO_TCP: parse_tcp;
             IP_PROTO_UDP: parse_udp;
@@ -298,6 +299,7 @@ parser ParserImpl (packet_in packet,
         packet.extract(hdr.vlah);
         local_metadata.parser_local_metadata.is_first_vla_level = true;
         local_metadata.parser_local_metadata.destination_address_key = 0;
+        local_metadata.ip_proto = hdr.vlah.next_hdr;
         transition parse_vla_list;
     }
 
