@@ -57,7 +57,7 @@ class ArpNdpRequestWithCloneTest(P4RuntimeTest):
         #  Test With both ARP and NDP NS packets...
         print_inline("ARP request ... ")
         arp_pkt = testutils.simple_arp_packet()
-        # self.testPacket(arp_pkt)
+        self.testPacket(arp_pkt)
 
         print_inline("NDP NS ... ")
         ndp_pkt = genNdpNsPkt(src_mac=HOST1_MAC, src_ip=HOST1_IPV6,
