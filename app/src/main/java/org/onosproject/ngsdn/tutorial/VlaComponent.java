@@ -500,11 +500,13 @@ public class VlaComponent {
 
         byte[] octets = currentAddress.get();
 
+        byte[] octetsCopy = Arrays.copyOf(octets, octets.length);
+
         // Modify the field and action id to match your P4Info
         // ---- START SOLUTION ----
         PiCriterion match = PiCriterion.builder()
                 .matchExact(
-                        PiMatchFieldId.of("local_metadata.parser_local_metadata.destination_address_key"), Arrays.copyOf(octets, octets.length)
+                        PiMatchFieldId.of("local_metadata.parser_local_metadata.destination_address_key"), octetsCopy
                 )
                 .build();
 
