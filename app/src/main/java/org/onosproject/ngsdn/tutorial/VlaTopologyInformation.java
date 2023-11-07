@@ -187,6 +187,7 @@ public class VlaTopologyInformation {
        ArrayList<DeviceInfo> results = new ArrayList<>();
 
        HashSet<DeviceId> visited = new HashSet<>();
+       visited.add(parent);
 
        while(!queue.isEmpty()){
            DeviceInfo deviceInfo = queue.peek();
