@@ -215,6 +215,8 @@ public class VlaTopologyInformation {
 
 
    private ArrayList<DeviceInfo> UpdateLevels(DeviceId source, DeviceId dest){
+
+        log.info("In Update Levels part source device {},  destination device {}", source, dest);
        if(IsValidLinkToAdd(source, dest)){
            DeviceId originalSource = source;
            DeviceId originalDestination = dest;
@@ -232,9 +234,6 @@ public class VlaTopologyInformation {
    }
 
    private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination){
-
-
-
 
            if (deviceNeighbours.get(source).contains(destination) &&
                    deviceNeighbours.get(destination).contains(source)) {
@@ -284,6 +283,7 @@ public class VlaTopologyInformation {
     public ArrayList<DeviceInfo> AddLink(DeviceId source, DeviceId destination){
         synchronized (this){
             deviceNeighbours.get(source).add(destination);
+            deviceNeighbours.get(destination).add(source);
             if(IsValidLinkToAdd(source, destination)){
                return UpdateLevels(source, destination);
             }
