@@ -147,6 +147,9 @@ public class VlaComponent {
     private Optional<DeviceId> rootDeviceId  = Optional.empty();
 
 
+    private final VlaTopologyInformation vlaTopologyInformation = new VlaTopologyInformation();
+
+
 
 
 
@@ -197,58 +200,76 @@ public class VlaComponent {
      */
 
     private boolean UpdateBasedOnLink(DeviceId source, DeviceId destination){
-        if(!deviceIdMap.containsKey(source) && !deviceLevelMap.containsKey(destination)){
-            return false;
+
+        ArrayList <VlaTopologyInformation.DeviceInfo> updates = vlaTopologyInformation.AddLink(source, destination);
+
+        for(VlaTopologyInformation.DeviceInfo deviceInfo : updates){
+            setUpCurrentLevelTable(deviceInfo.getDeviceId(), deviceInfo.GetLevel());
+            setUpCurrentAddressTable(deviceInfo.getDeviceId(), deviceInfo.GetDeviceAddress());
+            setUpParentTable(deviceInfo.GetParentId(), deviceInfo.getDeviceId(), deviceInfo.GetLevel());
+            setUpChildTable(deviceInfo.GetParentId(), deviceInfo.getDeviceId(), deviceInfo.GetLevelIdentifier());
         }
-        if(deviceLevelMap.containsKey(source) && deviceLevelMap.containsKey(destination)){
-            return false;
-        }
-        if(deviceLevelMap.containsKey(source)){
-            log.info("Update based on link VLA source part of level tree, linkSrc={}, linkDst={}", source, destination);
-            deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
-            if(!childrenMap.containsKey(source)){
-                childrenMap.put(source, new ArrayList<>());
-            }
-            childrenMap.get(source).add(destination);
-            if(!parentMap.containsKey(destination)){
-                parentMap.put(destination, new ArrayList<>());
-            }
-            parentMap.get(destination).add(source);
-            setUpChildTable(source, destination);
-            setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
-            DoBfs(destination, deviceLevelMap.get(source) + 1);
-            return true;
-        }
-        else if(deviceLevelMap.containsKey(destination)){
-            log.info("Update based on link VLA destination part of level tree, linkSrc={}, linkDst={}", source, destination);
-                DeviceId temp = source;
-                source = destination;
-                destination = temp;
-                deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
-                if(!childrenMap.containsKey(source)){
-                    childrenMap.put(source, new ArrayList<>());
-                }
-                childrenMap.get(source).add(destination);
-                if(!parentMap.containsKey(destination)){
-                    parentMap.put(destination, new ArrayList<>());
-                }
-                parentMap.get(destination).add(source);
-                setUpChildTable(source, destination);
-                setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
-                DoBfs(destination, deviceLevelMap.get(source) + 1);
-                return true;
-        }
-        return false;
+
+        return true;
+//        if(!deviceIdMap.containsKey(source) && !deviceLevelMap.containsKey(destination)){
+//            return false;
+//        }
+//        if(deviceLevelMap.containsKey(source) && deviceLevelMap.containsKey(destination)){
+//            return false;
+//        }
+//        if(deviceLevelMap.containsKey(source)){
+//            log.info("Update based on link VLA source part of level tree, linkSrc={}, linkDst={}", source, destination);
+//            deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
+//            if(!childrenMap.containsKey(source)){
+//                childrenMap.put(source, new ArrayList<>());
+//            }
+//            childrenMap.get(source).add(destination);
+//            if(!parentMap.containsKey(destination)){
+//                parentMap.put(destination, new ArrayList<>());
+//            }
+//            parentMap.get(destination).add(source);
+//            setUpChildTable(source, destination);
+//            setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
+//            DoBfs(destination, deviceLevelMap.get(source) + 1);
+//            return true;
+//        }
+//        else if(deviceLevelMap.containsKey(destination)){
+//            log.info("Update based on link VLA destination part of level tree, linkSrc={}, linkDst={}", source, destination);
+//                DeviceId temp = source;
+//                source = destination;
+//                destination = temp;
+//                deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
+//                if(!childrenMap.containsKey(source)){
+//                    childrenMap.put(source, new ArrayList<>());
+//                }
+//                childrenMap.get(source).add(destination);
+//                if(!parentMap.containsKey(destination)){
+//                    parentMap.put(destination, new ArrayList<>());
+//                }
+//                parentMap.get(destination).add(source);
+//                setUpChildTable(source, destination);
+//                setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
+//                DoBfs(destination, deviceLevelMap.get(source) + 1);
+//                return true;
+//        }
+//        return false;
     }
 
     private void UpdateDevice(DeviceId deviceId){
-        if(IsRootDevice(deviceId)){
-            log.info("Adding Level rule on root device {} )...", deviceId);
-            rootDeviceId = Optional.of(deviceId);
-            setUpCurrentLevelTable(deviceId, 1);
-            deviceIdMap.put(deviceId, 1);
-            DoBfsFromRoot(deviceId);
-        }
+
+       Optional<VlaTopologyInformation.RootDeviceInfo>
+        rootDeviceInfo = vlaTopologyInformation.AddDevice(deviceId, IsRootDevice(deviceId));
+       if(rootDeviceInfo.isPresent()){
+           setUpCurrentLevelTable(rootDeviceInfo.get().GetRootDeviceId(), rootDeviceInfo.get().GetLevel());
+           setUpCurrentAddressTable(rootDeviceInfo.get().GetRootDeviceId(), rootDeviceInfo.get().GetVlaAddress());
+       }
+//        if(IsRootDevice(deviceId)){
+//            log.info("Adding Level rule on root device {} )...", deviceId);
+//            rootDeviceId = Optional.of(deviceId);
+//            setUpCurrentLevelTable(deviceId, 1);
+//            deviceIdMap.put(deviceId, 1);
+//            DoBfsFromRoot(deviceId);
+//        }
     }
 
     byte [] ConvertIntegerArrayToByteArray(int [] VlaAddressInIntegers){
@@ -303,7 +324,7 @@ public class VlaComponent {
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
             setUpCurrentLevelTable(deviceId, currentLevel);
-            setUpCurrentAddressTable(currentDevice);
+            //setUpCurrentAddressTable(currentDevice);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -319,7 +340,7 @@ public class VlaComponent {
                                 childrenMap.put(currentDevice, new ArrayList<>());
                                 childrenMap.get(currentDevice).add(dst);
                             }
-                            setUpChildTable(currentDevice, dst);
+//                            setUpChildTable(currentDevice, dst);
                             parentMap.put(dst, new ArrayList<>());
                             parentMap.get(dst).add(currentDevice);
                             setUpParentTable(currentDevice, dst, currentLevel + 1);
@@ -347,7 +368,7 @@ public class VlaComponent {
             visitedDeviceLevelMap.put(currentDevice, currentLevel);
             deviceLevelMap.put(currentDevice, currentLevel);
             setUpCurrentLevelTable(currentDevice, currentLevel);
-            setUpCurrentAddressTable(currentDevice);
+          //  setUpCurrentAddressTable(currentDevice);
             deviceIdQueue.remove();
             Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
             for (Link link : deviceLinks) {
@@ -364,7 +385,7 @@ public class VlaComponent {
                                 childrenMap.put(currentDevice, new ArrayList<>());
                                 childrenMap.get(currentDevice).add(dst);
                             }
-                            setUpChildTable(currentDevice, dst);
+//                            setUpChildTable(currentDevice, dst);
                             parentMap.put(dst, new ArrayList<>());
                             parentMap.get(dst).add(currentDevice);
                             setUpParentTable(currentDevice, dst, currentLevel + 1);
@@ -414,7 +435,7 @@ public class VlaComponent {
 
     }
 
-    private void setUpChildTable(DeviceId parent, DeviceId child) {
+    private void setUpChildTable(DeviceId parent, DeviceId child, int childUniqueId) {
 
 
         log.info("Adding child table rule on device {} for child {} )...", parent, child);
@@ -424,7 +445,7 @@ public class VlaComponent {
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.vla_route_children_table";
 
-        int childUniqueId = childrenMap.get(parent).indexOf(child) + 1;
+
 
 
         // Modify the field and action id to match your P4Info
@@ -485,28 +506,21 @@ public class VlaComponent {
 
     }
 
-    private boolean setUpCurrentAddressTable(DeviceId deviceId) {
+    private boolean setUpCurrentAddressTable(DeviceId deviceId, byte [] vlaAddress) {
 
-        Optional<byte[]> currentAddress = GetVlaAddress(deviceId);
-
-        if (currentAddress.isPresent()) {
 
         log.info("Adding current address table rule on device {})...", deviceId);
-
 
         // Fill in the table ID for the VLA  route_to_child table
         // ---- START SOLUTION ----
         String tableId = "IngressPipeImpl.current_vla_address_table";
 
-        byte[] octets = currentAddress.get();
-
-        byte[] octetsCopy = Arrays.copyOf(octets, octets.length);
 
         // Modify the field and action id to match your P4Info
         // ---- START SOLUTION ----
         PiCriterion match = PiCriterion.builder()
                 .matchExact(
-                        PiMatchFieldId.of("local_metadata.parser_local_metadata.destination_address_key"), octetsCopy
+                        PiMatchFieldId.of("local_metadata.parser_local_metadata.destination_address_key"), vlaAddress
                 )
                 .build();
 
@@ -520,9 +534,6 @@ public class VlaComponent {
 
         flowRuleService.applyFlowRules(currentAddressFlowRule);
         return true;
-
-    }
-        return false;
 
     }
 
