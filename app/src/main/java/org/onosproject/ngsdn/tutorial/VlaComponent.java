@@ -251,26 +251,41 @@ public class VlaComponent {
         }
     }
 
+    byte [] ConvertIntegerArrayToByteArray(int [] VlaAddressInIntegers){
+
+
+        byte[] byteNumbers = new byte[2* VlaAddressInIntegers.length];
+
+        int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
+
+        for (int i = 0; i < VlaAddressInIntegers.length; i++) {
+            int currentNum = VlaAddressInIntegers[i];
+            byte second_part = (byte) currentNum;
+            int tempNum = (currentNum >> bitShift);
+            byte first_part = (byte) tempNum;
+            byteNumbers[2*i] = first_part;
+            byteNumbers[(2*i) + 1] = second_part;
+        }
+
+        return byteNumbers;
+    }
+
     Optional<byte[]> GetVlaAddress(DeviceId deviceId){
 
 
         if(deviceLevelMap.containsKey(deviceId)){
             int deviceLevel = deviceLevelMap.get(deviceId);
-            short[] vlaAddress = new short[VLA_MAX_LEVELS];
+            int[] vlaAddress = new int[VLA_MAX_LEVELS];
             int currentLevel = deviceLevel;
             DeviceId currentDevice = deviceId;
             while(currentLevel > 0){
                 DeviceId parentDevice =  currentLevel > 1 ? parentMap.get(currentDevice).get(0) : null;
                 int currentLevelAddress = parentDevice != null ? childrenMap.get(parentDevice).indexOf(currentDevice) + 1 : 1;
-                vlaAddress[currentLevel - 1] = (short) currentLevelAddress;
+                vlaAddress[currentLevel - 1] = currentLevelAddress;
                 currentDevice = parentDevice;
                 --currentLevel;
             }
-            ByteBuffer buffer = ByteBuffer.allocate(vlaAddress.length * 2);
-            buffer.order(ByteOrder.BIG_ENDIAN);
-            buffer.asShortBuffer().put(vlaAddress);
-            byte[] byteArray = buffer.array();
-            return Optional.of(byteArray);
+            return Optional.of(ConvertIntegerArrayToByteArray(vlaAddress));
 
         }
         return Optional.empty();

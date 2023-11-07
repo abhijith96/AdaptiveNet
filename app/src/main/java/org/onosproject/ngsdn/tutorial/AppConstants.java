@@ -32,4 +32,6 @@ public class AppConstants {
     public static final int CPU_CLONE_SESSION_ID = 99;
 
     public static final int VLA_MAX_LEVELS = 10;
+
+    public static final int VLA_LEVEL_BITS = 16;
 }
