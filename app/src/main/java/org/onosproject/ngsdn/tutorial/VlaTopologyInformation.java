@@ -262,6 +262,7 @@ public class VlaTopologyInformation {
                 deviceChildIdentifierCounter.put(deviceId, len + 1);
                 levelMap.put(deviceId, 1);
                 int levelIdentifier = rootDeviceList.indexOf(deviceId);
+                deviceIdentifierMap.put(deviceId, levelIdentifier);
                 RootDeviceInfo rootDeviceInfo = new RootDeviceInfo(deviceId, levelIdentifier);
                 rootDeviceInfo.SetVlaAddress(GetVlaAddress(deviceId, 1));
                 return Optional.of(rootDeviceInfo);
