@@ -263,8 +263,8 @@ public class VlaComponent {
             byte second_part = (byte) currentNum;
             int tempNum = (currentNum >> bitShift);
             byte first_part = (byte) tempNum;
-            byteNumbers[2*i] = first_part;
-            byteNumbers[(2*i) + 1] = second_part;
+            byteNumbers[2*i] = second_part;
+            byteNumbers[(2*i) + 1] = first_part;
         }
         log.info("Vla Address of first level {}, {} )...", byteNumbers[0], byteNumbers[1]);
 
