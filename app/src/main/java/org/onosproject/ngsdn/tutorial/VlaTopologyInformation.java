@@ -82,10 +82,10 @@ public class VlaTopologyInformation {
 
        private byte[] deviceAddress;
 
-        public RootDeviceInfo(DeviceId rootDeviceId){
+        public RootDeviceInfo(DeviceId rootDeviceId, int levelIdentifier){
             this.rootDeviceId = rootDeviceId;
             this.level = 1;
-            this.levelIdentifier = deviceIdentifierMap.get(rootDeviceId);
+            this.levelIdentifier = levelIdentifier;
         }
 
         public DeviceId GetRootDeviceId(){
@@ -261,7 +261,8 @@ public class VlaTopologyInformation {
                 IsConnectedToRoot.put(deviceId, true);
                 deviceChildIdentifierCounter.put(deviceId, len + 1);
                 levelMap.put(deviceId, 1);
-                RootDeviceInfo rootDeviceInfo = new RootDeviceInfo(deviceId);
+                int levelIdentifier = rootDeviceList.indexOf(deviceId);
+                RootDeviceInfo rootDeviceInfo = new RootDeviceInfo(deviceId, levelIdentifier);
                 rootDeviceInfo.SetVlaAddress(GetVlaAddress(deviceId, 1));
                 return Optional.of(rootDeviceInfo);
             }
