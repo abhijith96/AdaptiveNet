@@ -167,13 +167,10 @@ public class VlaTopologyInformation {
        int currentLevel = deviceLevel;
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
-           vlaAddress [currentLevel] = deviceIdentifierMap.get(currentDevice);
+           vlaAddress [currentLevel - 1] = deviceIdentifierMap.get(currentDevice);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
            log.info("Finding levels current device {}, current Level {} ", currentDevice, currentLevel);
-           if(currentLevel == 1){
-               break;
-           }
        }
 
        return ConvertIntegerArrayToByteArray(vlaAddress);
