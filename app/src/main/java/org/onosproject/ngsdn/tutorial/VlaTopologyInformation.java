@@ -1,6 +1,8 @@
 package org.onosproject.ngsdn.tutorial;
 
 import org.onosproject.net.DeviceId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -21,6 +23,8 @@ public class VlaTopologyInformation {
    HashMap<DeviceId, Integer> levelMap;
 
    HashMap<DeviceId, Integer> deviceIdentifierMap;
+
+    private static final Logger log = LoggerFactory.getLogger(VlaTopologyInformation.class);
 
     public class DeviceInfo{
 
@@ -159,12 +163,17 @@ public class VlaTopologyInformation {
 
   private byte [] GetVlaAddress(DeviceId deviceId, int deviceLevel){
        int [] vlaAddress = new int [AppConstants.VLA_MAX_LEVELS];
+      log.info("Finding Levels up the tree. {}", deviceId);
        int currentLevel = deviceLevel;
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
            vlaAddress [currentLevel] = deviceIdentifierMap.get(currentDevice);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
+           log.info("Finding levels current device {}, current Level {} ", currentDevice, currentLevel);
+           if(currentLevel == 1){
+               break;
+           }
        }
 
        return ConvertIntegerArrayToByteArray(vlaAddress);
