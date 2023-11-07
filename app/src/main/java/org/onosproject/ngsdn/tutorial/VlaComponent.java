@@ -266,6 +266,7 @@ public class VlaComponent {
             byteNumbers[2*i] = first_part;
             byteNumbers[(2*i) + 1] = second_part;
         }
+        log.info("Vla Address of first level {}, {} )...", byteNumbers[0], byteNumbers[1]);
 
         return byteNumbers;
     }
