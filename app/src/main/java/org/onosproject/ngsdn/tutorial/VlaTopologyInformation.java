@@ -174,9 +174,9 @@ public class VlaTopologyInformation {
        int currentLevel = deviceLevel;
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
-           log.info("Finding levels current device {}, current Level {} address {} ", currentDevice, currentLevel, vlaAddress[currentLevel - 1]);
            int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
            vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
+           log.info("Finding levels current device {}, current Level {} address {} ", currentDevice, currentLevel, currentLevelAddress);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
            log.info("Finding levels current device {}, current Level {} ", currentDevice, currentLevel);
@@ -265,7 +265,7 @@ public class VlaTopologyInformation {
                 int len = rootDeviceList.size();
                 rootDeviceList.add(deviceId);
                 IsConnectedToRoot.put(deviceId, true);
-                deviceChildIdentifierCounter.put(deviceId, len + 1);
+                deviceChildIdentifierCounter.put(deviceId, 1);
                 levelMap.put(deviceId, 1);
                 int levelIdentifier = rootDeviceList.indexOf(deviceId);
                 deviceIdentifierMap.put(deviceId, levelIdentifier);
