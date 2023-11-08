@@ -9,6 +9,8 @@ import java.util.*;
 
 
 public class VlaTopologyInformation {
+
+    private final int IDENTIFIER_START_VALUE = 4096;
     ArrayList<DeviceId> deviceList;
     ArrayList<DeviceId> rootDeviceList;
 
@@ -176,8 +178,10 @@ public class VlaTopologyInformation {
             stringBuilder.append(value);
         }
         String bigString = stringBuilder.toString();
+        log.info("Big string is {}", bigString);
         BigInteger bigInteger = new BigInteger(bigString, 2);
-        return bigInteger.toByteArray();
+        byte[] byteArray =  bigInteger.toByteArray();
+        return byteArray;
 
 //        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
 //            String currentBitString = VlaAddressInBitStrings[i];
@@ -210,7 +214,7 @@ public class VlaTopologyInformation {
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
            int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
-           vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
+           vlaAddress [currentLevel - 1] = String.format("%17s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
            log.info("Finding levels current device {}, current Level {} address {}, address bit string {} ", currentDevice, currentLevel, currentLevelAddress,
                    vlaAddress [currentLevel - 1]);
            --currentLevel;
@@ -218,7 +222,7 @@ public class VlaTopologyInformation {
        }
        for(currentLevel = deviceLevel + 1; currentLevel <= AppConstants.VLA_MAX_LEVELS; ++currentLevel){
            int val = 0;
-           String addressSuffix =  String.format("%16s", Integer.toBinaryString(val)).replace(' ', '0');
+           String addressSuffix =  String.format("%17s", Integer.toBinaryString(val)).replace(' ', '0');
            vlaAddress[currentLevel - 1] = addressSuffix;
        }
 
@@ -298,17 +302,17 @@ public class VlaTopologyInformation {
             if(!deviceList.contains(deviceId)) {
                 deviceList.add(deviceId);
                 deviceNeighbours.put(deviceId, new ArrayList<>());
-                deviceChildIdentifierCounter.put(deviceId, 1);
+                deviceChildIdentifierCounter.put(deviceId, IDENTIFIER_START_VALUE);
                 IsConnectedToRoot.put(deviceId, false);
             }
             if(IsRootDevice && !rootDeviceList.contains(deviceId)){
                 int len = rootDeviceList.size();
                 rootDeviceList.add(deviceId);
                 IsConnectedToRoot.put(deviceId, true);
-                deviceChildIdentifierCounter.put(deviceId, 1);
+                deviceChildIdentifierCounter.put(deviceId, IDENTIFIER_START_VALUE);
                 levelMap.put(deviceId, 1);
-               // int levelIdentifier = rootDeviceList.indexOf(deviceId) + 1;
-                int levelIdentifier = 31;
+                int levelIdentifier = rootDeviceList.indexOf(deviceId) + IDENTIFIER_START_VALUE;
+                //int levelIdentifier = 300;
                 deviceIdentifierMap.put(deviceId, levelIdentifier);
                 RootDeviceInfo rootDeviceInfo = new RootDeviceInfo(deviceId, levelIdentifier);
                 rootDeviceInfo.SetVlaAddress(GetVlaAddress(deviceId, 1));
