@@ -140,6 +140,13 @@ public class VlaTopologyInformation {
        return identifier;
    }
 
+   private byte ReverseBitsOfAByte(byte value){
+       String s1 = String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
+       s1 = new StringBuilder(s1).reverse().toString();
+      value =  Byte.parseByte(s1);
+      return value;
+   }
+
     private byte [] ConvertIntegerArrayToByteArray(int [] VlaAddressInIntegers){
 
 
@@ -151,9 +158,9 @@ public class VlaTopologyInformation {
             int currentNum = VlaAddressInIntegers[i];
             byte second_part = (byte) currentNum;
             int tempNum = (currentNum >> bitShift);
-            byte first_part = (byte) tempNum;
-            byteNumbers[2*i] = first_part;
-            byteNumbers[(2*i) + 1] = second_part;
+            byte first_part = (byte)(tempNum);
+            byteNumbers[2*i] = ReverseBitsOfAByte(first_part);
+            byteNumbers[(2*i) + 1] = ReverseBitsOfAByte(second_part);
         }
 
         return byteNumbers;
