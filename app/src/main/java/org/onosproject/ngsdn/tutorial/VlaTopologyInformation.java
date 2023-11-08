@@ -146,18 +146,19 @@ public class VlaTopologyInformation {
 
 
 
-    private byte [] ConvertIntegerArrayToByteArray(int [] VlaAddressInIntegers){
+    private byte [] ConvertBitStringArrayToByteArray(String[] VlaAddressInBitStrings){
 
 
-        byte[] byteNumbers = new byte[2* VlaAddressInIntegers.length];
+        byte[] byteNumbers = new byte[2* VlaAddressInBitStrings.length];
 
         int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
 
-        for (int i = 0; i < VlaAddressInIntegers.length; i++) {
-            long currentNum = getUnsignedInt(VlaAddressInIntegers[i]);
-            byte second_part = (byte) currentNum;
-            long tempNum = (currentNum / (long)Math.pow(2, 8));
-            byte first_part = (byte)(tempNum);
+        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
+            String currentBitString = VlaAddressInBitStrings[i];
+            String firstPartString = currentBitString.substring(0, currentBitString.length()/2);
+            String secondPartString = currentBitString.substring(currentBitString.length()/2);
+            byte second_part = Byte.parseByte(secondPartString, 2);
+            byte first_part = Byte.parseByte(firstPartString, 2);
             byteNumbers[2*i] = first_part;
             byteNumbers[(2*i) + 1] = second_part;
         }
@@ -168,18 +169,20 @@ public class VlaTopologyInformation {
 
 
   private byte [] GetVlaAddress(DeviceId deviceId, int deviceLevel){
-       int [] vlaAddress = new int [AppConstants.VLA_MAX_LEVELS];
+       String [] vlaAddress = new String [AppConstants.VLA_MAX_LEVELS];
       log.info("Finding Levels up the tree. {}", deviceId);
        int currentLevel = deviceLevel;
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
-           vlaAddress [currentLevel - 1] = deviceIdentifierMap.get(currentDevice);
+           log.info("Finding levels current device {}, current Level {} address {} ", currentDevice, currentLevel, vlaAddress[currentLevel - 1]);
+           int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
+           vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
            log.info("Finding levels current device {}, current Level {} ", currentDevice, currentLevel);
        }
 
-       return ConvertIntegerArrayToByteArray(vlaAddress);
+       return ConvertBitStringArrayToByteArray(vlaAddress);
 
    }
 
