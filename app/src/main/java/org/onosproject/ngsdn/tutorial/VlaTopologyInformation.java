@@ -165,6 +165,7 @@ public class VlaTopologyInformation {
                 byte first_part = Byte.parseByte(firstPartString, 2);
                 byteNumbers[2 * i] = first_part;
                 byteNumbers[(2 * i) + 1] = second_part;
+                log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
             }
         }
 
