@@ -155,14 +155,17 @@ public class VlaTopologyInformation {
 
         for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
             String currentBitString = VlaAddressInBitStrings[i];
-            String firstPartString = currentBitString.substring(0, currentBitString.length()/2);
-            String secondPartString = currentBitString.substring(currentBitString.length()/2);
-            log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
-                    firstPartString, secondPartString);
-            byte second_part = Byte.parseByte(secondPartString, 2);
-            byte first_part = Byte.parseByte(firstPartString, 2);
-            byteNumbers[2*i] = first_part;
-            byteNumbers[(2*i) + 1] = second_part;
+            if(currentBitString != null) {
+                String firstPartString = currentBitString.substring(0, currentBitString.length() / 2);
+
+                String secondPartString = currentBitString.substring(currentBitString.length() / 2);
+                log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
+                        firstPartString, secondPartString);
+                byte second_part = Byte.parseByte(secondPartString, 2);
+                byte first_part = Byte.parseByte(firstPartString, 2);
+                byteNumbers[2 * i] = first_part;
+                byteNumbers[(2 * i) + 1] = second_part;
+            }
         }
 
         return byteNumbers;
