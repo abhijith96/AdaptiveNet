@@ -214,18 +214,12 @@ public class VlaTopologyInformation {
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
            int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
-           vlaAddress [currentLevel - 1] = String.format("%17s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
+           vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
            log.info("Finding levels current device {}, current Level {} address {}, address bit string {} ", currentDevice, currentLevel, currentLevelAddress,
                    vlaAddress [currentLevel - 1]);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
        }
-       for(currentLevel = deviceLevel + 1; currentLevel <= AppConstants.VLA_MAX_LEVELS; ++currentLevel){
-           int val = 0;
-           String addressSuffix =  String.format("%17s", Integer.toBinaryString(val)).replace(' ', '0');
-           vlaAddress[currentLevel - 1] = addressSuffix;
-       }
-
        return ConvertBitStringArrayToByteArray(vlaAddress);
 
    }
