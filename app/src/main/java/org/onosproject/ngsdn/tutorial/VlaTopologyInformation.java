@@ -170,26 +170,35 @@ public class VlaTopologyInformation {
 
         int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
 
-        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
-            String currentBitString = VlaAddressInBitStrings[i];
-            if(currentBitString != null) {
-                String firstPartString = currentBitString.substring(0, currentBitString.length() / 2);
+        StringBuilder stringBuilder = new StringBuilder();
 
-                String secondPartString = currentBitString.substring(currentBitString.length() / 2);
-                log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
-                        firstPartString, secondPartString);
-                byte second_part = 16;
-                byte first_part = 16;
-                byteNumbers[2 * i] =  first_part;
-                byteNumbers[(2 * i) + 1] =  second_part;
-                log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
-                if(i == 5){
-                    break;
-                }
-            }
+        for (String value : VlaAddressInBitStrings){
+            stringBuilder.append(value);
         }
+        String bigString = stringBuilder.toString();
+        BigInteger bigInteger = new BigInteger(bigString, 2);
+        return bigInteger.toByteArray();
 
-        return byteNumbers;
+//        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
+//            String currentBitString = VlaAddressInBitStrings[i];
+//            if(currentBitString != null) {
+//                String firstPartString = currentBitString.substring(0, currentBitString.length() / 2);
+//
+//                String secondPartString = currentBitString.substring(currentBitString.length() / 2);
+//                log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
+//                        firstPartString, secondPartString);
+//                byte second_part = 16;
+//                byte first_part = 16;
+//                byteNumbers[2 * i] =  first_part;
+//                byteNumbers[(2 * i) + 1] =  second_part;
+//                log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
+//                if(i == 5){
+//                    break;
+//                }
+//            }
+//        }
+
+        //return byteNumbers;
     }
 
 
@@ -206,6 +215,11 @@ public class VlaTopologyInformation {
                    vlaAddress [currentLevel - 1]);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
+       }
+       for(currentLevel = deviceLevel + 1; currentLevel <= AppConstants.VLA_MAX_LEVELS; ++currentLevel){
+           int val = 0;
+           String addressSuffix =  String.format("%16s", Integer.toBinaryString(val)).replace(' ', '0');
+           vlaAddress[currentLevel - 1] = addressSuffix;
        }
 
        return ConvertBitStringArrayToByteArray(vlaAddress);
