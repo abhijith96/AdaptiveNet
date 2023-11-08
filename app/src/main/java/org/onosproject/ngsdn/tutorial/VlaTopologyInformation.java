@@ -163,8 +163,8 @@ public class VlaTopologyInformation {
             byte second_part = (byte) currentNum;
             int tempNum = (int) (currentNum / Math.pow(2, 8));
             byte first_part = (byte)(tempNum);
-            byteNumbers[2*i] = ReverseBitsOfAByte(first_part);
-            byteNumbers[(2*i) + 1] = ReverseBitsOfAByte(second_part);
+            byteNumbers[2*i] = first_part;
+            byteNumbers[(2*i) + 1] = second_part;
         }
 
         return byteNumbers;
