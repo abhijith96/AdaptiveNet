@@ -176,10 +176,10 @@ public class VlaTopologyInformation {
        while(currentLevel > 0){
            int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
            vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
-           log.info("Finding levels current device {}, current Level {} address {} ", currentDevice, currentLevel, currentLevelAddress);
+           log.info("Finding levels current device {}, current Level {} address {}, address bit string {} ", currentDevice, currentLevel, currentLevelAddress,
+                   vlaAddress [currentLevel - 1]);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
-           log.info("Finding levels current device {}, current Level {} ", currentDevice, currentLevel);
        }
 
        return ConvertBitStringArrayToByteArray(vlaAddress);
@@ -267,7 +267,7 @@ public class VlaTopologyInformation {
                 IsConnectedToRoot.put(deviceId, true);
                 deviceChildIdentifierCounter.put(deviceId, 1);
                 levelMap.put(deviceId, 1);
-                int levelIdentifier = rootDeviceList.indexOf(deviceId);
+                int levelIdentifier = rootDeviceList.indexOf(deviceId) + 1;
                 deviceIdentifierMap.put(deviceId, levelIdentifier);
                 RootDeviceInfo rootDeviceInfo = new RootDeviceInfo(deviceId, levelIdentifier);
                 rootDeviceInfo.SetVlaAddress(GetVlaAddress(deviceId, 1));
