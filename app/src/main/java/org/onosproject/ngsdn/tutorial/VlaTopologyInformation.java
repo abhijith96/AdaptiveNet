@@ -178,12 +178,14 @@ public class VlaTopologyInformation {
                 String secondPartString = currentBitString.substring(currentBitString.length() / 2);
                 log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
                         firstPartString, secondPartString);
-                byte second_part = 1;
-                byte first_part = 0;
-                byteNumbers[2 * i] =  (byte) (-128 - first_part);
-                byteNumbers[(2 * i) + 1] =  (byte) (-128 - second_part);
+                byte second_part = 16;
+                byte first_part = 16;
+                byteNumbers[2 * i] =  first_part;
+                byteNumbers[(2 * i) + 1] =  second_part;
                 log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
-                break;
+                if(i == 5){
+                    break;
+                }
             }
         }
 
