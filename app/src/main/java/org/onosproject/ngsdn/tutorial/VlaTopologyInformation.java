@@ -4,6 +4,7 @@ import org.onosproject.net.DeviceId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.*;
 
 
@@ -146,17 +147,20 @@ public class VlaTopologyInformation {
 
 
     byte ConvertStringToByte(String bitString){
-        assert (bitString.length() == 8);
-        byte value = 0;
-        byte one = 1;
-        int shift = 0;
-        for(int i = bitString.length() - 1; i >= 0; --i){
-            byte mask = (byte) (one << shift);
-            if(bitString.charAt(i) == '1'){
-                value = (byte) (value | mask);
-            }
-        }
-        return value;
+        BigInteger bigInteger = new BigInteger(bitString);
+       Byte byteValue =  bigInteger.byteValue();
+       return byteValue;
+//        assert (bitString.length() == 8);
+//        byte value = 0;
+//        byte one = 1;
+//        int shift = 0;
+//        for(int i = bitString.length() - 1; i >= 0; --i){
+//            byte mask = (byte) (one << shift);
+//            if(bitString.charAt(i) == '1'){
+//                value = (byte) (value | mask);
+//            }
+//        }
+//        return value;
     }
 
     private byte [] ConvertBitStringArrayToByteArray(String[] VlaAddressInBitStrings){
@@ -174,11 +178,12 @@ public class VlaTopologyInformation {
                 String secondPartString = currentBitString.substring(currentBitString.length() / 2);
                 log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
                         firstPartString, secondPartString);
-                byte second_part = ConvertStringToByte(secondPartString);
-                byte first_part = ConvertStringToByte(firstPartString);
+                byte second_part = 1;
+                byte first_part = 0;
                 byteNumbers[2 * i] = first_part;
                 byteNumbers[(2 * i) + 1] = second_part;
                 log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
+                break;
             }
         }
 
