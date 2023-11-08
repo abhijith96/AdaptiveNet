@@ -140,6 +140,10 @@ public class VlaTopologyInformation {
        return identifier;
    }
 
+    public static long getUnsignedInt(int x) {
+        return x & 0x00000000ffffffffL;
+    }
+
    private byte ReverseBitsOfAByte(byte value){
        String s1 = String.format("%8s", Integer.toBinaryString(value & 0xFF)).replace(' ', '0');
        s1 = new StringBuilder(s1).reverse().toString();
@@ -155,9 +159,9 @@ public class VlaTopologyInformation {
         int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
 
         for (int i = 0; i < VlaAddressInIntegers.length; i++) {
-            int currentNum = VlaAddressInIntegers[i];
+            long currentNum = getUnsignedInt(VlaAddressInIntegers[i]);
             byte second_part = (byte) currentNum;
-            int tempNum = (currentNum >> bitShift);
+            int tempNum = (int) (currentNum / Math.pow(2, 8));
             byte first_part = (byte)(tempNum);
             byteNumbers[2*i] = ReverseBitsOfAByte(first_part);
             byteNumbers[(2*i) + 1] = ReverseBitsOfAByte(second_part);
