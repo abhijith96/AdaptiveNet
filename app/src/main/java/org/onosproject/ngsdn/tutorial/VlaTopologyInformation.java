@@ -181,6 +181,7 @@ public class VlaTopologyInformation {
         log.info("Big string is {}", bigString);
         BigInteger bigInteger = new BigInteger(bigString, 2);
         byte[] byteArray =  bigInteger.toByteArray();
+        log.info("Byte array size is  {}", byteArray.length);
         return byteArray;
 
 //        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
@@ -220,6 +221,12 @@ public class VlaTopologyInformation {
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
        }
+       for(currentLevel = deviceLevel + 1; currentLevel <= AppConstants.VLA_MAX_LEVELS; ++currentLevel){
+           int val = 0;
+           String addressSuffix =  String.format("%16s", Integer.toBinaryString(val)).replace(' ', '0');
+           vlaAddress[currentLevel - 1] = addressSuffix;
+       }
+
        return ConvertBitStringArrayToByteArray(vlaAddress);
 
    }
