@@ -374,10 +374,12 @@ public class VlaTopologyInformation {
 
     public  Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> AddLink(DeviceId source, DeviceId destination){
         synchronized (this){
-            deviceNeighbours.get(source).add(destination);
-            deviceNeighbours.get(destination).add(source);
-            if(IsValidLinkToAdd(source, destination)){
-               return UpdateLevels(source, destination);
+            if(deviceList.contains(source) && deviceList.contains(destination)) {
+                deviceNeighbours.get(source).add(destination);
+                deviceNeighbours.get(destination).add(source);
+                if (IsValidLinkToAdd(source, destination)) {
+                    return UpdateLevels(source, destination);
+                }
             }
         }
         return Pair.of(new ArrayList<>(), new ArrayList<>());
