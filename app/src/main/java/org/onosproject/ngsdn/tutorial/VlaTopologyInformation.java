@@ -178,6 +178,8 @@ public class VlaTopologyInformation {
        levelMap = new HashMap<>();
        IsConnectedToRoot = new HashMap<>();
        deviceIdentifierMap = new HashMap<>();
+       deviceIdHostIdHashMap = new HashMap<>();
+       hostIdDeviceIdHashMap = new HashMap<>();
    }
 
    private Integer GetIdentifier(DeviceId deviceId){
