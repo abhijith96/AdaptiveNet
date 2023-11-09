@@ -166,4 +166,4 @@ packet = simple_udpv6_packet();
 packet = insert_vla_header(packet, sidList, currentLevel)
 
 # Send the packet as a ping on interface eth0
-srp(packet, iface="eth0")
+srp(packet, iface="h1a-eth0")
