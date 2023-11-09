@@ -190,6 +190,7 @@ public class VlaComponent {
     protected void deactivate() {
         deviceService.removeListener(deviceListener);
         linkService.removeListener(linkListener);
+        hostService.removeListener(hostListener);
         deviceLevelMap.clear();
         parentMap.clear();
         childrenMap.clear();
@@ -568,7 +569,11 @@ public class VlaComponent {
                 .forEach(deviceId -> {
                     log.info("*** Vla - Starting initial set up for {}...", deviceId);
                     this.UpdateDevice(deviceId);
+                    hostService.getConnectedHosts(deviceId).forEach(
+                            this::UpdateHost);
                 });
+
+
     }
 
     /**
