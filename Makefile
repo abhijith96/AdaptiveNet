@@ -70,6 +70,9 @@ mn-cli:
 
 mn-log:
 	docker logs -f mininet
+	
+mn-host:
+	docker-compose exec mininet m $@
 
 _netcfg:
 	$(info *** Pushing ${NGSDN_NETCFG_JSON} to ONOS...)
