@@ -1,11 +1,15 @@
 package org.onosproject.ngsdn.tutorial;
 
 import org.onosproject.net.DeviceId;
+import org.onosproject.net.Host;
+import org.onosproject.net.HostId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.*;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 
 public class VlaTopologyInformation {
@@ -26,6 +30,10 @@ public class VlaTopologyInformation {
    HashMap<DeviceId, Integer> levelMap;
 
    HashMap<DeviceId, Integer> deviceIdentifierMap;
+
+   HashMap<DeviceId, ArrayList<HostId>> deviceIdHostIdHashMap;
+
+   HashMap<HostId, DeviceId> hostIdDeviceIdHashMap;
 
     private static final Logger log = LoggerFactory.getLogger(VlaTopologyInformation.class);
 
@@ -77,6 +85,52 @@ public class VlaTopologyInformation {
             return deviceAddress;
         }
     };
+
+    public class HostInfo{
+        private HostId hostId;
+        private DeviceId deviceId;
+
+        private  int level;
+
+        public DeviceId getDeviceId() {
+            return deviceId;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public int getLevelIdentifier() {
+            return levelIdentifier;
+        }
+
+        public byte[] getHostAddress() {
+            return hostAddress;
+        }
+
+        private int levelIdentifier;
+
+        private byte[] hostAddress;
+
+        public HostInfo (HostId hostId, DeviceId deviceId) {
+            this.hostId = hostId;
+            this.deviceId = deviceId;
+            this.level = levelMap.get(deviceId) + 1;
+            int currentIdentifierForDeviceChildren = deviceIdentifierMap.get(deviceId);
+            deviceIdentifierMap.put(deviceId, currentIdentifierForDeviceChildren + 1);
+            this.levelIdentifier = currentIdentifierForDeviceChildren;
+
+            byte[] deviceAddress = GetVlaAddress(deviceId, this.level - 1);
+
+            String hostAddressString = String.format("%16s", Integer.toBinaryString(this.levelIdentifier)).replace(' ', '0');
+            BigInteger bigInteger = new BigInteger(hostAddressString, 2);
+            byte[] hostPortion = bigInteger.toByteArray();
+            deviceAddress[2 * (this.level - 1)] = hostPortion[0];
+            deviceAddress[(2 * (this.level - 1)) + 1] = hostPortion[1];
+            hostAddress = deviceAddress;
+        }
+        public HostId GetHostId() { return hostId; }
+    }
 
     public class RootDeviceInfo{
         private DeviceId rootDeviceId;
@@ -143,32 +197,10 @@ public class VlaTopologyInformation {
        return identifier;
    }
 
-    public static long getUnsignedInt(int x) {
-        return x & 0x00000000ffffffffL;
-    }
 
 
-    byte ConvertStringToByte(String bitString){
-        BigInteger bigInteger = new BigInteger(bitString);
-       Byte byteValue =  bigInteger.byteValue();
-       return byteValue;
-//        assert (bitString.length() == 8);
-//        byte value = 0;
-//        byte one = 1;
-//        int shift = 0;
-//        for(int i = bitString.length() - 1; i >= 0; --i){
-//            byte mask = (byte) (one << shift);
-//            if(bitString.charAt(i) == '1'){
-//                value = (byte) (value | mask);
-//            }
-//        }
-//        return value;
-    }
 
     private byte [] ConvertBitStringArrayToByteArray(String[] VlaAddressInBitStrings){
-
-
-        byte[] byteNumbers = new byte[2* VlaAddressInBitStrings.length];
 
         int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
 
@@ -178,32 +210,9 @@ public class VlaTopologyInformation {
             stringBuilder.append(value);
         }
         String bigString = stringBuilder.toString();
-        log.info("Big string is {}", bigString);
         BigInteger bigInteger = new BigInteger(bigString, 2);
         byte[] byteArray =  bigInteger.toByteArray();
-        log.info("Byte array size is  {}", byteArray.length);
         return byteArray;
-
-//        for (int i = 0; i < VlaAddressInBitStrings.length; i++) {
-//            String currentBitString = VlaAddressInBitStrings[i];
-//            if(currentBitString != null) {
-//                String firstPartString = currentBitString.substring(0, currentBitString.length() / 2);
-//
-//                String secondPartString = currentBitString.substring(currentBitString.length() / 2);
-//                log.info("ConvertBitStringArrayToByteArray current bit string is {}, first part {}, second part {}", currentBitString,
-//                        firstPartString, secondPartString);
-//                byte second_part = 16;
-//                byte first_part = 16;
-//                byteNumbers[2 * i] =  first_part;
-//                byteNumbers[(2 * i) + 1] =  second_part;
-//                log.info("ConvertBitStringArrayToByteArray first part byte {}, second part byte {}", byteNumbers[2*i], byteNumbers[(2*i) + 1]);
-//                if(i == 5){
-//                    break;
-//                }
-//            }
-//        }
-
-        //return byteNumbers;
     }
 
 
@@ -226,16 +235,16 @@ public class VlaTopologyInformation {
            String addressSuffix =  String.format("%16s", Integer.toBinaryString(val)).replace(' ', '0');
            vlaAddress[currentLevel - 1] = addressSuffix;
        }
-
        return ConvertBitStringArrayToByteArray(vlaAddress);
-
    }
 
-   private ArrayList<DeviceInfo> DoTraversal(DeviceId parent, DeviceId firstChild, Integer parentLevel){
+   private  Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> DoTraversal(DeviceId parent, DeviceId firstChild, Integer parentLevel){
        Queue<DeviceInfo> queue = new LinkedList<>();
        queue.add(new DeviceInfo(firstChild, parent, parentLevel + 1));
 
        ArrayList<DeviceInfo> results = new ArrayList<>();
+
+       ArrayList<HostInfo> hostResults = new ArrayList<>();
 
        HashSet<DeviceId> visited = new HashSet<>();
        visited.add(parent);
@@ -252,6 +261,11 @@ public class VlaTopologyInformation {
            deviceInfo.SetLevelIdentifier(identifier);
            deviceInfo.SetDeviceAddress(GetVlaAddress(currentDevice, deviceInfo.GetLevel()));
            results.add(deviceInfo);
+           for(HostId hostId : deviceIdHostIdHashMap.get(currentDevice)){
+               HostInfo hostInfo = new HostInfo(hostId, currentDevice);
+               hostResults.add(hostInfo);
+           }
+           log.info("hosts found during traversal of device id {} is {}", currentDevice, hostResults.size());
            queue.poll();
 
            for(DeviceId deviceId : deviceNeighbours.get(currentDevice)){
@@ -262,11 +276,11 @@ public class VlaTopologyInformation {
                }
            }
        }
-       return results;
+       return Pair.of(results, hostResults);
    }
 
 
-   private ArrayList<DeviceInfo> UpdateLevels(DeviceId source, DeviceId dest){
+   private Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> UpdateLevels(DeviceId source, DeviceId dest){
 
         log.info("In Update Levels part source device {},  destination device {}", source, dest);
        if(IsValidLinkToAdd(source, dest)){
@@ -282,7 +296,7 @@ public class VlaTopologyInformation {
            }
           return DoTraversal(originalSource, originalDestination, parentLevel);
        }
-       return new ArrayList<>();
+       return Pair.of(new ArrayList<DeviceInfo>(), new ArrayList<HostInfo>());
    }
 
    private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination){
@@ -303,6 +317,7 @@ public class VlaTopologyInformation {
             if(!deviceList.contains(deviceId)) {
                 deviceList.add(deviceId);
                 deviceNeighbours.put(deviceId, new ArrayList<>());
+                deviceIdHostIdHashMap.put(deviceId, new ArrayList<>());
                 deviceChildIdentifierCounter.put(deviceId, IDENTIFIER_START_VALUE);
                 IsConnectedToRoot.put(deviceId, false);
             }
@@ -333,7 +348,31 @@ public class VlaTopologyInformation {
         }
     }
 
-    public ArrayList<DeviceInfo> AddLink(DeviceId source, DeviceId destination){
+    public ArrayList<HostInfo> AddHost(HostId hostId, DeviceId deviceId){
+
+        ArrayList<HostInfo> results = new ArrayList<>();
+        synchronized (this) {
+            if (hostIdDeviceIdHashMap.containsKey(hostId)) {
+                if(hostIdDeviceIdHashMap.get(hostId) == deviceId) {
+                    return results;
+                }
+                deviceIdHostIdHashMap.get(hostIdDeviceIdHashMap.get(hostId)).remove(hostId);
+                hostIdDeviceIdHashMap.remove(hostId);
+                // TODO Update Table Entries
+            }
+            if(!deviceIdHostIdHashMap.get(deviceId).contains(hostId)) {
+                hostIdDeviceIdHashMap.put(hostId, deviceId);
+                deviceIdHostIdHashMap.get(deviceId).add(hostId);
+                if (IsConnectedToRoot.containsKey(deviceId)) {
+                    HostInfo hostInfo = new HostInfo(hostId, deviceId);
+                    results.add(hostInfo);
+                }
+            }
+        }
+        return results;
+    }
+
+    public  Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> AddLink(DeviceId source, DeviceId destination){
         synchronized (this){
             deviceNeighbours.get(source).add(destination);
             deviceNeighbours.get(destination).add(source);
@@ -341,6 +380,6 @@ public class VlaTopologyInformation {
                return UpdateLevels(source, destination);
             }
         }
-        return new ArrayList<DeviceInfo>();
+        return Pair.of(new ArrayList<>(), new ArrayList<>());
     }
 }

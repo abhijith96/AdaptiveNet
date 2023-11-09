@@ -1,15 +1,15 @@
 package org.onosproject.ngsdn.tutorial;
-import com.sun.source.tree.Tree;
 import org.apache.commons.lang3.tuple.Pair;
 import org.onlab.packet.MacAddress;
 import org.onlab.util.ItemNotFoundException;
 import org.onosproject.net.*;
+import org.onosproject.net.host.HostEvent;
+import org.onosproject.net.host.HostListener;
+import org.onosproject.net.host.HostService;
 import org.onosproject.net.link.LinkEvent;
 import org.onosproject.net.link.LinkListener;
 import org.onosproject.net.link.LinkService;
-import org.onosproject.store.primitives.DefaultConsistentMap;
-import org.onosproject.store.primitives.DefaultConsistentTreeMap;
-import org.onosproject.store.service.AsyncAtomicValue;
+
 
 /*
  * Copyright 2019-present Open Networking Foundation
@@ -122,6 +122,9 @@ public class VlaComponent {
     private LinkService linkService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private HostService hostService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private NetworkConfigService networkConfigService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
@@ -130,6 +133,8 @@ public class VlaComponent {
     private final DeviceListener deviceListener = new VlaComponent.InternalDeviceListener();
 
     private final LinkListener linkListener = new VlaComponent.InternalLinkListener();
+
+    private final HostListener hostListener = new VlaComponent.InternalHostListener();
 
 
 
@@ -141,6 +146,8 @@ public class VlaComponent {
     private  HashMap<DeviceId, ArrayList<DeviceId>>  parentMap = new HashMap<>();
 
     private  HashMap<DeviceId, ArrayList<DeviceId>>  childrenMap = new HashMap<>();
+
+
 
 
 
@@ -168,6 +175,10 @@ public class VlaComponent {
         deviceService.addListener(deviceListener);
 
         linkService.addListener(linkListener);
+
+        hostService.addListener(hostListener);
+
+
 
         // Schedule set up for all devices.
         mainComponent.scheduleTask(this::setUpAllDevices, INITIAL_SETUP_DELAY);
@@ -201,58 +212,24 @@ public class VlaComponent {
 
     private boolean UpdateBasedOnLink(DeviceId source, DeviceId destination){
 
-        ArrayList <VlaTopologyInformation.DeviceInfo> updates = vlaTopologyInformation.AddLink(source, destination);
+        Pair<ArrayList <VlaTopologyInformation.DeviceInfo>, ArrayList<VlaTopologyInformation.HostInfo>> updates = vlaTopologyInformation.AddLink(source, destination);
 
-        for(VlaTopologyInformation.DeviceInfo deviceInfo : updates){
+        ArrayList<VlaTopologyInformation.DeviceInfo> deviceUpdates = updates.getLeft();
+        for(VlaTopologyInformation.DeviceInfo deviceInfo : deviceUpdates){
             setUpCurrentLevelTable(deviceInfo.getDeviceId(), deviceInfo.GetLevel());
             setUpCurrentAddressTable(deviceInfo.getDeviceId(), deviceInfo.GetDeviceAddress());
             setUpParentTable(deviceInfo.GetParentId(), deviceInfo.getDeviceId(), deviceInfo.GetLevel());
             setUpChildTable(deviceInfo.GetParentId(), deviceInfo.getDeviceId(), deviceInfo.GetLevelIdentifier());
         }
 
+        ArrayList<VlaTopologyInformation.HostInfo> hostUpdates = updates.getRight();
+
+        for(VlaTopologyInformation.HostInfo hostInfo : hostUpdates){
+            setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
+        }
+
+
         return true;
-//        if(!deviceIdMap.containsKey(source) && !deviceLevelMap.containsKey(destination)){
-//            return false;
-//        }
-//        if(deviceLevelMap.containsKey(source) && deviceLevelMap.containsKey(destination)){
-//            return false;
-//        }
-//        if(deviceLevelMap.containsKey(source)){
-//            log.info("Update based on link VLA source part of level tree, linkSrc={}, linkDst={}", source, destination);
-//            deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
-//            if(!childrenMap.containsKey(source)){
-//                childrenMap.put(source, new ArrayList<>());
-//            }
-//            childrenMap.get(source).add(destination);
-//            if(!parentMap.containsKey(destination)){
-//                parentMap.put(destination, new ArrayList<>());
-//            }
-//            parentMap.get(destination).add(source);
-//            setUpChildTable(source, destination);
-//            setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
-//            DoBfs(destination, deviceLevelMap.get(source) + 1);
-//            return true;
-//        }
-//        else if(deviceLevelMap.containsKey(destination)){
-//            log.info("Update based on link VLA destination part of level tree, linkSrc={}, linkDst={}", source, destination);
-//                DeviceId temp = source;
-//                source = destination;
-//                destination = temp;
-//                deviceLevelMap.put(destination, deviceLevelMap.get(source) + 1);
-//                if(!childrenMap.containsKey(source)){
-//                    childrenMap.put(source, new ArrayList<>());
-//                }
-//                childrenMap.get(source).add(destination);
-//                if(!parentMap.containsKey(destination)){
-//                    parentMap.put(destination, new ArrayList<>());
-//                }
-//                parentMap.get(destination).add(source);
-//                setUpChildTable(source, destination);
-//                setUpParentTable(source, destination, deviceLevelMap.get(source) + 1);
-//                DoBfs(destination, deviceLevelMap.get(source) + 1);
-//                return true;
-//        }
-//        return false;
     }
 
     private void UpdateDevice(DeviceId deviceId){
@@ -263,142 +240,12 @@ public class VlaComponent {
            setUpCurrentLevelTable(rootDeviceInfo.get().GetRootDeviceId(), rootDeviceInfo.get().GetLevel());
            setUpCurrentAddressTable(rootDeviceInfo.get().GetRootDeviceId(), rootDeviceInfo.get().GetVlaAddress());
        }
-//        if(IsRootDevice(deviceId)){
-//            log.info("Adding Level rule on root device {} )...", deviceId);
-//            rootDeviceId = Optional.of(deviceId);
-//            setUpCurrentLevelTable(deviceId, 1);
-//            deviceIdMap.put(deviceId, 1);
-//            DoBfsFromRoot(deviceId);
-//        }
     }
 
-    byte [] ConvertIntegerArrayToByteArray(int [] VlaAddressInIntegers){
-
-
-        byte[] byteNumbers = new byte[2* VlaAddressInIntegers.length];
-
-        int bitShift = AppConstants.VLA_LEVEL_BITS/ 2;
-
-        for (int i = 0; i < VlaAddressInIntegers.length; i++) {
-            int currentNum = VlaAddressInIntegers[i];
-            byte second_part = (byte) currentNum;
-            int tempNum = (currentNum >> bitShift);
-            byte first_part = (byte) tempNum;
-            byteNumbers[2*i] = first_part;
-            byteNumbers[(2*i) + 1] = second_part;
-        }
-        log.info("Vla Address of first level {}, {} )...", byteNumbers[0], byteNumbers[1]);
-
-        return byteNumbers;
-    }
-
-    Optional<byte[]> GetVlaAddress(DeviceId deviceId){
-
-
-        if(deviceLevelMap.containsKey(deviceId)){
-            int deviceLevel = deviceLevelMap.get(deviceId);
-            int[] vlaAddress = new int[VLA_MAX_LEVELS];
-            int currentLevel = deviceLevel;
-            DeviceId currentDevice = deviceId;
-            while(currentLevel > 0){
-                DeviceId parentDevice =  currentLevel > 1 ? parentMap.get(currentDevice).get(0) : null;
-                int currentLevelAddress = parentDevice != null ? childrenMap.get(parentDevice).indexOf(currentDevice) + 1 : 1;
-                vlaAddress[currentLevel - 1] = currentLevelAddress;
-                currentDevice = parentDevice;
-                --currentLevel;
-            }
-            return Optional.of(ConvertIntegerArrayToByteArray(vlaAddress));
-
-        }
-        return Optional.empty();
-    }
-
-    private void DoBfs(DeviceId deviceId, int level){
-        HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
-        Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
-        deviceIdQueue.add(new DeviceLevelPair(deviceId, level));
-
-        while(!deviceIdQueue.isEmpty()){
-            DeviceId currentDevice = deviceIdQueue.peek().getDeviceId();
-            Integer currentLevel = deviceIdQueue.peek().GetLevel();
-            visitedDeviceLevelMap.put(currentDevice, currentLevel);
-            deviceLevelMap.put(currentDevice, currentLevel);
-            setUpCurrentLevelTable(deviceId, currentLevel);
-            //setUpCurrentAddressTable(currentDevice);
-            deviceIdQueue.remove();
-            Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
-            for (Link link : deviceLinks) {
-                if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
-                    if(link.src().deviceId() == currentDevice){
-                        DeviceId dst = link.dst().deviceId();
-                        if(!visitedDeviceLevelMap.containsKey(dst) && !deviceLevelMap.containsKey(dst)){
-                            deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
-                            if(childrenMap.containsKey(currentDevice)){
-                                childrenMap.get(currentDevice).add(dst);
-                            }
-                            else{
-                                childrenMap.put(currentDevice, new ArrayList<>());
-                                childrenMap.get(currentDevice).add(dst);
-                            }
-//                            setUpChildTable(currentDevice, dst);
-                            parentMap.put(dst, new ArrayList<>());
-                            parentMap.get(dst).add(currentDevice);
-                            setUpParentTable(currentDevice, dst, currentLevel + 1);
-                        }
-                        else if(parentMap.containsKey(dst)){
-                            DeviceId previousParent = parentMap.get(dst).get(0);
-                            if(previousParent != link.src().deviceId() && Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel)){
-                                parentMap.get(dst).add(currentDevice);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    }
-    private void DoBfsFromRoot(DeviceId rootDeviceId){
-        HashMap<DeviceId, Integer> visitedDeviceLevelMap = new HashMap<>();
-        Queue<DeviceLevelPair> deviceIdQueue = new LinkedList<>();
-       deviceIdQueue.add(new DeviceLevelPair(rootDeviceId, 1));
-
-        while(!deviceIdQueue.isEmpty()){
-            DeviceId currentDevice = deviceIdQueue.peek().getDeviceId();
-            Integer currentLevel = deviceIdQueue.peek().GetLevel();
-            visitedDeviceLevelMap.put(currentDevice, currentLevel);
-            deviceLevelMap.put(currentDevice, currentLevel);
-            setUpCurrentLevelTable(currentDevice, currentLevel);
-          //  setUpCurrentAddressTable(currentDevice);
-            deviceIdQueue.remove();
-            Iterable<Link> deviceLinks = linkService.getDeviceLinks(currentDevice);
-            for (Link link : deviceLinks) {
-                if(link.src().elementId() instanceof  DeviceId && link.dst().elementId() instanceof DeviceId){
-                    if(link.src().deviceId() == currentDevice){
-                        DeviceId dst = link.dst().deviceId();
-                        if(!visitedDeviceLevelMap.containsKey(dst)){
-                            deviceIdQueue.add(new DeviceLevelPair(dst, currentLevel + 1));
-                            if(childrenMap.containsKey(currentDevice)){
-                                if(!childrenMap.get(currentDevice).contains(dst))
-                                    childrenMap.get(currentDevice).add(dst);
-                            }
-                            else{
-                                childrenMap.put(currentDevice, new ArrayList<>());
-                                childrenMap.get(currentDevice).add(dst);
-                            }
-//                            setUpChildTable(currentDevice, dst);
-                            parentMap.put(dst, new ArrayList<>());
-                            parentMap.get(dst).add(currentDevice);
-                            setUpParentTable(currentDevice, dst, currentLevel + 1);
-                        }
-                        else{
-                            DeviceId previousParent = parentMap.get(dst).get(0);
-                            if(Objects.equals(visitedDeviceLevelMap.get(previousParent), currentLevel) && !parentMap.get(dst).contains(currentDevice)){
-                                parentMap.get(dst).add(currentDevice);
-                            }
-                        }
-                    }
-                }
-            }
+    private void UpdateHost(Host host){
+       ArrayList<VlaTopologyInformation.HostInfo> hostInfos =  vlaTopologyInformation.AddHost(host.id(), host.location().deviceId());
+        for(VlaTopologyInformation.HostInfo hostInfo : hostInfos){
+            setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
         }
 
     }
@@ -470,6 +317,42 @@ public class VlaComponent {
 
         flowRuleService.applyFlowRules(routeToChildRule);
 
+    }
+
+    private void setUpChildHostTable(DeviceId parent, HostId child, int hostUniqueId){
+        log.info("Adding child table rule on device {} for child {} )...", parent, child);
+
+
+        // Fill in the table ID for the VLA  route_to_child table
+        // ---- START SOLUTION ----
+        String tableId = "IngressPipeImpl.vla_route_children_table";
+
+
+
+
+        // Modify the field and action id to match your P4Info
+        // ---- START SOLUTION ----
+        PiCriterion match = PiCriterion.builder()
+                .matchExact(
+                        PiMatchFieldId.of("local_metadata.vla_next_level_value"),hostUniqueId
+                )
+                .build();
+
+
+
+        PiTableAction action = PiAction.builder()
+                .withId(PiActionId.of("IngressPipeImpl.vla_route_to_child")).withParameter(
+                        new PiActionParam(
+                                PiActionParamId.of("target_mac"),  hostService.getHost(child).mac().toBytes()
+                        )
+                )
+                .build();
+
+
+        FlowRule routeToChildRule = Utils.buildFlowRule(
+                parent, appId, tableId, match, action);
+
+        flowRuleService.applyFlowRules(routeToChildRule);
     }
 
     private void setUpParentTable(DeviceId parent, DeviceId child, int childLevel) {
@@ -546,64 +429,7 @@ public class VlaComponent {
      * @param prefixLength prefix length for the target IP
      * @param segmentList  list of SRv6 SIDs that make up the path
      */
-//    public void insertSrv6InsertRule(DeviceId deviceId, Ip6Address destIp, int prefixLength,
-//                                     List<Ip6Address> segmentList) {
-//        if (segmentList.size() < 2 || segmentList.size() > 3) {
-//            throw new RuntimeException("List of " + segmentList.size() + " segments is not supported");
-//        }
-//
-//        // *** TODO EXERCISE 6
-//        // Fill in the table ID for the SRv6 transit table.
-//        // ---- START SOLUTION ----
-//        String tableId = "IngressPipeImpl.srv6_transit";
-//        // ---- END SOLUTION ----
-//
-//        // *** TODO EXERCISE 6
-//        // Modify match field, action id, and action parameters to match your P4Info.
-//        // ---- START SOLUTION ----
-//        PiCriterion match = PiCriterion.builder()
-//                .matchLpm(PiMatchFieldId.of("hdr.ipv6.dst_addr"), destIp.toOctets(), prefixLength)
-//                .build();
-//
-//        List<PiActionParam> actionParams = Lists.newArrayList();
-//
-//        for (int i = 0; i < segmentList.size(); i++) {
-//            PiActionParamId paramId = PiActionParamId.of("s" + (i + 1));
-//            PiActionParam param = new PiActionParam(paramId, segmentList.get(i).toOctets());
-//            actionParams.add(param);
-//        }
-//
-//        PiAction action = PiAction.builder()
-//                .withId(PiActionId.of("IngressPipeImpl.srv6_t_insert_" + segmentList.size()))
-//                .withParameters(actionParams)
-//                .build();
-//        // ---- END SOLUTION ----
-//
-//        final FlowRule rule = Utils.buildFlowRule(
-//                deviceId, appId, tableId, match, action);
-//
-//        flowRuleService.applyFlowRules(rule);
-//    }
-//
-//    /**
-//     * Remove all SRv6 transit insert polices for the specified device.
-//     *
-//     * @param deviceId device ID
-//     */
-//    public void clearSrv6InsertRules(DeviceId deviceId) {
-//        // *** TODO EXERCISE 6
-//        // Fill in the table ID for the SRv6 transit table
-//        // ---- START SOLUTION ----
-//        String tableId = "IngressPipeImpl.srv6_transit";
-//        // ---- END SOLUTION ----
-//
-//        FlowRuleOperations.Builder ops = FlowRuleOperations.builder();
-//        stream(flowRuleService.getFlowEntries(deviceId))
-//                .filter(fe -> fe.appId() == appId.id())
-//                .filter(fe -> fe.table().equals(PiTableId.of(tableId)))
-//                .forEach(ops::remove);
-//        flowRuleService.apply(ops.build());
-//    }
+
 
     // ---------- END METHODS TO COMPLETE ----------------
 
@@ -682,6 +508,46 @@ public class VlaComponent {
                     UpdateBasedOnLink(srcDev, dstDev);
                 });
             }
+        }
+    }
+
+    public class InternalHostListener implements HostListener {
+
+        @Override
+        public boolean isRelevant(HostEvent event) {
+            switch (event.type()) {
+                case HOST_ADDED:
+                    // Host added events will be generated by the
+                    // HostLocationProvider by intercepting ARP/NDP packets.
+                    break;
+                case HOST_REMOVED:
+                case HOST_UPDATED:
+                case HOST_MOVED:
+                default:
+                    // Ignore other events.
+                    // Food for thoughts: how to support host moved/removed?
+                    return false;
+            }
+            // Process host event only if this controller instance is the master
+            // for the device where this host is attached to.
+            final Host host = event.subject();
+            final DeviceId deviceId = host.location().deviceId();
+            return mastershipService.isLocalMaster(deviceId);
+        }
+
+        @Override
+        public void event(HostEvent event) {
+            final Host host = event.subject();
+            // Device and port where the host is located.
+            final DeviceId deviceId = host.location().deviceId();
+            final PortNumber port = host.location().port();
+
+            mainComponent.getExecutorService().execute(() -> {
+                log.info("{} event! host={}, deviceId={}, port={}",
+                        event.type(), host.id(), deviceId, port);
+
+                UpdateHost(host);
+            });
         }
     }
 
