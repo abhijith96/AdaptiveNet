@@ -98,14 +98,14 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
             # The extension must be align on 8 bytes
             tmp_mod = (-len(pkt) + 8) % 8
-            if tmp_mod == 1:
-                tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
-                pkt += raw(tlv)
-            elif tmp_mod >= 2:
-                # Add the padding extension
-                tmp_pad = b"\x00" * (tmp_mod - 2)
-                tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
-                pkt += raw(tlv)
+            # if tmp_mod == 1:
+            #     tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
+            #     pkt += raw(tlv)
+            # elif tmp_mod >= 2:
+            #     # Add the padding extension
+            #     tmp_pad = b"\x00" * (tmp_mod - 2)
+            #     tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
+            #     pkt += raw(tlv)
 
             tmp_len = (len(pkt) - 8) // 8
             pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
