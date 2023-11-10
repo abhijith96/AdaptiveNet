@@ -137,7 +137,7 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
 
 sidList = [4096, 4096, 4096]
 currentLevel = 2
-packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IP(src="192.168.1.1", dst="192.168.1.2")/IPv6ExtHdrVLA()/UDP()
+packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="192.168.1.1", dst="192.168.1.2")/IPv6ExtHdrVLA()/UDP()
 packet = insert_vla_header(packet, sidList, currentLevel)
 
 # Send the packet as a ping on interface eth0
