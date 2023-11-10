@@ -112,7 +112,7 @@ def main():
 #    interfaceMacAddress = get_if_hwaddr(interface)
    vlaList = [4096,4097,4097]
    currentLevel = 2
-   packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6()/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
+   packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "::2")/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
    packet = insert_vla_header(packet, vlaList, currentLevel)
    srp(packet, iface="h1a-eth0")   
 

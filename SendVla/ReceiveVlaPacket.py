@@ -10,12 +10,13 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
 def print_packet(packet):
+    print(packet.show())
     if packet.haslayer(UDP):
         print(packet[UDP].load)
     if packet.haslayer(IPv6ExtHdrVLA):
         print(packet[IPv6ExtHdrVLA].summary())
     
-    print(packet.show())
+   
 
 
 # Sniff IPv6 packets on interface eth0
