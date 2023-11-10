@@ -1,9 +1,8 @@
 
 from scapy.layers.inet6 import  _IPv6ExtHdr;
-from scapy.fields import FieldListField, PadField
-from ptf.testutils import group
+from scapy.layers.inet6 import *
+from scapy.fields import *
 
-from base_test import *
 
 class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
