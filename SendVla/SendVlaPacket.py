@@ -16,12 +16,6 @@ from scapy.utils6 import in6_getnsma, in6_getnsmac
 #from base_test import *
 
 
-from operator import add
-from ptf.testutils import group
-
-from base_test import *
-
-from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
 MINSIZE = 0
