@@ -115,7 +115,7 @@ def main():
    packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
    packet = insert_vla_header(packet, vlaList, currentLevel)
    print("data is ", data)
-    print("vla list  ", vlaList)
+   print("vla list  ", vlaList)
    srp(packet, iface="h1a-eth0")   
 
 if __name__ == "__main__":
