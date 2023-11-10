@@ -13,7 +13,7 @@ from scapy.layers.inet6 import *
 from scapy.layers.l2 import Ether
 from scapy.pton_ntop import inet_pton, inet_ntop
 from scapy.utils6 import in6_getnsma, in6_getnsmac
-
+from testutils import *
 #from base_test import *
 
 
@@ -97,7 +97,7 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
 
 sidList = [4096, 4096, 4096]
 currentLevel = 2
-packet = simple_udpv6_packet()
+packet = testutils.simple_udpv6_packet()
 packet = insert_vla_header(packet, sidList, currentLevel)
 
 # Send the packet as a ping on interface eth0
