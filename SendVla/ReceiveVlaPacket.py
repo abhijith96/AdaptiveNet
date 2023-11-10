@@ -1,7 +1,12 @@
+
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
+
 from scapy.all import *
 from scapy.layers.inet6 import UDP
 import IPv6ExtHdrVLA
-
 
 
 def print_packet(packet):
