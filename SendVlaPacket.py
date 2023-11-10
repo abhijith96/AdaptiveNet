@@ -2,11 +2,55 @@ from scapy.layers.inet6 import  _IPv6ExtHdr;
 from scapy.fields import FieldListField, PadField
 from ptf.testutils import group
 from scapy.sendrecv import srp
+import scapy.packet
+import scapy.utils
+from ptf import config
+from ptf import testutils as testutils
+from ptf.base_tests import BaseTest
+from ptf.dataplane import match_exp_pkt
+from ptf.packet import IPv6
+from scapy.layers.inet6 import *
+from scapy.layers.l2 import Ether
+from scapy.pton_ntop import inet_pton, inet_ntop
+from scapy.utils6 import in6_getnsma, in6_getnsmac
 
-from base_test import *
+#from base_test import *
 
 
 MINSIZE = 0
+DEFAULT_PRIORITY = 10
+
+IPV6_MCAST_MAC_1 = "33:33:00:00:00:01"
+
+SWITCH1_MAC = "00:00:00:00:aa:01"
+SWITCH2_MAC = "00:00:00:00:aa:02"
+SWITCH3_MAC = "00:00:00:00:aa:03"
+HOST1_MAC = "00:00:00:00:00:01"
+HOST2_MAC = "00:00:00:00:00:02"
+
+MAC_BROADCAST = "FF:FF:FF:FF:FF:FF"
+MAC_FULL_MASK = "FF:FF:FF:FF:FF:FF"
+MAC_MULTICAST = "33:33:00:00:00:00"
+MAC_MULTICAST_MASK = "FF:FF:00:00:00:00"
+
+SWITCH1_IPV6 = "2001:0:1::1"
+SWITCH2_IPV6 = "2001:0:2::1"
+SWITCH3_IPV6 = "2001:0:3::1"
+SWITCH4_IPV6 = "2001:0:4::1"
+HOST1_IPV6 = "2001:0000:85a3::8a2e:370:1111"
+HOST2_IPV6 = "2001:0000:85a3::8a2e:370:2222"
+IPV6_MASK_ALL = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
+
+ARP_ETH_TYPE = 0x0806
+IPV6_ETH_TYPE = 0x86DD
+
+ICMPV6_IP_PROTO = 58
+NS_ICMPV6_TYPE = 135
+NA_ICMPV6_TYPE = 136
+
+# FIXME: this should be removed, use generic packet in test
+PACKET_IN_INGRESS_PORT_META_ID = 1
+
 
 class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
