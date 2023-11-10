@@ -3,6 +3,8 @@ from __future__ import print_function
 import os
 import sys
 
+from scapy.all import get_if_hwaddr
+
 sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
 
 from scapy.layers.inet6 import  _IPv6ExtHdr;
@@ -10,11 +12,7 @@ from scapy.fields import FieldListField, PadField
 from scapy.sendrecv import srp
 import scapy.packet
 import scapy.utils
-from ptf import config
-from ptf import testutils as testutils
-from ptf.base_tests import BaseTest
-from ptf.dataplane import match_exp_pkt
-from ptf.packet import IPv6
+from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.layers.inet6 import *
 from scapy.layers.l2 import Ether
 from scapy.pton_ntop import inet_pton, inet_ntop
@@ -80,53 +78,6 @@ def insert_vla_header(pkt, sid_list, current_level_param):
     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
     pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
     return pkt
-
-
-class IPv6ExtHdrVLA(_IPv6ExtHdr):
-
-    name = "IPv6 Option Header VLA"
-    # RFC8754 sect 2. + flag bits from draft 06
-    fields_desc = [ByteEnumField("nh", 59, ipv6nh),
-                   ByteField("len", None),
-                BitField("address_type", 0, 2),
-                   BitField("current_level", 0, 16),
-                   BitField("number_of_levels", 0, 16),
-                    BitField("pad", 0, 6),
-                 FieldListField("addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_levels), length_from=lambda pkt,x: 16)
-    ]
-
-    overload_fields = {IPv6: {"nh": 48}}
-
-    def post_build(self, pkt, pay):
-
-        # if self.len is None:
-
-            # The extension must be align on 8 bytes
-            # tmp_mod = (-len(pkt) + 8) % 8
-            # if tmp_mod == 1:
-            #     tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
-            #     pkt += raw(tlv)
-            # elif tmp_mod >= 2:
-            #     # Add the padding extension
-            #     tmp_pad = b"\x00" * (tmp_mod - 2)
-            #     tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
-            #     pkt += raw(tlv)
-
-            # tmp_len = (len(pkt) - 8) // 8
-            # pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
-
-        if self.number_of_levels is None:
-            tmp_len = len(self.addresses)
-            if tmp_len:
-                tmp_len -= 1
-            pkt = pkt[:3] + struct.pack("B", tmp_len) + pkt[4:]
-
-        if self.current_level is None:
-            self.current_level = 0
-            pkt = pkt[:4] + struct.pack("B", self.current_level) + pkt[5:]
-
-        return _IPv6ExtHdr.post_build(self, pkt, pay)
     
 
 def create_vla_current_address_entry(address_list, max_level_limit, level_size):
@@ -139,13 +90,32 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
             result = result << level_size
             if i < len(address_list):
                 result  += address_list[i]   
-    return int(result)    
+    return int(result)   
 
-sidList = [4096,4097,4097]
-currentLevel = 2
-data = "HELLO WORLD"
-packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6()/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
-packet = insert_vla_header(packet, sidList, currentLevel)
+def ConvertVlaAddressStringToVlaList(vlaAddressString):
+    vlaList = vlaAddressString.split(":")
+    return vlaList
 
-# Send the packet as a ping on interface eth0
-srp(packet, iface="h1a-eth0")
+def getCommandLineArguments():
+    try:
+        interface = sys.argv[1]
+        vlaAddressString = sys.argv[2]
+        vlaLevel = int(sys.argv[3])
+        vlaAddressList = ConvertVlaAddressStringToVlaList(vlaAddressString)
+        return (interface,vlaAddressList, vlaLevel)
+    except Exception():
+        raise Exception("Pass Comandline Arguments Properly") 
+
+def main():
+   interface, vlaList, vlaCurrentLevel = getCommandLineArguments()
+   data = "HELLO WORLD"
+   interfaceMacAddress = get_if_hwaddr(interface)
+#    vlaList = [4096,4097,4097]
+#    currentLevel = 2
+   packet = Ether(src=interfaceMacAddress, dst="00:aa:00:00:00:01")/IPv6(src="::", dst= "::")/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
+   packet = insert_vla_header(packet, vlaList, vlaCurrentLevel)
+   srp(packet, iface=interface)   
+
+if __name__ == "__main__":
+    main()
+

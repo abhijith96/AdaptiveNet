@@ -17,10 +17,17 @@ def print_packet(packet):
     
     print(packet.summary())
 
-  
-
-def print_packet(packet):
-    packet.show()
 
 # Sniff IPv6 packets on interface eth0
-sniff(filter="ip6", prn=print_packet, iface="h4-eth0")
+def getInterfaceToListenOn():
+    try:
+        interface = sys.argv[1]
+        return interface
+    except Exception():
+        raise Exception("Pass Interface name to listen on as command line argument")
+def main():
+   interface = getInterfaceToListenOn()
+   sniff(filter="ip6", prn=print_packet, iface=interface)
+
+if __name__ == "__main__":
+    main()
