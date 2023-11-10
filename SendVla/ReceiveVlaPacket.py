@@ -15,7 +15,7 @@ def print_packet(packet):
     if packet.haslayer(IPv6ExtHdrVLA):
         print(packet[IPv6ExtHdrVLA].summary())
     
-    print(packet.summary())
+    print(packet.show())
 
 
 # Sniff IPv6 packets on interface eth0
