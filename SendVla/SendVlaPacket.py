@@ -107,16 +107,14 @@ def getCommandLineArguments():
         raise Exception("Pass Comandline Arguments Properly") 
 
 def main():
-   interface, vlaList, vlaCurrentLevel = getCommandLineArguments()
+#    interface, vlaList, vlaCurrentLevel = getCommandLineArguments()
    data = "HELLO WORLD"
-   interfaceMacAddress = get_if_hwaddr(interface)
-#    vlaList = [4096,4097,4097]
-#    currentLevel = 2
-   packet = Ether(src=interfaceMacAddress, dst="00:aa:00:00:00:01")/IPv6()/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
-   print ("vla list is ", vlaList)
-   print ("interface mac address", interfaceMacAddress)
-   packet = insert_vla_header(packet, vlaList, vlaCurrentLevel)
-   srp(packet, iface=interface)   
+#    interfaceMacAddress = get_if_hwaddr(interface)
+   vlaList = [4096,4097,4097]
+   currentLevel = 2
+   packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6()/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
+   packet = insert_vla_header(packet, vlaList, currentLevel)
+   srp(packet, iface="h1a-eth0")   
 
 if __name__ == "__main__":
     main()
