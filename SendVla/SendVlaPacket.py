@@ -94,10 +94,10 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
     def post_build(self, pkt, pay):
 
-        if self.len is None:
+        # if self.len is None:
 
             # The extension must be align on 8 bytes
-            tmp_mod = (-len(pkt) + 8) % 8
+            # tmp_mod = (-len(pkt) + 8) % 8
             # if tmp_mod == 1:
             #     tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
             #     pkt += raw(tlv)
@@ -107,8 +107,8 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
             #     tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
             #     pkt += raw(tlv)
 
-            tmp_len = (len(pkt) - 8) // 8
-            pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
+            # tmp_len = (len(pkt) - 8) // 8
+            # pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
 
         if self.number_of_levels is None:
             tmp_len = len(self.addresses)
