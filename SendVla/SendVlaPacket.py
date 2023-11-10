@@ -2,6 +2,9 @@
 from __future__ import print_function
 import os
 import sys
+
+sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
+
 from scapy.layers.inet6 import  _IPv6ExtHdr;
 from scapy.fields import FieldListField, PadField
 from scapy.sendrecv import srp
@@ -18,7 +21,7 @@ from scapy.pton_ntop import inet_pton, inet_ntop
 from scapy.utils6 import in6_getnsma, in6_getnsmac
 #from base_test import *
 
-sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
+
 
 
 MINSIZE = 0
