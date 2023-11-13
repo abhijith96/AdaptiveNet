@@ -94,9 +94,8 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
 
 def ConvertVlaAddressStringToVlaList(vlaAddressString):
     vlaList = vlaAddressString.split(":")
-    for stringId in vlaList:
-        stringId = int(stringId)
-    return vlaList
+    integer_list = [int(x) for x in vlaList]
+    return integer_list
 
 def getCommandLineArguments():
     try:
