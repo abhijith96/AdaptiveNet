@@ -1,8 +1,8 @@
-from scapy.all import sr1
+from scapy.all import sr1, sniff, send
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
-
+from scapy.layers.l2 import Ether
 
 def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     pktlen = 100
@@ -53,33 +53,43 @@ def insert_vla_header(pkt, destination_vla_list, source_vla_list, current_level_
     pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
     return pkt
 
-def ping():
-    # Create an IP packet with an ICMP Echo Request
-    ethSrc="00:00:00:00:00:1a" 
-    ethDst="00:aa:00:00:00:01"
-    vlaSrcList = [4096,4096,4096,4096,4096]
-    vlaDstList = [4096, 4096, 4097]
-    vlaCurrentLevel = 4
-    dataPayload = "Hello World"
-    pkt = createVlaPacket(ethSrc, ethDst, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
 
-    # Send the packet and wait for a response
-    reply = sr1(pkt, timeout=2, verbose=False)
 
-    # Check if a response was received
-    if reply:
-        # Check if the response is an ICMP Echo Reply
-        if reply.haslayer(UDP) and reply[UDP].sport == 80:
-            print(f"Ping to  successful!")
-        else:
-            print(f"Ping to failed. Unexpected response type.")
-            reply.summary()
+def process_udp_packet(packet):
+    if IPv6 in packet and UDP in packet:
+        # Extract relevant information from the received packet
+        source_ip = packet[IPv6].src
+        dest_ip = packet[IPv6].dst
+        source_port = packet[UDP].sport
+        destination_port = packet[UDP].dport
+        payload = packet[UDP].payload
+
+        source_vla =  packet[IPv6ExtHdrVLA].source_addresses
+        dest_vla = packet[IPv6ExtHdrVLA].addresses
+        current_level =  packet[IPv6ExtHdrVLA].current_level
+
+        modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, dest_ip, payload)
+        packet[UDP].sport = destination_port
+        packet[UDP].dport = source_port
+
+        modified_packet = insert_vla_header(packet, source_vla, dest_vla, current_level - 1)
+        # Send the modified packet back
+        send(modified_packet, verbose=False)
+        print(f"Replied to UDP packet from {source_ip}:{source_port} with modified ports.")
     else:
-        print(f"No response from.")
+        print("UnRecognized packet")
 
-# Example usage
+
+
+def pingListner():
+    # Create an IP packet with an ICMP Echo Request
+    target_udp_port = 50001
+    # Start sniffing for UDP packets on the specified port
+    sniff(filter=f"udp and port {target_udp_port}", prn=process_udp_packet, store=0)    
+    return None
+
 def main():
-    ping()
+    pingListner()
 
 if __name__ == "__main__":
     main()

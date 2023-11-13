@@ -64,7 +64,6 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     """Applies Vla header to an Ipv6 packet.
     """
     # Set IPv6 dst to some valid IPV6 Address
-    pkt[IPv6].dst = HOST2_IPV6
     # Insert VLA header between IPv6 header and payload
     sid_len = len(sid_list)
     source_vla_list_len = len(source_vla_list)
@@ -124,6 +123,7 @@ def main():
     # vlaList = [4096,4096,4096,4096, 4096]
     # currentLevel = 2
     packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
+
     packet = insert_vla_header(packet, vlaList,sourceVlaList, currentLevel)
     print("data is ", data)
     print("vla list  ", vlaList)
