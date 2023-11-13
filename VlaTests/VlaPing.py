@@ -70,12 +70,12 @@ def ping():
     if reply:
         # Check if the response is an ICMP Echo Reply
         if reply.haslayer(UDP) and reply[UDP].sport == 80:
-            print(f"Ping to  successful!")
+            print("Ping to  successful!")
         else:
-            print(f"Ping to failed. Unexpected response type.")
+            print("Ping to failed. Unexpected response type.")
             reply.summary()
     else:
-        print(f"No response from.")
+        print("No response from.")
 
 # Example usage
 def main():
