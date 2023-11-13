@@ -65,6 +65,9 @@ def ping():
     dataPayload = "Hello World"
     pkt = createVlaPacket(ethSrc, ethDst, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
 
+    print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+
+
     # Send the packet and wait for a response
     reply = sr1(pkt, timeout=2, verbose=False)
 
