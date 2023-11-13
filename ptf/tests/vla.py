@@ -79,7 +79,7 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
         nh=pkt[IPv6].nh,
         addresses=sid_list,
         source_addresses = source_vla_list,
-        len=(sid_len * 2 + (source_vla_list_len * 2)),
+        len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= sid_len,
@@ -269,7 +269,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         set_cksum(pkt, 1)
         set_cksum(exp_pkt, 1)
 
-        # print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+        print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
         # print("packet  ip hex dump ", pkt[IPv6])
 
