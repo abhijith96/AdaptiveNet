@@ -70,7 +70,7 @@ mn-cli:
 
 mn-log:
 	docker logs -f mininet
-	
+
 mn-host:
 	docker-compose exec mininet m $@
 

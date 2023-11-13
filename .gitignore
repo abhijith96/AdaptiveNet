@@ -1,5 +1,7 @@
 .idea/
 tmp/
+.vscode
+.env
 p4src/build
 app/target
 app/src/main/resources/p4info.txt
@@ -16,3 +18,4 @@ ptf/ptf.pcap
 **/.settings
 **/.factorypath
 util/.pipe_cfg
+venv/*
