@@ -22,6 +22,7 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
         pkt /= UDP(sport=udp_sport, dport=udp_dport)
     else:
         pkt /= UDP(sport=udp_sport, dport=udp_dport, chksum=0)
+    #pkt = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()
     if data_payload:
         pkt = pkt / data_payload
     pkt /= "D" * (pktlen - len(pkt))
@@ -39,6 +40,7 @@ def insert_vla_header(pkt, destination_vla_list, source_vla_list, current_level_
     """
     # Set IPv6 dst to some valid IPV6 Address
     # Insert VLA header between IPv6 header and payload
+    print("debug ", pkt[IPv6].plen)
     vla_dst_len = len(destination_vla_list)
     source_vla_list_len = len(source_vla_list)
     vla_hdr = IPv6ExtHdrVLA(
