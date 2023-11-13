@@ -61,7 +61,7 @@ PACKET_IN_INGRESS_PORT_META_ID = 1
 
 
 def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
-    """Applies SRv6 insert transformation to the given packet.
+    """Applies Vla header to an Ipv6 packet.
     """
     # Set IPv6 dst to some valid IPV6 Address
     pkt[IPv6].dst = HOST2_IPV6
@@ -72,7 +72,7 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
         nh=pkt[IPv6].nh,
         addresses=sid_list,
         source_addresses = source_vla_list,
-        len=(sid_len * 2 + (source_vla_list_len * 2)),
+        len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= sid_len,
@@ -117,7 +117,7 @@ def main():
     print("printing commandline arguments")
     print("interface mac address ", interfaceMacAddress)
     print("interface", interface)
-    sourceVlaList = [4096,4096,4096]
+    sourceVlaList = [4096,4096,4097]
     # print("vla list is ", vlaList)
     # print("vla currentLevel is ", vlaCurrentLevel)
     # interface = "h1a-eth0"
