@@ -15,13 +15,13 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     udp_dport = 50001
     with_udp_chksum = True
     pkt = Ether(dst=eth_dst, src=eth_src)
-    pkt /= packet.IPv6(
+    pkt /= IPv6(
         src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
     )
     if with_udp_chksum:
-        pkt /= packet.UDP(sport=udp_sport, dport=udp_dport)
+        pkt /= UDP(sport=udp_sport, dport=udp_dport)
     else:
-        pkt /= packet.UDP(sport=udp_sport, dport=udp_dport, chksum=0)
+        pkt /= UDP(sport=udp_sport, dport=udp_dport, chksum=0)
     if data_payload:
         pkt = pkt / data_payload
     pkt /= "D" * (pktlen - len(pkt))
