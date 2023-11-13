@@ -15,9 +15,8 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     udp_dport = 50001
     with_udp_chksum = True
     pkt = Ether(dst=eth_dst, src=eth_src)
-    nh_udp = 17
     pkt /= IPv6(
-        src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim, nh =nh_udp
+        src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
     )
     if with_udp_chksum:
         pkt /= UDP(sport=udp_sport, dport=udp_dport)
@@ -32,7 +31,7 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
     ip_src = "::1"
     ip_dst = "::2"
     pkt = createIPPacket(ethDst, ethSrc, ip_src, ip_dst, data_payload)
-    insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
+    pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
 
 def insert_vla_header(pkt, destination_vla_list, source_vla_list, current_level_param):
