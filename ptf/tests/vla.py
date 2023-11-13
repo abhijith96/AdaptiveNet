@@ -67,23 +67,26 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
 
 
 
-def insert_vla_header(pkt, sid_list, current_level_param):
+def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     """Applies SRv6 insert transformation to the given packet.
     """
     # Set IPv6 dst to some valid IPV6 Address
     pkt[IPv6].dst = HOST2_IPV6
     # Insert VLA header between IPv6 header and payload
     sid_len = len(sid_list)
-    srv6_hdr = IPv6ExtHdrVLA(
+    source_vla_list_len = len(source_vla_list)
+    vla_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
         addresses=sid_list,
-        len=(sid_len * 2) - 1,
+        source_addresses = source_vla_list,
+        len=(sid_len * 2 + (source_vla_list_len * 2)),
         address_type = 0b01,
         current_level = current_level_param,
-        number_of_levels= sid_len
+        number_of_levels= sid_len,
+        number_of_source_levels = source_vla_list_len
         )
     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
-    pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
+    pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
     return pkt
 
 
@@ -119,6 +122,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
         current_level_value = 2
@@ -130,7 +134,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
+                pkt =insert_vla_header(pkt, sid_list, source_sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
@@ -292,6 +296,7 @@ class VlaRouteToAnotherTreeSecondSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 2
         current_level_value = 2
@@ -303,7 +308,7 @@ class VlaRouteToAnotherTreeSecondSwitch(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
+                pkt =insert_vla_header(pkt, sid_list,  source_sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
@@ -464,6 +469,7 @@ class VlaRouteToAnotherTreeThirdSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 1
         current_level_value = 10
@@ -475,7 +481,7 @@ class VlaRouteToAnotherTreeThirdSwitch(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
+                pkt =insert_vla_header(pkt, sid_list,  source_sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
@@ -637,6 +643,7 @@ class VlaRouteToAnotherTreeFourthSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 2
         current_level_value = 2
@@ -648,7 +655,7 @@ class VlaRouteToAnotherTreeFourthSwitch(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
+                pkt =insert_vla_header(pkt, sid_list,  source_sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
@@ -811,6 +818,7 @@ class VlaRouteToAnotherTreeFifthSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
         current_level_value = 4
@@ -822,7 +830,7 @@ class VlaRouteToAnotherTreeFifthSwitch(P4RuntimeTest):
                 print_inline("%s %d SIDs ... " % (pkt_type, len(sid_list)))
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
-                pkt =insert_vla_header(pkt, sid_list, current_level_index)
+                pkt =insert_vla_header(pkt, sid_list,source_sid_list, current_level_index)
 
 
                 self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)

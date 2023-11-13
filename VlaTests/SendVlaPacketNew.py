@@ -60,23 +60,26 @@ PACKET_IN_INGRESS_PORT_META_ID = 1
 
 
 
-def insert_vla_header(pkt, sid_list, current_level_param):
+def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     """Applies SRv6 insert transformation to the given packet.
     """
     # Set IPv6 dst to some valid IPV6 Address
     pkt[IPv6].dst = HOST2_IPV6
     # Insert VLA header between IPv6 header and payload
     sid_len = len(sid_list)
-    srv6_hdr = IPv6ExtHdrVLA(
+    source_vla_list_len = len(source_vla_list)
+    vla_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
         addresses=sid_list,
-        len=(sid_len * 2) - 1,
+        source_addresses = source_vla_list,
+        len=(sid_len * 2 + (source_vla_list_len * 2)),
         address_type = 0b01,
         current_level = current_level_param,
-        number_of_levels= sid_len
+        number_of_levels= sid_len,
+        number_of_source_levels = source_vla_list_len
         )
     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
-    pkt[IPv6].payload = srv6_hdr / pkt[IPv6].payload
+    pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
     return pkt
     
 
@@ -114,13 +117,14 @@ def main():
     print("printing commandline arguments")
     print("interface mac address ", interfaceMacAddress)
     print("interface", interface)
+    sourceVlaList = [4096,4096,4096]
     # print("vla list is ", vlaList)
     # print("vla currentLevel is ", vlaCurrentLevel)
     # interface = "h1a-eth0"
     # vlaList = [4096,4096,4096,4096, 4096]
     # currentLevel = 2
     packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/IPv6ExtHdrVLA()/UDP()/Raw(load=data)
-    packet = insert_vla_header(packet, vlaList, currentLevel)
+    packet = insert_vla_header(packet, vlaList,sourceVlaList, currentLevel)
     print("data is ", data)
     print("vla list  ", vlaList)
     srp(packet, iface="h1a-eth0")   

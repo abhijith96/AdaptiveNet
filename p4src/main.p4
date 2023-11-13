@@ -112,6 +112,7 @@ header vlah_t {
     bit<2> address_type;
     bit<16> current_level;
     bit<16> num_levels;
+    bit<16> num_source_levels;
     bit<6> _pad;
 }
 
@@ -206,6 +207,7 @@ struct parsed_headers_t {
     ipv6_t ipv6;
     vlah_t vlah;
     vla_list_t[VLA_MAX_LEVELS] vla_list;
+    vla_list_t[VLA_MAX_LEVELS] vla_source_list;
     srv6h_t srv6h;
     srv6_list_t[SRV6_MAX_HOPS] srv6_list;
     tcp_t tcp;
@@ -218,8 +220,9 @@ struct parsed_headers_t {
 struct parser_local_metadata_t{
      bit<32> active_level_index;
      bit<16> active_level_value;
+     bit<32> active_source_level_index;
      bool is_first_vla_level;
-    bit<160> destination_address_key;
+     bit<160> destination_address_key;
 }
 
 struct local_metadata_t {
@@ -339,7 +342,7 @@ parser ParserImpl (packet_in packet,
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
         local_metadata.is_current_vla_marked = true;
         transition select(last_segment){
-            true: parse_vla_next_hdr;
+            true: parse_vla_source_list;
             default :vla_extract_next_hdr;
         }
     }
@@ -347,16 +350,31 @@ parser ParserImpl (packet_in packet,
     state vla_extract_next_hdr{
         packet.extract(hdr.vla_list.next);
         local_metadata.vla_next_level_value = hdr.vla_list.last.level_id;
-        transition parse_vla_next_hdr;
+        transition parse_vla_source_list;
     }
 
     state iterate_vla_again{
         local_metadata.vla_previous_level_value = hdr.vla_list.last.level_id;
         bool last_segment = (bit<32>)hdr.vlah.num_levels == (bit<32>)(hdr.vla_list.lastIndex + 1);
         transition select(last_segment) {
-           true: parse_vla_next_hdr;
+           true: parse_vla_source_list;
            default: parse_vla_list;
         }
+
+    }
+
+    state parse_vla_source_list{
+        packet.extract(hdr.vla_source_list.next);
+        local_metadata.parser_local_metadata.active_source_level_index = hdr.vla_source_list.lastIndex + 1;
+    }
+
+    state iterate_vla_source_list_again{
+
+        bool last_level = (bit<32>)hdr.vlah.num_source_levels == (bit<32>)(local_metadata.parser_local_metadata.active_source_level_index);
+        transition select(last_segment) {
+            true: parse_vla_next_hdr;
+            default: parse_vla_source_list;
+        }   
 
     }
 
