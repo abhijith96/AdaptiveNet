@@ -11,6 +11,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 def print_packet(packet):
     print(packet.show())
+    print("packet  vla hex dump ", packet[IPv6ExtHdrVLA])
     if packet.haslayer(UDP):
         print(packet[UDP].load)
     if packet.haslayer(IPv6ExtHdrVLA):
