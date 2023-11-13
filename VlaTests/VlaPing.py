@@ -5,6 +5,7 @@ from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 
 
+
 def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     pktlen = 100
     ipv6_tc = 0
@@ -13,7 +14,7 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     udp_sport = 50000
     udp_dport = 50001
     with_udp_chksum = True
-    pkt = packet.Ether(dst=eth_dst, src=eth_src)
+    pkt = Ether(dst=eth_dst, src=eth_src)
     pkt /= packet.IPv6(
         src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
     )
