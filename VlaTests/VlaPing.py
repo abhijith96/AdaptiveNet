@@ -2,6 +2,7 @@ from scapy.all import sr1
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
+from scapy.layers.l2 import Ether
 
 
 def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
