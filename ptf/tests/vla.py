@@ -269,7 +269,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         set_cksum(pkt, 1)
         set_cksum(exp_pkt, 1)
 
-        print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
+        print("packet  vla hex dump ", exp_pkt[IPv6ExtHdrVLA])
 
         # print("packet  ip hex dump ", pkt[IPv6])
 
