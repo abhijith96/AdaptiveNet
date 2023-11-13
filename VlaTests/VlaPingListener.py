@@ -1,4 +1,4 @@
-from scapy.all import sr1, sniff, send
+from scapy.all import sr1, sniff, send, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
@@ -78,6 +78,10 @@ def process_udp_packet(packet):
         print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
     else:
         print (packet.show())
+        extension_header = IPv6ExtHdrVLA(packet[Raw].load)
+
+# Print the details of the extracted IPv6 Extension Header VLA
+        extension_header.show()
         print("UnRecognized packet")
 
 
