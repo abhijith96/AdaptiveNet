@@ -371,7 +371,7 @@ parser ParserImpl (packet_in packet,
     state iterate_vla_source_list_again{
 
         bool last_level = (bit<32>)hdr.vlah.num_source_levels == (bit<32>)(local_metadata.parser_local_metadata.active_source_level_index);
-        transition select(last_segment) {
+        transition select(last_level) {
             true: parse_vla_next_hdr;
             default: parse_vla_source_list;
         }   
