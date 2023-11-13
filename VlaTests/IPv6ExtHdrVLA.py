@@ -16,9 +16,9 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                     BitField("number_of_source_levels", 0, 16),
                     BitField("pad", 0, 6),
                  FieldListField("addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_levels), length_from=lambda pkt,x: 16),
+                                 count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
                 FieldListField("source_addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt,x: 16)
+                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2)
     ]
 
     overload_fields = {IPv6: {"nh": 48}}
