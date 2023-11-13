@@ -75,7 +75,7 @@ def process_udp_packet(packet):
         modified_packet = insert_vla_header(packet, source_vla, dest_vla, current_level - 1)
         # Send the modified packet back
         send(modified_packet, verbose=False)
-        print(f"Replied to UDP packet from {source_ip}:{source_port} with modified ports.")
+        print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
     else:
         print("UnRecognized packet")
 
