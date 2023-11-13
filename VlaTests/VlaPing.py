@@ -15,8 +15,9 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
     udp_dport = 50001
     with_udp_chksum = True
     pkt = Ether(dst=eth_dst, src=eth_src)
+    nh_udp = 17
     pkt /= IPv6(
-        src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
+        src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim, nh =nh_udp
     )
     if with_udp_chksum:
         pkt /= UDP(sport=udp_sport, dport=udp_dport)
@@ -62,14 +63,16 @@ def ping():
     vlaSrcList = [4096,4096,4096,4096,4096]
     vlaDstList = [4096, 4096, 4097]
     vlaCurrentLevel = 4
-    dataPayload = "Hello World"
+    dataPayload = None
     pkt = createVlaPacket(ethSrc, ethDst, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
+
+    print("packet is ", pkt.show())
 
     print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
 
 
     # Send the packet and wait for a response
-    reply = sr1(pkt, timeout=2, verbose=False)
+    reply = sr1(pkt, timeout=4, verbose=False)
 
     # Check if a response was received
     if reply:
