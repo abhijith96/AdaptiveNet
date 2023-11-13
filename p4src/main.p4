@@ -366,6 +366,7 @@ parser ParserImpl (packet_in packet,
     state parse_vla_source_list{
         packet.extract(hdr.vla_source_list.next);
         local_metadata.parser_local_metadata.active_source_level_index = hdr.vla_source_list.lastIndex + 1;
+        transition iterate_vla_source_list_again;
     }
 
     state iterate_vla_source_list_again{
