@@ -69,6 +69,11 @@ public class VlaTopologyInformation {
             return parentId;
         }
 
+
+        /**
+         * Unique Address for device in parent's address space
+         * @param levelIdentifier
+         */
         public void SetLevelIdentifier(int levelIdentifier){
             this.levelIdentifier = levelIdentifier;
         }
@@ -100,6 +105,9 @@ public class VlaTopologyInformation {
             return level;
         }
 
+        /**
+         * Unique Address for host in parent's address space
+         */
         public int getLevelIdentifier() {
             return levelIdentifier;
         }
@@ -116,9 +124,9 @@ public class VlaTopologyInformation {
             this.hostId = hostId;
             this.deviceId = deviceId;
             this.level = levelMap.get(deviceId) + 1;
-            int currentIdentifierForDeviceChildren = deviceIdentifierMap.get(deviceId);
-            deviceIdentifierMap.put(deviceId, currentIdentifierForDeviceChildren + 1);
-            this.levelIdentifier = currentIdentifierForDeviceChildren;
+            int identifier = deviceChildIdentifierCounter.get(deviceId);
+            deviceChildIdentifierCounter.put(deviceId, identifier + 1);
+            this.levelIdentifier = identifier;
 
             byte[] deviceAddress = GetVlaAddress(deviceId, this.level - 1);
 
