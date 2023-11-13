@@ -77,6 +77,7 @@ def process_udp_packet(packet):
         send(modified_packet, verbose=False)
         print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
     else:
+        print (packet.show())
         print("UnRecognized packet")
 
 
@@ -84,7 +85,9 @@ def process_udp_packet(packet):
 def pingListner():
     # Create an IP packet with an ICMP Echo Request
     target_udp_port = 50001
+    interface = "h3-eth0"
     # Start sniffing for UDP packets on the specified port
+    sniff(filter="ip6", prn=process_udp_packet, iface=interface)
     sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, store=0)    
     return None
 
