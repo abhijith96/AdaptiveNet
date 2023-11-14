@@ -43,6 +43,8 @@ def ping():
                     if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
                         print("Ping  successful!", ipPayload[Raw])
                         return True
+                    else:
+                        print("ip payload is ", print(ipPayload))
             else:
                 print("Vla not detected in reply")
                 return False
