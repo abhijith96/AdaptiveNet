@@ -7,7 +7,7 @@ from base_test import *
 
 
 from scapy.layers.inet6 import  _IPv6ExtHdr, IPv6ExtHdrSegmentRoutingTLVPadN, IPv6ExtHdrSegmentRoutingTLVPad1, IPv6ExtHdrSegmentRoutingTLV
-from scapy.layers.inet6 import *
+#from scapy.layers.inet6 import *
 from scapy.fields import *
 
 

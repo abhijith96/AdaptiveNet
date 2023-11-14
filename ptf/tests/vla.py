@@ -123,6 +123,8 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         sid_lists = (
             [10,2,4,1],
         )
+        
+        print("import paths", sys.path)
         source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
