@@ -67,21 +67,22 @@ def process_udp_packet(packet):
         if(UDP in ipPayload):
             source_ip = packet[IPv6].src
             dest_ip = packet[IPv6].dst
-            source_port = packet[UDP].sport
-            destination_port = packet[UDP].dport
-            payload = packet[UDP].payload
 
-            source_vla =  packet[IPv6ExtHdrVLA].source_addresses
-            dest_vla = packet[IPv6ExtHdrVLA].addresses
-            current_level =  packet[IPv6ExtHdrVLA].current_level
+            source_port = ipPayload[UDP].sport
+            destination_port = ipPayload[UDP].dport
+            payload = ipPayload[UDP].payload
+
+            source_vla =  ipPayload[IPv6ExtHdrVLA].source_addresses
+            dest_vla = ipPayload[IPv6ExtHdrVLA].addresses
+            current_level =  ipPayload[IPv6ExtHdrVLA].current_level
 
             modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, dest_ip, payload)
-            packet[UDP].sport = destination_port
-            packet[UDP].dport = source_port
+            modified_packet[UDP].sport = destination_port
+            modified_packet[UDP].dport = source_port
 
             modified_packet = insert_vla_header(packet, source_vla, dest_vla, current_level - 1)
             # Send the modified packet back
-            srp(packet, iface="h3-eth0")  
+            srp(modified_packet, iface="h3-eth0")  
             print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
     else:
         print (packet.show())
