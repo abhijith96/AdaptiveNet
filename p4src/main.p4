@@ -385,7 +385,7 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_next_hdr{
-        bit<32> vla_total_length = ((bit<32>)hdr_ext_len) *64 + 64;
+        bit<32> vla_total_length = (((bit<32>)hdr.vlah.hdr_ext_len) *64) + 64;
         parser_local_metadata.vla_fixed_length_in_bits = vla_total_length;
         bit<32> vla_fixed_length = 64 + 8 + ((hdr.vlah.num_source_levels  + hdr.vlah.num_levels)* 16);
         bit<32> padding_length = vla_total_length - vla_fixed_length;
