@@ -55,6 +55,23 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
     return pkt
 
 
+def custom_packet_filter(packet):
+    # Check if the packet is an Ethernet frame
+    if Ether not in packet:
+        return False
+    # Specify the desired destination MAC address
+    if IPv6 in packet:
+        ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+        if(UDP in ipPayload):
+            destination_port = ipPayload[UDP].dport
+            if(destination_port == 50001):
+                return True
+
+
+    # Check if the destination MAC address matches the desired value
+    return False
+
+
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
@@ -74,11 +91,11 @@ def process_udp_packet(packet):
             dest_vla = ipPayload[IPv6ExtHdrVLA].addresses
             current_level =  ipPayload[IPv6ExtHdrVLA].current_level
 
-            modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, source_ip, "Reply", destination_port, source_port)
+            modified_packet = createIPPacket(packet[Ether].src, packet[Ether].dst, dest_ip, source_ip, "Reply", destination_port, source_port)
             # modified_packet[UDP].sport = destination_port
             # modified_packet[UDP].dport = source_port
 
-            modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, 2)
+            modified_packet = insert_vla_header(modified_packet, source_vla, dest_vla, 2)
             print("modified packet is ", modified_packet)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
@@ -98,8 +115,9 @@ def pingListner():
     target_udp_port = 50001
     interface = "h3-eth0"
     # Start sniffing for UDP packets on the specified port
-    #sniff(filter="ip6", prn=process_udp_packet, iface=interface)
-    sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, store=0)    
+    #sniff(filter="ip6", prn=process_udp_packet, iface=interface, count = 1)
+    sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
+    #sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, count = 1)    
     return None
 
 def main():
