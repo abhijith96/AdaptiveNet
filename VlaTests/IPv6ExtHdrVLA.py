@@ -15,6 +15,24 @@ _vla_routing_header_tlvs = {
     5: "HMAC TLV",
 }
 
+ipv6nh = {0: "Hop-by-Hop Option Header",
+          4: "IP",
+          6: "TCP",
+          17: "UDP",
+          41: "IPv6",
+          43: "Routing Header",
+          44: "Fragment Header",
+          47: "GRE",
+          48: "VLA",
+          50: "ESP Header",
+          51: "AH Header",
+          58: "ICMPv6",
+          59: "No Next Header",
+          60: "Destination Option Header",
+          112: "VRRP",
+          132: "SCTP",
+          135: "Mobility Header"}
+
 
 class IPv6ExtHdrVlaRoutingTLV(Packet):
     name = "IPv6 Option Header Segment Routing - Generic TLV"
