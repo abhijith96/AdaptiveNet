@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
+
 from scapy.all import sr1, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
@@ -37,22 +42,43 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
     pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
 
-def insert_vla_header(pkt, destination_vla_list, source_vla_list, current_level_param):
+# def insert_vla_header(pkt, destination_vla_list, source_vla_list, current_level_param):
+#     """Applies Vla header to an Ipv6 packet.
+#     """
+#     # Set IPv6 dst to some valid IPV6 Address
+#     # Insert VLA header between IPv6 header and payload
+#     print("debug ", pkt[IPv6].plen)
+#     vla_dst_len = len(destination_vla_list)
+#     source_vla_list_len = len(source_vla_list)
+#     vla_hdr = IPv6ExtHdrVLA(
+#         nh=pkt[IPv6].nh,
+#         addresses=destination_vla_list,
+#         source_addresses = source_vla_list,
+#         len=(vla_dst_len * 2) + (source_vla_list_len * 2) + 1,
+#         address_type = 0b01,
+#         current_level = current_level_param,
+#         number_of_levels= vla_dst_len,
+#         number_of_source_levels = source_vla_list_len
+#         )
+#     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
+#     pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
+#     return pkt
+
+def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     """Applies Vla header to an Ipv6 packet.
     """
     # Set IPv6 dst to some valid IPV6 Address
     # Insert VLA header between IPv6 header and payload
-    print("debug ", pkt[IPv6].plen)
-    vla_dst_len = len(destination_vla_list)
+    sid_len = len(sid_list)
     source_vla_list_len = len(source_vla_list)
     vla_hdr = IPv6ExtHdrVLA(
         nh=pkt[IPv6].nh,
-        addresses=destination_vla_list,
+        addresses=sid_list,
         source_addresses = source_vla_list,
-        len=(vla_dst_len * 2) + (source_vla_list_len * 2) + 1,
+        len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
         address_type = 0b01,
         current_level = current_level_param,
-        number_of_levels= vla_dst_len,
+        number_of_levels= sid_len,
         number_of_source_levels = source_vla_list_len
         )
     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
@@ -66,13 +92,10 @@ def ping():
     vlaSrcList = [4096,4096,4096,4096,4096]
     vlaDstList = [4096, 4096, 4097]
     vlaCurrentLevel = 4
-    dataPayload = None
+    dataPayload = "Hello"
     pkt = createVlaPacket(ethSrc, ethDst, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
 
     print("packet is ", pkt.show())
-
-    print("packet  vla hex dump ", pkt[IPv6ExtHdrVLA])
-
 
     # Send the packet and wait for a response
     reply = sr1(pkt, timeout=4, verbose=False)
