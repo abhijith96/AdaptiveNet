@@ -4,18 +4,21 @@ from scapy.layers.l2 import Ether
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
-def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, udp_sport = 50000, udp_dport = 50001):
+def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = 50000, udp_dport = 50001):
     pktlen = 100
     ipv6_tc = 0
     ipv6_fl = 0
     ipv6_hlim = 64
     with_udp_chksum = True
     # pkt = Ether(dst=eth_dst, src=eth_src)
-    # pkt /= IPv6(
+    # pkt /= IPv6( 
     #     src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
     # )
-    pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(src=ipv6_src, dst=ipv6_dst)/UDP(sport = udp_sport, 
-                                                                               dport = udp_dport)/Raw(load=data_payload)
+    vla_dst_len = len(vlaDst)
+    vla_src_len = len(vlaSrc)
+    pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(nh = 48,src=ipv6_src, dst=ipv6_dst)/IPv6ExtHdrVLA(nh=UDP, 
+        addresses=vlaDst, source_addresses = vlaSrc,  address_type=0b01, current_level = vlaCurrentLevel, number_of_levels=vla_dst_len,
+         number_of_source_levels = vla_src_len)/UDP(sport = udp_sport,dport = udp_dport)/Raw(load=data_payload)
     # if with_udp_chksum:
     #     pkt /= UDP(sport=udp_sport, dport=udp_dport)
     # else:
@@ -74,8 +77,8 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
 def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel, data_payload = None):
     ip_src = "::1"
     ip_dst = "::2"
-    pkt = createIPPacket(ethDst, ethSrc, ip_src, ip_dst, data_payload)
-    pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
+    pkt = createIPPacket(ethDst, ethSrc, ip_src, ip_dst, data_payload, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel)
+    #pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
 
 def createVlaReplyPacket(vlaPacket, replyPayload):
@@ -92,7 +95,7 @@ def createVlaReplyPacket(vlaPacket, replyPayload):
         ethSource = vlaPacket[Ether].dst
         ethDst = vlaPacket[Ether].src
 
-        modified_packet = createIPPacket(ethDst, ethSource, source_ip, dest_ip, replyPayload, source_port, destination_port)
-        modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
+        modified_packet = createIPPacket(ethDst, ethSource,source_ip, dest_ip, replyPayload, source_vla, dest_vla, reply_current_level, source_port, destination_port)
+       # modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
 
         return modified_packet
