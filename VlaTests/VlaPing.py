@@ -44,7 +44,7 @@ def ping():
                         print("Ping  successful!", ipPayload[Raw])
                         return True
                     else:
-                        print("ip payload is ", print(ipPayload))
+                        print("ip payload is ", ipPayload)
             else:
                 print("Vla not detected in reply")
                 return False
