@@ -116,7 +116,7 @@ def main():
     print("printing commandline arguments")
     print("interface mac address ", interfaceMacAddress)
     print("interface", interface)
-    sourceVlaList = [4096,4096,4097]
+    sourceVlaList = [4096,4096,4096,4096,4096]
     # print("vla list is ", vlaList)
     # print("vla currentLevel is ", vlaCurrentLevel)
     # interface = "h1a-eth0"
