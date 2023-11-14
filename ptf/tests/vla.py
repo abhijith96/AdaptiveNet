@@ -52,6 +52,8 @@ sys.maxint = 1 << 167
 VLA_MAX_LEVEL_LIMIT = 10
 VLA_LEVEL_ADDRESS_SIZE = 16
 
+print("import paths", sys.path)
+
 
 def create_vla_current_address_entry(address_list, max_level_limit, level_size):
     result  = int("0", 2)
@@ -124,7 +126,6 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
             [10,2,4,1],
         )
         
-        print("import paths", sys.path)
         source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
