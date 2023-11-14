@@ -120,6 +120,9 @@ header vla_list_t{
     bit<16> level_id;
 }
 
+header vla_padding_t{
+    varbit<128> tlv_objects;
+}
 header srv6h_t {
     bit<8>   next_hdr;
     bit<8>   hdr_ext_len;
@@ -208,6 +211,7 @@ struct parsed_headers_t {
     vlah_t vlah;
     vla_list_t[VLA_MAX_LEVELS] vla_list;
     vla_list_t[VLA_MAX_LEVELS] vla_source_list;
+    vla_padding_t vla_padding;
     srv6h_t srv6h;
     srv6_list_t[SRV6_MAX_HOPS] srv6_list;
     tcp_t tcp;
@@ -223,6 +227,7 @@ struct parser_local_metadata_t{
      bit<32> active_source_level_index;
      bool is_first_vla_level;
      bit<160> destination_address_key;
+     bit<32> vla_fixed_length_in_bits;
 }
 
 struct local_metadata_t {
@@ -380,6 +385,11 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_vla_next_hdr{
+        bit<32> vla_total_length = ((bit<32>)hdr_ext_len) *64 + 64;
+        parser_local_metadata.vla_fixed_length_in_bits = vla_total_length;
+        bit<32> vla_fixed_length = 64 + 8 + ((hdr.vlah.num_source_levels  + hdr.vlah.num_levels)* 16);
+        bit<32> padding_length = vla_total_length - vla_fixed_length;
+        packet.extract(hdr.vla_padding, padding_length);
        transition select(hdr.vlah.next_hdr) {
             IP_PROTO_SRV6 : parse_srv6;
             IP_PROTO_TCP: parse_tcp;

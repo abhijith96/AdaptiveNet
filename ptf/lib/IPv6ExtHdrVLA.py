@@ -5,6 +5,12 @@ from ptf.testutils import group
 
 from base_test import *
 
+
+from scapy.layers.inet6 import  _IPv6ExtHdr;
+from scapy.layers.inet6 import *
+from scapy.fields import *
+
+
 class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
     name = "IPv6 Option Header VLA"
@@ -17,13 +23,17 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                     BitField("number_of_source_levels", 0, 16),
                     BitField("pad", 0, 6),
                  FieldListField("addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_levels), length_from=lambda pkt,x: 16),
+                                 count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
                 FieldListField("source_addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt,x: 16)
+                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
+                PacketListField("tlv_objects", [],
+                                   IPv6ExtHdrSegmentRoutingTLV,
+                                   length_from=lambda pkt: 8 * pkt.len - ((2 * (
+                                       pkt.number_of_levels + pkt.number_of_source_levels)) + 1))
+                            
     ]
 
     overload_fields = {IPv6: {"nh": 48}}
-
     def post_build(self, pkt, pay):
 
         if self.len is None:
@@ -46,16 +56,16 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
             tmp_len = len(self.addresses)
             if tmp_len:
                 tmp_len -= 1
-            pkt = pkt[:3] + struct.pack("B", tmp_len) + pkt[4:]
-        
+            pkt = pkt[:4] + struct.pack("B", tmp_len) + pkt[5:]
+
         if self.number_of_source_levels is None:
             tmp_len = len(self.source_addresses)
             if tmp_len:
                 tmp_len -= 1
-            pkt = pkt[:3] + struct.pack("B", tmp_len) + pkt[4:]
+            pkt = pkt[:5] + struct.pack("B", tmp_len) + pkt[6:]
 
         if self.current_level is None:
-            self.current_level = 0
-            pkt = pkt[:4] + struct.pack("B", self.current_level) + pkt[5:]
+            current_level = 0
+            pkt = pkt[:3] + struct.pack("B", current_level) + pkt[4:]
 
         return _IPv6ExtHdr.post_build(self, pkt, pay)
