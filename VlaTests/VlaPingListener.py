@@ -74,7 +74,7 @@ def process_udp_packet(packet):
             dest_vla = ipPayload[IPv6ExtHdrVLA].addresses
             current_level =  ipPayload[IPv6ExtHdrVLA].current_level
 
-            modified_packet = createIPPacket(packet[Ether].src, packet[Ether].dst, dest_ip, source_ip, payload, destination_port, source_port)
+            modified_packet = createIPPacket(packet[Ether].src, packet[Ether].dst, dest_ip, source_ip, "Reply", destination_port, source_port)
             # modified_packet[UDP].sport = destination_port
             # modified_packet[UDP].dport = source_port
 
