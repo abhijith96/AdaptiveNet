@@ -106,7 +106,7 @@ def ping():
     print("packet is ", packet.show())
 
     # Send the packet and wait for a response
-    reply = srp1(packet,iface="h1a-eth0", timeout = 2)
+    reply = srp1(packet,iface="h1a-eth0")
 
 
     # Check if a response was received

@@ -78,7 +78,7 @@ def process_udp_packet(packet):
             # modified_packet[UDP].sport = destination_port
             # modified_packet[UDP].dport = source_port
 
-            modified_packet = insert_vla_header(modified_packet, source_vla, dest_vla, current_level - 1)
+            modified_packet = insert_vla_header(modified_packet, source_vla, dest_vla, current_level)
             print("modified packet is ", modified_packet)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
