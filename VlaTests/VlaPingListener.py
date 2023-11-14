@@ -74,11 +74,11 @@ def process_udp_packet(packet):
             dest_vla = ipPayload[IPv6ExtHdrVLA].addresses
             current_level =  ipPayload[IPv6ExtHdrVLA].current_level
 
-            modified_packet = createIPPacket(packet[Ether].src, packet[Ether].dst, dest_ip, source_ip, "Reply", destination_port, source_port)
+            modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, source_ip, "Reply", destination_port, source_port)
             # modified_packet[UDP].sport = destination_port
             # modified_packet[UDP].dport = source_port
 
-            modified_packet = insert_vla_header(modified_packet, source_vla, dest_vla, current_level)
+            modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, current_level - 1)
             print("modified packet is ", modified_packet)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
@@ -98,8 +98,8 @@ def pingListner():
     target_udp_port = 50001
     interface = "h3-eth0"
     # Start sniffing for UDP packets on the specified port
-    sniff(filter="ip6", prn=process_udp_packet, iface=interface)
-    #sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, store=0)    
+    #sniff(filter="ip6", prn=process_udp_packet, iface=interface)
+    sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, store=0)    
     return None
 
 def main():
