@@ -98,7 +98,7 @@ def ping():
     print("packet is ", pkt.show())
 
     # Send the packet and wait for a response
-    reply = srp(pkt, timeout=4, verbose=False, iface="h1a-eth0")
+    reply = srp(pkt,iface="h1a-eth0")
 
 
     # Check if a response was received
