@@ -29,7 +29,7 @@ def ping():
 
     # Check if a response was received
     if reply:
-        print("reply is ", reply.show2())
+        print("reply is ", reply.summary())
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
                 if(IPv6ExtHdrVLA in reply):
@@ -37,9 +37,9 @@ def ping():
                         print("Ping  successful!", reply[Raw])
                         return True
                 else:
-                    print("reply packet is ", packet.show())
-                    print("packet raw is ", packet[Raw].load)
-                    ipPayload = IPv6ExtHdrVLA(packet[IPv6].payload)
+                    print("reply packet is ", reply.show())
+                    print("packet raw is ", reply[Raw].load)
+                    ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                     if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
                         print("Ping  successful!", ipPayload[Raw])
                         return True
