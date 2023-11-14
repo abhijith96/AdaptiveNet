@@ -48,6 +48,29 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
     return pkt
 
+# def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
+#     """Applies SRv6 insert transformation to the given packet.
+#     """
+#     # Set IPv6 dst to some valid IPV6 Address
+#     pkt[IPv6].dst = HOST2_IPV6
+#     # Insert VLA header between IPv6 header and payload
+#     sid_len = len(sid_list)
+#     source_vla_list_len = len(source_vla_list)
+#     vla_hdr = IPv6ExtHdrVLA(
+#         nh=pkt[IPv6].nh,
+#         addresses=sid_list,
+#         source_addresses = source_vla_list,
+#         # len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
+#         len = None,
+#         address_type = 0b01,
+#         current_level = current_level_param,
+#         number_of_levels= sid_len,
+#         number_of_source_levels = source_vla_list_len
+#         )
+#     pkt[IPv6].nh = 48  # next IPv6 header is VLA header
+#     pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
+#     return pkt
+
 def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel, data_payload = None):
     ip_src = "::1"
     ip_dst = "::2"

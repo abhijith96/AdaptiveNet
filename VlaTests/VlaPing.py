@@ -29,7 +29,7 @@ def ping():
 
     # Check if a response was received
     if reply:
-        print("reply is ", reply)
+        print("reply is ", reply.show2())
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
                 if(IPv6ExtHdrVLA in reply):
