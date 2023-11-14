@@ -1,9 +1,10 @@
 import os
+from socket import timeout
 import sys
 
 sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
 
-from scapy.all import sr1, srp, Raw
+from scapy.all import sr1, srp1, srp, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
@@ -105,7 +106,7 @@ def ping():
     print("packet is ", packet.show())
 
     # Send the packet and wait for a response
-    reply = srp(packet,iface="h1a-eth0")
+    reply = srp1(packet,iface="h1a-eth0", timeout = 2)
 
 
     # Check if a response was received
