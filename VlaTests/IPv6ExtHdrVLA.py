@@ -111,7 +111,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
     name = "IPv6 Option Header VLA"
     # RFC8754 sect 2. + flag bits from draft 06
-    fields_desc = [ByteEnumField("nh", 59),
+    fields_desc = [ByteEnumField("nh", 59, ipv6nh),
                    ByteField("len", None),
                 BitField("address_type", 0, 2),
                    BitField("current_level", 0, 16),
