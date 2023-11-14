@@ -93,12 +93,15 @@ def ping():
     vlaDstList = [4096, 4096, 4097]
     vlaCurrentLevel = 4
     dataPayload = "Hello"
-    pkt = createVlaPacket(ethSrc, ethDst, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
+    
+    packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=data)
 
-    print("packet is ", pkt.show())
+    packet = insert_vla_header(packet, [4096,4096,4097],[4096,4096,4096,4096,4096], 4)
+
+    print("packet is ", packet.show())
 
     # Send the packet and wait for a response
-    reply = srp(pkt,iface="h1a-eth0")
+    reply = srp(packet,iface="h1a-eth0")
 
 
     # Check if a response was received
