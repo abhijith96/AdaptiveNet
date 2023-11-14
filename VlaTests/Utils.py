@@ -4,13 +4,11 @@ from scapy.layers.l2 import Ether
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
-def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
+def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, udp_sport = 50000, udp_dport = 50001):
     pktlen = 100
     ipv6_tc = 0
     ipv6_fl = 0
     ipv6_hlim = 64
-    udp_sport = 50000
-    udp_dport = 50001
     with_udp_chksum = True
     # pkt = Ether(dst=eth_dst, src=eth_src)
     # pkt /= IPv6(
@@ -70,7 +68,7 @@ def createVlaReplyPacket(vlaPacket, replyPayload):
         ethSource = vlaPacket[Ether].dst
         ethDst = vlaPacket[Ether].src
 
-        modified_packet = createIPPacket(ethDst, ethSource, source_ip, dest_ip, replyPayload)
+        modified_packet = createIPPacket(ethDst, ethSource, source_ip, dest_ip, replyPayload, source_port, destination_port)
         modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
 
         return modified_packet
