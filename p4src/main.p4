@@ -1037,6 +1037,7 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
         packet.emit(hdr.vlah);
         packet.emit(hdr.vla_list);
         packet.emit(hdr.vla_source_list);
+        packet.emit(hdr.vla_padding);
         packet.emit(hdr.srv6h);
         packet.emit(hdr.srv6_list);
         packet.emit(hdr.tcp);
