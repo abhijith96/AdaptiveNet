@@ -1,4 +1,4 @@
-from scapy.all import sr1,srp, sniff, send, Raw
+from scapy.all import sr1,sendp, sniff, send, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
@@ -82,7 +82,7 @@ def process_udp_packet(packet):
 
             modified_packet = insert_vla_header(packet, source_vla, dest_vla, current_level - 1)
             # Send the modified packet back
-            srp(modified_packet, iface="h3-eth0")  
+            sendp(modified_packet, iface="h3-eth0")  
             print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
     else:
         print (packet.show())
