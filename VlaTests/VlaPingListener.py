@@ -29,7 +29,7 @@ def process_udp_packet(packet):
         print("cool pass")
     elif IPv6 in packet:
         # Extract relevant information from the received packet
-        print("packet is ", packet.show2())
+        print("packet is ", str(packet))
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
         if(UDP in ipPayload):
             reply = "Reply"
