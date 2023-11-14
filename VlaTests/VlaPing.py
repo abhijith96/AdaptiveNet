@@ -31,16 +31,24 @@ def ping():
     if reply:
         print("reply is ", reply)
         if(Ether in reply and IPv6 in reply):
-            print("reply packet is ", packet.show())
-            ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
-            if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
-                print("Ping  successful!", ipPayload[Raw].load)
-                return True
-           
+            if reply[IPv6].nh == 48:
+                if(IPv6ExtHdrVLA in reply):
+                    if reply[UDP] and reply[UDP].sport == 50001:
+                        print("Ping  successful!", reply[Raw])
+                        return True
+                else:
+                    print("reply packet is ", packet.show())
+                    ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+                    if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
+                        print("Ping  successful!", ipPayload[Raw])
+                        return True
+            else:
+                print("Vla not detected in reply")
+                return False
         print("Ping to failed. Unexpected response type.")
-        print(reply.show())
+        return False
     else:
-        print("No response from.")
+        print("No response from ping.")
 
 # Example usage
 def main():
