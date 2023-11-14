@@ -317,6 +317,18 @@ parser ParserImpl (packet_in packet,
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
         local_metadata.parser_local_metadata.active_level_value = hdr.vla_list.last.level_id;
         bool is_current_level_first = local_metadata.parser_local_metadata.is_first_vla_level;
+        transition sskip_if_current_level_marked;
+    }
+
+    state skip_if_current_level_marked{
+        transition select (local_metadata.is_current_vla_marked){
+            true: iterate_vla_again
+            default: compute_address
+        }
+    }
+
+    state compute_address {
+        bool is_current_level_first = local_metadata.parser_local_metadata.is_first_vla_level;
         transition select(is_current_level_first) {
             true: update_destination_address;
             default: shift_destination_address;
@@ -355,7 +367,7 @@ parser ParserImpl (packet_in packet,
     state vla_extract_next_hdr{
         packet.extract(hdr.vla_list.next);
         local_metadata.vla_next_level_value = hdr.vla_list.last.level_id;
-        transition parse_vla_source_list;
+        transition iterate_vla_again;
     }
 
     state iterate_vla_again{
