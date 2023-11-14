@@ -103,7 +103,7 @@ def ping():
 
     # Check if a response was received
     if reply:
-        print("reply is ", reply.show())
+        print("reply is ", reply)
 
         # Check if the response is an ICMP Echo Reply
         if reply[UDP] and reply[UDP].sport == 80:
