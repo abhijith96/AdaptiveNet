@@ -39,7 +39,7 @@ def ping():
                 else:
                     print("reply packet is ", packet.show())
                     print("packet raw is ", packet[Raw].load)
-                    ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+                    ipPayload = IPv6ExtHdrVLA(packet[IPv6].payload)
                     if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
                         print("Ping  successful!", ipPayload[Raw])
                         return True
