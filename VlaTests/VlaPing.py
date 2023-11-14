@@ -112,13 +112,14 @@ def ping():
     # Check if a response was received
     if reply:
         print("reply is ", reply)
-
-        # Check if the response is an ICMP Echo Reply
-        if reply[UDP] and reply[UDP].sport == 50000:
-            print("Ping to  successful!")
-        else:
-            print("Ping to failed. Unexpected response type.")
-            reply.summary()
+        if(Ether in reply and IPv6 in reply):
+            ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+            if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
+                print("Ping  successful!", ipPayload[Raw].load)
+                return True
+           
+        print("Ping to failed. Unexpected response type.")
+        print(reply.show())
     else:
         print("No response from.")
 
