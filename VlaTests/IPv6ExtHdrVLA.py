@@ -1,6 +1,6 @@
 
-from scapy.layers.inet6 import  _IPv6ExtHdr;
-from scapy.layers.inet6 import *
+from scapy.layers.inet6 import  _IPv6ExtHdr,  IPv6ExtHdrSegmentRoutingTLV,IPv6ExtHdrSegmentRoutingTLVPad1, IPv6ExtHdrSegmentRoutingTLVPadN
+from scapy.layers.inet6 import IPv6
 from scapy.fields import *
 
 
@@ -23,12 +23,11 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                                    IPv6ExtHdrSegmentRoutingTLV,
                                    length_from=lambda pkt: 8 * pkt.len - ((2 * (
                                        pkt.number_of_levels + pkt.number_of_source_levels)) + 1))
+                            
     ]
 
     overload_fields = {IPv6: {"nh": 48}}
-
     def post_build(self, pkt, pay):
-
         if self.len is None:
 
             # The extension must be align on 8 bytes
