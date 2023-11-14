@@ -317,13 +317,13 @@ parser ParserImpl (packet_in packet,
         local_metadata.parser_local_metadata.active_level_index = current_level_index;
         local_metadata.parser_local_metadata.active_level_value = hdr.vla_list.last.level_id;
         bool is_current_level_first = local_metadata.parser_local_metadata.is_first_vla_level;
-        transition sskip_if_current_level_marked;
+        transition skip_if_current_level_marked;
     }
 
     state skip_if_current_level_marked{
         transition select (local_metadata.is_current_vla_marked){
-            true: iterate_vla_again
-            default: compute_address
+            true: iterate_vla_again;
+            default: compute_address;
         }
     }
 
