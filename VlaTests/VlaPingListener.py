@@ -27,14 +27,13 @@ def custom_packet_filter(packet):
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
         print("cool pass")
-    elif IPv6 in packet:
+    elif IPv6 in packet and packet[IPv6].nh == 48:
         # Extract relevant information from the received packet
-        print("packet is ", packet.summary())
-        ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+        ipPayload = IPv6ExtHdrVLA(packet[IPv6].payload)
         if(UDP in ipPayload):
-            reply = "Reply"
+            reply = "Ping Reply"
             modified_packet = createVlaReplyPacket(packet, reply)
-            print("udp found , modified packet is ", modified_packet)
+            # print("udp found , modified packet is ", modified_packet)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
             print("reply send")
