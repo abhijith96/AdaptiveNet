@@ -18,7 +18,11 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                  FieldListField("addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
                 FieldListField("source_addresses", [], ShortField("", 0), 
-                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2)
+                                 count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
+                PacketListField("tlv_objects", [],
+                                   IPv6ExtHdrSegmentRoutingTLV,
+                                   length_from=lambda pkt: 8 * pkt.len - ((2 * (
+                                       pkt.number_of_levels + pkt.number_of_source_levels)) + 1))
     ]
 
     overload_fields = {IPv6: {"nh": 48}}
@@ -27,16 +31,16 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
         if self.len is None:
 
-        #     # The extension must be align on 8 bytes
-        #     tmp_mod = (-len(pkt) + 8) % 8
-        #     if tmp_mod == 1:
-        #         tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
-        #         pkt += raw(tlv)
-        #     elif tmp_mod >= 2:
-        #         # Add the padding extension
-        #         tmp_pad = b"\x00" * (tmp_mod - 2)
-        #         tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
-        #         pkt += raw(tlv)
+            # The extension must be align on 8 bytes
+            tmp_mod = (-len(pkt) + 8) % 8
+            if tmp_mod == 1:
+                tlv = IPv6ExtHdrSegmentRoutingTLVPad1()
+                pkt += raw(tlv)
+            elif tmp_mod >= 2:
+                # Add the padding extension
+                tmp_pad = b"\x00" * (tmp_mod - 2)
+                tlv = IPv6ExtHdrSegmentRoutingTLVPadN(padding=tmp_pad)
+                pkt += raw(tlv)
 
             tmp_len = (len(pkt) - 8) // 8
             pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
@@ -45,16 +49,16 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
             tmp_len = len(self.addresses)
             if tmp_len:
                 tmp_len -= 1
-            pkt = pkt[:3] + struct.pack("B", tmp_len) + pkt[4:]
+            pkt = pkt[:4] + struct.pack("B", tmp_len) + pkt[5:]
 
         if self.number_of_source_levels is None:
             tmp_len = len(self.source_addresses)
             if tmp_len:
                 tmp_len -= 1
-            pkt = pkt[:3] + struct.pack("B", tmp_len) + pkt[4:]
+            pkt = pkt[:5] + struct.pack("B", tmp_len) + pkt[6:]
 
         if self.current_level is None:
-            self.current_level = 0
-            pkt = pkt[:4] + struct.pack("B", self.current_level) + pkt[5:]
+            current_level = 0
+            pkt = pkt[:3] + struct.pack("B", current_level) + pkt[4:]
 
         return _IPv6ExtHdr.post_build(self, pkt, pay)

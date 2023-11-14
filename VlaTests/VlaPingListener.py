@@ -29,9 +29,11 @@ def process_udp_packet(packet):
         print("cool pass")
     elif IPv6 in packet:
         # Extract relevant information from the received packet
+        print("packet is ", packet.show())
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
         if(UDP in ipPayload):
-            modified_packet = createVlaReplyPacket(packet, ipPayload)
+            reply = "Reply"
+            modified_packet = createVlaReplyPacket(packet, reply)
             print("udp found , modified packet is ", modified_packet)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
