@@ -1,3 +1,9 @@
+import os
+from socket import timeout
+import sys
+
+sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
+
 from scapy.all import sr1,sendp, sniff, send, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
