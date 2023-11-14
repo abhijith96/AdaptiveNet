@@ -1,5 +1,5 @@
 
-from scapy.layers.inet6 import  _IPv6ExtHdr;
+from scapy.layers.inet6 import  *
 from scapy.fields import FieldListField, PadField
 from ptf.testutils import group
 
