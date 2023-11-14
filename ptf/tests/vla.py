@@ -80,7 +80,7 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
         addresses=sid_list,
         source_addresses = source_vla_list,
         # len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
-        len = None
+        len = None,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= sid_len,
