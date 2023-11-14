@@ -94,7 +94,7 @@ def ping():
     vlaCurrentLevel = 4
     dataPayload = "Hello"
     
-    packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=data)
+    packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=dataPayload)
 
     packet = insert_vla_header(packet, [4096,4096,4097],[4096,4096,4096,4096,4096], 4)
 
