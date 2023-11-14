@@ -4,13 +4,11 @@ from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 
-def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
+def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, udp_sport, udp_dport):
     pktlen = 100
     ipv6_tc = 0
     ipv6_fl = 0
     ipv6_hlim = 64
-    udp_sport = 50000
-    udp_dport = 50001
     with_udp_chksum = True
     # pkt = Ether(dst=eth_dst, src=eth_src)
     # pkt /= IPv6(
@@ -76,11 +74,11 @@ def process_udp_packet(packet):
             dest_vla = ipPayload[IPv6ExtHdrVLA].addresses
             current_level =  ipPayload[IPv6ExtHdrVLA].current_level
 
-            modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, dest_ip, payload)
+            modified_packet = createIPPacket(packet[Ether].dst, packet[Ether].src, source_ip, dest_ip, payload, destination_port, source_port)
             modified_packet[UDP].sport = destination_port
             modified_packet[UDP].dport = source_port
 
-            modified_packet = insert_vla_header(packet, source_vla, dest_vla, current_level - 1)
+            modified_packet = insert_vla_header(modified_packet, source_vla, dest_vla, current_level - 1)
             # Send the modified packet back
             sendp(modified_packet, iface="h3-eth0")  
             print("Replied to UDP packet from %s : %s with modified ports.", source_ip, source_port)
