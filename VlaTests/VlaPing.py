@@ -113,7 +113,7 @@ def ping():
         print("reply is ", reply)
 
         # Check if the response is an ICMP Echo Reply
-        if reply[UDP] and reply[UDP].sport == 80:
+        if reply[UDP] and reply[UDP].sport == 50000:
             print("Ping to  successful!")
         else:
             print("Ping to failed. Unexpected response type.")
