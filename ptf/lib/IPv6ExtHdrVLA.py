@@ -5,8 +5,7 @@ from ptf.testutils import group
 
 from base_test import *
 
-
-from scapy.layers.inet6 import  _IPv6ExtHdr, IPv6ExtHdrSegmentRoutingTLVPadN, IPv6ExtHdrSegmentRoutingTLVPad1, IPv6ExtHdrSegmentRoutingTLV
+from scapy.layers.inet6 import  _IPv6ExtHdr,IPv6ExtHdrSegmentRoutingTLV
 #from scapy.layers.inet6 import *
 from scapy.fields import *
 
@@ -35,6 +34,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
 
     overload_fields = {IPv6: {"nh": 48}}
     def post_build(self, pkt, pay):
+        from scapy.layers.inet6 import IPv6ExtHdrSegmentRoutingTLVPad1, IPv6ExtHdrSegmentRoutingTLVPadN
 
         if self.len is None:
 
