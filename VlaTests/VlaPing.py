@@ -1,4 +1,4 @@
-from scapy.all import sr1
+from scapy.all import sr1, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
@@ -19,15 +19,15 @@ def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload):
         src=ipv6_src, dst=ipv6_dst, fl=ipv6_fl, tc=ipv6_tc, hlim=ipv6_hlim
     )
     pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(src=ipv6_src, dst=ipv6_dst)/UDP(sport = udp_sport, 
-                                                                               dport = udp_dport)
+                                                                               dport = udp_dport)/Raw(load=data_payload)
     # if with_udp_chksum:
     #     pkt /= UDP(sport=udp_sport, dport=udp_dport)
     # else:
     #     pkt /= UDP(sport=udp_sport, dport=udp_dport, chksum=0)
     
-    if data_payload:
-        pkt = pkt / data_payload
-    pkt /= "D" * (pktlen - len(pkt))
+    # if data_payload:
+    #     pkt = pkt / data_payload
+    # pkt /= "D" * (pktlen - len(pkt))
     return pkt
 
 def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel, data_payload = None):
