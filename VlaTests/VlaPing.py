@@ -10,9 +10,9 @@ def ping():
     # Create an IP packet with an ICMP Echo Request
     ethSrc="00:00:00:00:00:1a" 
     ethDst="00:aa:00:00:00:01"
-    vlaSrcList = [4096,4096,4096,4096,4096]
-    vlaDstList = [4096, 4096, 4097]
-    vlaCurrentLevel = 4
+    vlaSrcList = [4096,4096,4097]
+    vlaDstList = [4096, 4096, 4096, 4096, 4096]
+    vlaCurrentLevel = 2
     dataPayload = "Hello"
     
     # packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=dataPayload)
