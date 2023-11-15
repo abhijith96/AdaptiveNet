@@ -4,7 +4,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
-from Utils import createVlaPacket
+from Utils import createVlaPacket, getMacAddress
 import time
 from scapy.all import conf
 
@@ -21,7 +21,7 @@ def test():
 
 def ping():
     # Create an IP packet with an ICMP Echo Request
-    ethSrc="00:00:00:00:00:1a" 
+    ethSrc= getMacAddress()
     ethDst="00:aa:00:00:00:01"
     vlaSrcList = [4096,4096,4097]
     vlaDstList = [4096, 4096, 4096, 4096, 4096]

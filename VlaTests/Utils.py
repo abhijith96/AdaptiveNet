@@ -2,6 +2,8 @@ from scapy.all import  Raw
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
+from scapy.all import conf
+from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 
 
 def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = 50000, udp_dport = 50001):
@@ -99,3 +101,7 @@ def createVlaReplyPacket(vlaPacket, replyPayload):
        # modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
 
         return modified_packet
+def getMacAddress():
+    ifacelist = get_if_list()
+    mac = get_if_hwaddr(ifacelist[1])
+    return mac
