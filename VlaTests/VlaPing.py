@@ -1,7 +1,7 @@
 
 from scapy.all import sr1, srp1, srp, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
-from scapy.all import get_if_addr6, get_if_hwaddr, getmacbyip
+from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 from Utils import createVlaPacket
@@ -9,8 +9,10 @@ import time
 from scapy.all import conf
 
 def test():
-    print(conf.get_if_list())
-    ip = get_if_addr6(conf.iface)
+
+    ifacelist = get_if_list()
+    print(ifacelist)
+    ip = get_if_addr6(ifacelist[0])
     print(ip)
     mac = get_if_hwaddr(conf.iface)
     print(mac)
