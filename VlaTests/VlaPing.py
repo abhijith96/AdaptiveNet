@@ -12,11 +12,12 @@ def test():
 
     ifacelist = get_if_list()
     print(ifacelist)
-    ip = get_if_addr6(ifacelist[0])
+    ip = get_if_addr6(ifacelist[1])
     print(ip)
-    mac = get_if_hwaddr(conf.iface)
+    mac = get_if_hwaddr(ifacelist[1])
     print(mac)
     print(conf.route)
+    print(conf.ifaces)
 
 def ping():
     # Create an IP packet with an ICMP Echo Request
