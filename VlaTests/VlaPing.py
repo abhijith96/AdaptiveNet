@@ -65,10 +65,10 @@ def ping():
 
 # Example usage
 def main():
+   test()
    (pingStatus,replyMessage, rtt) = ping()
    print(replyMessage)
    print("Round Trip Time is  {:.3f} ".format(rtt*1000))
 
 if __name__ == "__main__":
-    test()
     main()
