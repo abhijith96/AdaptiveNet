@@ -17,7 +17,7 @@ def test():
     mac = get_if_hwaddr(ifacelist[1])
     print(mac)
     print(conf.route)
-    print(conf.ifaces)
+    #print(conf.ifaces)
 
 def ping():
     # Create an IP packet with an ICMP Echo Request
