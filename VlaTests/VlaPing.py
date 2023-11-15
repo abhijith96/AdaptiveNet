@@ -5,6 +5,7 @@ from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 from Utils import createVlaPacket
+import time
 
 def ping():
     # Create an IP packet with an ICMP Echo Request
@@ -20,33 +21,43 @@ def ping():
     # packet = insert_vla_header(packet, [4096,4096,4097],[4096,4096,4096,4096,4096], 4)
 
     packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
-    # Send the packet and wait for a response
-    reply = srp1(packet,iface="h1a-eth0")
 
+    # Send the packet and wait for a response
+    start_time = time.time()
+
+    reply = srp1(packet,iface="h1a-eth0")
+    
+    end_time = time.time()
+
+
+    rtt = 0
 
     # Check if a response was received
+    replyMessage = ""
     if reply:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
                 print("reply packet is ", reply)
                 ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                 if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
-                    print("Ping  successful!", ipPayload[Raw].load)
-                    return True
+                    replyMessage = "Ping  successful! " + ipPayload[Raw].load
+                    rtt = end_time - start_time
+                    return (True,replyMessage, rtt)
                 else:
-                    print("Ping Failed UDP not found or UDP src port does not match", ipPayload)
+                    replyMessage = "Ping Failed UDP not found or UDP src port does not match "
             else:
-                print("Vla not detected in reply")
-                return False
-        print("Ping to failed. Unexpected response type.")
-        return False
+                replyMessage =  "Vla not detected in reply"
+        else:
+            replyMessage = "Ping to failed. Unexpected response type."
     else:
-        print("No response from ping.")
-        return False
+        replyMessage = "No response from ping."
+        return (False, replyMessage, rtt)
 
 # Example usage
 def main():
-   pingStatus = ping()
+   (pingStatus,replyMessage, rtt) = ping()
+   print(replyMessage)
+   print("Round Trip Time is  {:.3f} ".format(rtt*1000))
 
 if __name__ == "__main__":
     main()
