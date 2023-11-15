@@ -9,7 +9,6 @@ import time
 from scapy.all import conf
 
 def test():
-    print(conf.ifaces)
     print(conf.get_if_list())
     ip = get_if_addr6(conf.iface)
     print(ip)
