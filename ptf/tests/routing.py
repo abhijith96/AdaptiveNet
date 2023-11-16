@@ -258,7 +258,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
         
         payload_data = exp_pkt.payload
         exp_pkt[IPv6].remove_payload()
-        raw_packet = Ether(src = exp_pkt[Ether.src], dst = exp_pkt[Ether.src])/IPv6(src=host_2_vla_part_one, dst = 
+        raw_packet = Ether(src = exp_pkt[Ether].src, dst = exp_pkt[Ether].dst)/IPv6(src=host_2_vla_part_one, dst = 
         host_2_vla_part_two, nh = 58) / Raw(load=payload_data)
 
         # Send NDP NS, expect NDP NA from the same port.
