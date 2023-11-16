@@ -44,7 +44,7 @@ class ICMPv6ND_NRReply(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
     NDP_FLAG_ROUTER    = 0x80000000
     NDP_FLAG_NAME_RESOLUTION  = 0x10000000
     name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
-    fields_desc = [ByteEnumField("type", 138, icmp6types),
+    fields_desc = [ByteEnumField("type", 201, icmp6types),
                    ByteField("code", 0),
                    XShortField("cksum", None),
                    IntField("res", NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION),
@@ -72,8 +72,8 @@ class ICMPv6NDNROptSrcLLAddr(_ICMPv6NDGuessPayload, Packet):
 def genNdpNrPkt(target_host_mac):
     NDP_NR_MAC = "33:33:00:00:00:01"
     p = Ether(dst="00:00:00:00:aa:01", src ="00:00:00:00:00:1a") / IPv6(dst=HOST2_IPV6, src=HOST1_IPV6, hlim=255)
-    p /= ICMPv6ND_NA(tgt="::", type = 137)
-    p /= ICMPv6NDNROptSrcLLAddr(lladdr=target_host_mac)
+    p /= ICMPv6ND_NS(tgt="::", type = 200)
+    p /= ICMPv6NDOptSrcLLAddr(lladdr=target_host_mac)
     print("packet is ", p)
     return p
 

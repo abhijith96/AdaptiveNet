@@ -211,7 +211,7 @@ def genNdpNaPkt(target_ip, target_mac,
 
 class ICMPv6ND_NR(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
     name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
-    fields_desc = [ByteEnumField("type", 137, icmp6types),
+    fields_desc = [ByteEnumField("type", 200, icmp6types),
                    ByteField("code", 0),
                    XShortField("cksum", None),
                    IntField("res", 0),
@@ -228,7 +228,7 @@ class ICMPv6ND_NRReply(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
     NDP_FLAG_ROUTER    = 0x80000000
     NDP_FLAG_NAME_RESOLUTION  = 0x10000000
     name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
-    fields_desc = [ByteEnumField("type", 138, icmp6types),
+    fields_desc = [ByteEnumField("type", 201, icmp6types),
                    ByteField("code", 0),
                    XShortField("cksum", None),
                    IntField("res", NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION),

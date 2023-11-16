@@ -61,8 +61,8 @@ const mac_addr_t IPV6_MCAST_01 = 0x33_33_00_00_00_01;
 
 const bit<8> ICMP6_TYPE_NS = 135;
 const bit<8> ICMP6_TYPE_NA = 136;
-const bit<8> ICMP6_TYPE_ND = 137;
-const bit<8> ICMP6_TYPE_ND_REPLY = 138;
+const bit<8> ICMP6_TYPE_ND = 200;
+const bit<8> ICMP6_TYPE_ND_REPLY = 201;
 
 const bit<8> NDP_OPT_TARGET_LL_ADDR = 2;
 
