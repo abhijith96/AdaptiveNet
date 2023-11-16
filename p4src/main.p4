@@ -62,6 +62,7 @@ const mac_addr_t IPV6_MCAST_01 = 0x33_33_00_00_00_01;
 const bit<8> ICMP6_TYPE_NS = 135;
 const bit<8> ICMP6_TYPE_NA = 136;
 const bit<8> ICMP6_TYPE_ND = 137;
+const bit<8> ICMP6_TYPE_ND_REPLY = 138;
 
 const bit<8> NDP_OPT_TARGET_LL_ADDR = 2;
 
@@ -441,6 +442,7 @@ parser ParserImpl (packet_in packet,
         transition select(hdr.icmpv6.type) {
             ICMP6_TYPE_NS: parse_ndp;
             ICMP6_TYPE_NA: parse_ndp;
+            ICMP6_TYPE_ND: parse_ndp;
             default: accept;
         }
     }
@@ -621,7 +623,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
            target vla_part_two containing first 32 bits as number of levels and next 32 bits as remaning 32 bits of the 
            160 bit vla address.
            HostName is not supported by the onos host provider service, if so mac adddrss can be replaced with host name of the host
-                
+
         **/
     action ndp_nr (bit<128> target_vla_part_one, bit<128> target_vla_part_two, mac_addr_t device_mac){
         mac_addr_t src_host = hdr.ethernet.src_addr;
@@ -630,7 +632,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         hdr.ipv6.src_addr = target_vla_part_one;
         hdr.ipv6.dst_addr = target_vla_part_two;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
-        hdr.icmpv6.type = ICMP6_TYPE_ND;
+        hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
         hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
         hdr.ndp.type = NDP_TARGET_VLA_ADDR;
         hdr.ndp.length = 1;
