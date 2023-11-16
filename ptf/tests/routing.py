@@ -41,6 +41,40 @@ from ptf.testutils import group
 
 from base_test import *
 
+# header icmpv6_t {
+#     bit<8>   type;
+#     bit<8>   code;
+#     bit<16>  checksum;
+# }
+
+# header ndp_t {
+#     bit<32>      flags;
+#     ipv6_addr_t  target_ipv6_addr;
+#     // NDP option.
+#     bit<8>       type;
+#     bit<8>       length;
+#     bit<48>      target_mac_addr;
+# }
+
+
+def genNdpNrPkt(target_ip, target_mac, eth_dst_mac = NDP_NR_MAC, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
+    NDP_TARGET_VLA_ADDR = 3
+    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
+    d = inet_ntop(socket.AF_INET6, nsma)
+    dm = in6_getnsmac(nsma)
+    p = Ether(dst=eth_dst_mac) / IPv6(dst=d, src=src_ip, hlim=255)
+    p /= ICMPv6ND_NR(tgt=target_ip)
+    p /= ICMPv6NDNROptSrcLLAddr(lladdr=target_mac)
+    return p
+
+def genNdpNrReplyPkt(ipv6_source, ipv6_dst, target_ip, target_mac, eth_dst_mac, eth_src_mac):
+    NDP_TARGET_VLA_ADDR = 3
+    p = Ether(src= eth_src_mac,dst=eth_dst_mac) / IPv6(dst=ipv6_dst, src=ipv6_source, hlim=255)
+    p /= ICMPv6ND_NRReply(tgt=target_ip)
+    p /= ICMPv6NDNROptSrcLLAddr(lladdr=target_mac)
+    return p
+
+
 
 @group("routing")
 class IPv6RoutingTest(P4RuntimeTest):
@@ -170,6 +204,57 @@ class NdpReplyGenTest(P4RuntimeTest):
                               src_mac=target_mac,
                               src_ip=switch_ip,
                               dst_ip=pkt[IPv6].src)
+
+        # Send NDP NS, expect NDP NA from the same port.
+        testutils.send_packet(self, self.port1, str(pkt))
+        testutils.verify_packet(self, exp_pkt, self.port1)
+
+
+    
+
+@group("routing")
+class NdpNameResolutionTest(P4RuntimeTest):
+    """Tests automatic generation of NDP Neighbor Advertisement for IPV6
+    addresses associated to the switch interface.
+    """
+
+    @autocleanup
+    def runTest(self):
+        switch_ip = SWITCH1_IPV6
+        switch_mac = SWITCH1_MAC
+        target_mac = HOST2_MAC
+
+        host_2_vla_part_one = 0x0001000100010001001100310021003
+        host_2_vla_part_two = 0x00000009100500000000000000000000
+       
+
+        # Insert entry to transform NDP NA packets for the given target address
+        # (match), to NDP NA packets with the given target MAC address (action
+        # *** TODO EXERCISE 5
+        # Modify names to match content of P4Info file (look for the fully
+        # qualified name of tables, match fields, and actions.
+        # ---- START SOLUTION ----
+        self.insert(self.helper.build_table_entry(
+            table_name="IngressPipeImpl.ndp_name_resolution_table",
+            match_fields={
+                # Exact match.
+                "hdr.ndp.target_mac_addr": target_mac
+            },
+            action_name="IngressPipeImpl.ndp_ns_to_ndp_na",
+            action_params={
+                "device_mac": switch_mac,
+                "target_vla_part_one" : host_2_vla_part_one,
+                "target_vla_part_two" : host_2_vla_part_two,
+            }
+        ))
+        # ---- END SOLUTION ----
+
+        # NDP Neighbor Solicitation packet
+        pkt = genNdpNrPkt(target_ip=switch_ip, target_mac= target_mac)
+
+        # NDP Neighbor Advertisement packet
+        exp_pkt = genNdpNrReplyPkt(host_2_vla_part_one, host_2_vla_part_two, switch_ip, target_mac,
+                                   HOST1_MAC, switch_mac)
 
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
