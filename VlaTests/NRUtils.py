@@ -91,6 +91,7 @@ def resolveHostVlaAddress(hostId, outInterface):
             else:
                 replyMessage =  "ICMP NDP NR not detected in reply"
         else:
+            print("reply packet is ", reply)
             replyMessage = "Unexpected Response Type"
     else:
         replyMessage = "No response  from gateway."
