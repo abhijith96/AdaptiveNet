@@ -378,13 +378,19 @@ public class VlaComponent {
 
         // Left-pad the binary string with zeros to ensure it has the specified number of bits
         String paddedBinaryString = String.format("%" + bitCount + "s", binaryString).replace(' ', '0');
-
+        System.out.println("paddes tring" +  paddedBinaryString);
         BigInteger bigInteger = new BigInteger(paddedBinaryString, 2);
         byte[] levelPortion = bigInteger.toByteArray();
 
         System.out.println("level portion length  " +  levelPortion.length);
-        vlaAddressPartTwo[0] = levelPortion[0];
-        vlaAddressPartTwo[1] = levelPortion[1];
+        if(levelPortion.length == 2) {
+            vlaAddressPartTwo[0] = levelPortion[0];
+            vlaAddressPartTwo[1] = levelPortion[1];
+        }
+        else if(levelPortion.length == 1){
+            vlaAddressPartTwo[0] = 0;
+            vlaAddressPartTwo[1] = levelPortion[0];
+        }
 
 
 
