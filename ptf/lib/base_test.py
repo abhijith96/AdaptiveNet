@@ -48,6 +48,7 @@ from ptf.base_tests import BaseTest
 from ptf.dataplane import match_exp_pkt
 from ptf.packet import IPv6
 from scapy.layers.inet6 import *
+from scapy.layers.inet6 import _ICMPv6NDGuessPayload, _ICMPv6
 from scapy.layers.l2 import Ether
 from scapy.pton_ntop import inet_pton, inet_ntop
 from scapy.utils6 import in6_getnsma, in6_getnsmac
@@ -207,6 +208,48 @@ def genNdpNaPkt(target_ip, target_mac,
     p /= ICMPv6ND_NA(tgt=target_ip)
     p /= ICMPv6NDOptDstLLAddr(lladdr=target_mac)
     return p
+
+class ICMPv6ND_NR(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
+    name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
+    fields_desc = [ByteEnumField("type", 137, icmp6types),
+                   ByteField("code", 0),
+                   XShortField("cksum", None),
+                   IntField("res", 0),
+                   IP6Field("tgt", "::")]
+    overload_fields = {IPv6: {"nh": 58, "dst": "ff02::1", "hlim": 255}}
+
+    def mysummary(self):
+        return self.sprintf("%name% (tgt: %tgt%)")
+
+    def hashret(self):
+        return bytes_encode(self.tgt) + self.payload.hashret()
+    
+class ICMPv6ND_NRReply(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
+    NDP_FLAG_ROUTER    = 0x80000000
+    NDP_FLAG_NAME_RESOLUTION  = 0x10000000
+    name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
+    fields_desc = [ByteEnumField("type", 138, icmp6types),
+                   ByteField("code", 0),
+                   XShortField("cksum", None),
+                   IntField("res", NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION),
+                   IP6Field("tgt", "::")]
+    overload_fields = {IPv6: {"nh": 58, "dst": "ff02::1", "hlim": 255}}
+
+    def mysummary(self):
+        return self.sprintf("%name% (tgt: %tgt%)")
+
+    def hashret(self):
+        return bytes_encode(self.tgt) + self.payload.hashret()
+    
+class ICMPv6NDNROptSrcLLAddr(_ICMPv6NDGuessPayload, Packet):
+    name = "ICMPv6 Neighbor Discovery Option - Source Link-Layer Address"
+    NDP_TARGET_VLA_ADDR = 3
+    fields_desc = [ByteField("type", NDP_TARGET_VLA_ADDR),
+                   ByteField("len", 1),
+                   MACField("lladdr", ETHER_ANY)]
+
+    def mysummary(self):
+        return self.sprintf("%name% %lladdr%")
 
 
 class P4RuntimeErrorFormatException(Exception):
