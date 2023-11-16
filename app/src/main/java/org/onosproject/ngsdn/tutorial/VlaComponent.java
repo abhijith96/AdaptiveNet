@@ -440,7 +440,7 @@ public class VlaComponent {
 
 
         PiTableAction action = PiAction.builder()
-                .withId(PiActionId.of("IngressPipeImpl.vla_route_to_child")).withParameters(
+                .withId(PiActionId.of("IngressPipeImpl.ndp_nr")).withParameters(
                         paramList)
                 .build();
 
