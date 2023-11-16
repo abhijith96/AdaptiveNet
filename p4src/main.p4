@@ -61,12 +61,16 @@ const mac_addr_t IPV6_MCAST_01 = 0x33_33_00_00_00_01;
 
 const bit<8> ICMP6_TYPE_NS = 135;
 const bit<8> ICMP6_TYPE_NA = 136;
+const bit<8> ICMP6_TYPE_ND = 137;
 
 const bit<8> NDP_OPT_TARGET_LL_ADDR = 2;
+
+const bit<8> NDP_TARGET_VLA_ADDR = 3;
 
 const bit<32> NDP_FLAG_ROUTER    = 0x80000000;
 const bit<32> NDP_FLAG_SOLICITED = 0x40000000;
 const bit<32> NDP_FLAG_OVERRIDE  = 0x20000000;
+const bit<32> NDP_FLAG_NAME_RESOLUTION  = 0x10000000;
 
 
 //------------------------------------------------------------------------------
@@ -609,6 +613,31 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         @name("ndp_reply_table_counter")
         counters = direct_counter(CounterType.packets_and_bytes);
     }
+
+    action ndp_nr (bit<128> target_vla_part_one, bit<128> target_vla_part_two, mac_addr_t device_mac){
+        mac_addr_t src_host = hdr.ethernet.src_addr;
+        hdr.ethernet.src_addr = device_mac;
+        hdr.ethernet.dst_addr = src_host;
+        hdr.ipv6.src_addr = target_vla_part_one;
+        hdr.ipv6.dst_addr = target_vla_part_two;
+        hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
+        hdr.icmpv6.type = ICMP6_TYPE_ND;
+        hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
+        hdr.ndp.type = NDP_TARGET_VLA_ADDR;
+        hdr.ndp.length = 1;
+        standard_metadata.egress_spec = standard_metadata.ingress_port;
+    }
+
+    table ndp_name_resolution_table{
+        key = {
+            hdr.ndp.target_mac_addr : exact;
+        }
+        actions = {
+            ndp_nr;
+        }
+    }
+    @name("ndp_name_resolution_table_counter")
+    counters = direct_counter(CounterType.packets_and_bytes);
     // 2. Create table to handle IPv6 routing. Create a L2 my station table (hit
     //    when Ethernet destination address is the switch address). This table
     //    should not do anything to the packet (i.e., NoAction), but the control
@@ -899,7 +928,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
 
         bool do_l3_l2 = true;
 
-        if (hdr.icmpv6.isValid() && hdr.icmpv6.type == ICMP6_TYPE_NS) {
+        if (hdr.icmpv6.isValid()) {
            
             // Insert logic to handle NDP messages to resolve the MAC address of the
             // switch. You should apply the NDP reply table created before.
@@ -907,8 +936,15 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             // unset the "do_l3_l2" flag to skip the L3 and L2 tables, as the
             // "ndp_ns_to_na" action already set an egress port.
 
-            if(ndp_reply_table.apply().hit){
-                do_l3_l2 = false;
+            if(hdr.icmpv6.type == ICMP6_TYPE_NS){
+                if(ndp_reply_table.apply().hit){
+                    do_l3_l2 = false;
+                }
+            }
+            else if(hdr.icmpv6.type == ICMP6_TYPE_ND){
+                if(ndp_name_resolution_table.apply().hit){
+                    do_l3_l2 = false;
+                }
             }
         }
 
