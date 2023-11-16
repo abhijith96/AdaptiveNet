@@ -204,6 +204,7 @@ class NdpReplyGenTest(P4RuntimeTest):
                               src_mac=target_mac,
                               src_ip=switch_ip,
                               dst_ip=pkt[IPv6].src)
+        exp_pkt[ICMPv6ND_NA].type = 127
 
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
