@@ -372,8 +372,14 @@ public class VlaComponent {
 
        byte[] vlaAddressPartTwo = new byte[16];
 
-        String currentLevel = String.format("%16s", Integer.toBinaryString(hostInfo.getLevel())).replace(' ', '0');
-        BigInteger bigInteger = new BigInteger(currentLevel, 2);
+        String binaryString = Integer.toBinaryString(hostInfo.getLevel());
+
+       int bitCount = 16;
+
+        // Left-pad the binary string with zeros to ensure it has the specified number of bits
+        String paddedBinaryString = String.format("%" + bitCount + "s", binaryString).replace(' ', '0');
+
+        BigInteger bigInteger = new BigInteger(paddedBinaryString, 2);
         byte[] levelPortion = bigInteger.toByteArray();
 
         System.out.println("level portion length  " +  levelPortion.length);
