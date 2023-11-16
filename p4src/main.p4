@@ -67,6 +67,7 @@ const bit<8> ICMP6_TYPE_ND_REPLY = 138;
 const bit<8> NDP_OPT_TARGET_LL_ADDR = 2;
 
 const bit<8> NDP_TARGET_VLA_ADDR = 3;
+const bit<8> NDP_TARGET_VLA_ADDR_NOT_FOUND = 4;
 
 const bit<32> NDP_FLAG_ROUTER    = 0x80000000;
 const bit<32> NDP_FLAG_SOLICITED = 0x40000000;
@@ -954,7 +955,18 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
             }
             else if(hdr.icmpv6.type == ICMP6_TYPE_ND){
                 if(ndp_name_resolution_table.apply().hit){
-                    do_l3_l2 = false;
+                     do_l3_l2 = false;
+                }
+                else{
+                    mac_addr_t src_host = hdr.ethernet.src_addr;
+                    hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+                    hdr.ethernet.dst_addr = src_host;
+                    hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
+                    hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
+                    hdr.ndp.flags = NDP_FLAG_ROUTER;
+                    hdr.ndp.type = NDP_TARGET_VLA_ADDR_NOT_FOUND;
+                    hdr.ndp.length = 1;
+                    standard_metadata.egress_spec = standard_metadata.ingress_port;
                 }
             }
         }
