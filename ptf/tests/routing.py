@@ -224,7 +224,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
         switch_mac = SWITCH1_MAC
         target_mac = HOST2_MAC
 
-        host_2_vla_part_one = 0x0001000100010001001100310021003
+        host_2_vla_part_one = 0x00010001000100011001100310021003
         host_2_vla_part_two = 0x00000009100500000000000000000000
        
 
