@@ -1,7 +1,29 @@
 
 from scapy.layers.inet6 import *;
 from scapy.layers.inet6 import _ICMPv6NDGuessPayload, _ICMPv6
-from scapy.sendrecv import srp1
+from scapy.sendrecv import srp1, srp
+
+
+IPV6_MCAST_MAC_1 = "33:33:00:00:00:01"
+
+SWITCH1_MAC = "00:00:00:00:aa:01"
+SWITCH2_MAC = "00:00:00:00:aa:02"
+SWITCH3_MAC = "00:00:00:00:aa:03"
+HOST1_MAC = "00:00:00:00:00:01"
+HOST2_MAC = "00:00:00:00:00:1b"
+
+MAC_BROADCAST = "FF:FF:FF:FF:FF:FF"
+MAC_FULL_MASK = "FF:FF:FF:FF:FF:FF"
+MAC_MULTICAST = "33:33:00:00:00:00"
+MAC_MULTICAST_MASK = "FF:FF:00:00:00:00"
+
+SWITCH1_IPV6 = "2001:0:1::1"
+SWITCH2_IPV6 = "2001:0:2::1"
+SWITCH3_IPV6 = "2001:0:3::1"
+SWITCH4_IPV6 = "2001:0:4::1"
+HOST1_IPV6 = "2001:0000:85a3::8a2e:370:1111"
+HOST2_IPV6 = "2001:0000:85a3::8a2e:370:2222"
+IPV6_MASK_ALL = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
 
 class ICMPv6ND_NR(_ICMPv6NDGuessPayload, _ICMPv6, Packet):
     name = "ICMPv6 Neighbor Discovery - Neighbor Solicitation"
@@ -49,15 +71,15 @@ class ICMPv6NDNROptSrcLLAddr(_ICMPv6NDGuessPayload, Packet):
     
 def genNdpNrPkt(target_host_mac):
     NDP_NR_MAC = "33:33:00:00:00:01"
-    p = Ether(dst="00:00:00:00:aa:01", src ="00:00:00:00:00:1a") / IPv6(dst="::2", src="::2", hlim=255)
-    p /= ICMPv6ND_NR(tgt="::")
+    p = Ether(dst="00:00:00:00:aa:01", src ="00:00:00:00:00:1a") / IPv6(dst=HOST2_IPV6, src=HOST1_IPV6, hlim=255)
+    p /= ICMPv6ND_NA(tgt="::", type = 137)
     p /= ICMPv6NDNROptSrcLLAddr(lladdr=target_host_mac)
     print("packet is ", p)
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
     ndp_nr_packet = genNdpNrPkt(hostId)
-    reply = srp1(ndp_nr_packet,outInterface)
+    reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
     if reply:
         if(Ether in reply and IPv6 in reply):
