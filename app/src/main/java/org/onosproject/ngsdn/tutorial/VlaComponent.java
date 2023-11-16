@@ -57,6 +57,7 @@ import org.onosproject.ngsdn.tutorial.common.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -227,6 +228,10 @@ public class VlaComponent {
 
         for(VlaTopologyInformation.HostInfo hostInfo : hostUpdates){
             setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
+            ArrayList<DeviceId> devicesContainingHosts = vlaTopologyInformation.GetAllDevicesContainingHosts();
+            for(DeviceId deviceId: devicesContainingHosts){
+                setUpHostNameResolutionTable(deviceId, hostInfo);
+            }
         }
 
 
@@ -247,6 +252,10 @@ public class VlaComponent {
        ArrayList<VlaTopologyInformation.HostInfo> hostInfos =  vlaTopologyInformation.AddHost(host.id(), host.location().deviceId());
         for(VlaTopologyInformation.HostInfo hostInfo : hostInfos){
             setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
+            ArrayList<DeviceId> devicesContainingHosts = vlaTopologyInformation.GetAllDevicesContainingHosts();
+            for(DeviceId deviceId: devicesContainingHosts){
+                setUpHostNameResolutionTable(deviceId, hostInfo);
+            }
         }
 
     }
@@ -354,6 +363,76 @@ public class VlaComponent {
                 parent, appId, tableId, match, action);
 
         flowRuleService.applyFlowRules(routeToChildRule);
+    }
+
+    private Pair<byte[], byte[]> DecodeVlaAddress(VlaTopologyInformation.HostInfo hostInfo){
+       byte[] vlaAddress =   hostInfo.getHostAddress();
+
+       byte[] vlaAddressPartOne = Arrays.copyOf(vlaAddress, 16);
+
+       byte[] vlaAddressPartTwo = new byte[16];
+
+        String currentLevel = String.format("%16s", Integer.toBinaryString(hostInfo.getLevel())).replace(' ', '0');
+        BigInteger bigInteger = new BigInteger(currentLevel, 2);
+        byte[] levelPortion = bigInteger.toByteArray();
+        vlaAddressPartTwo[0] = levelPortion[0];
+        vlaAddressPartTwo[1] = levelPortion[1];
+
+
+        for(int i = 16, index = 2; i < vlaAddress.length; ++i, ++index){
+            vlaAddressPartTwo[index] = vlaAddress[i];
+        }
+
+        return Pair.of(vlaAddressPartOne, vlaAddressPartTwo);
+
+    }
+
+
+
+
+    private void setUpHostNameResolutionTable(DeviceId device, VlaTopologyInformation.HostInfo hostInfo){
+        log.info("Adding Name Resolution Table in  {} for host {} )...", device, hostInfo.GetHostId());
+
+
+        // Fill in the table ID for the VLA  route_to_child table
+        // ---- START SOLUTION ----
+        String tableId = "IngressPipeImpl.ndp_name_resolution_table";
+
+        Pair<byte[], byte[]> vlaAddressPair = DecodeVlaAddress(hostInfo);
+
+
+        // Modify the field and action id to match your P4Info
+        // ---- START SOLUTION ----
+        PiCriterion match = PiCriterion.builder()
+                .matchExact(
+                        PiMatchFieldId.of("hdr.ndp.target_mac_addr"),hostInfo.GetHostId().mac().toBytes()
+                )
+                .build();
+
+        ArrayList<PiActionParam> paramList = new ArrayList<>();
+
+        paramList.add(new PiActionParam(
+                        PiActionParamId.of("device_mac"), getMyStationMac(device).toBytes()));
+
+        paramList.add(new PiActionParam(
+                PiActionParamId.of("target_vla_part_one"), vlaAddressPair.getLeft()));
+
+        paramList.add(new PiActionParam(
+                PiActionParamId.of("target_vla_part_two"), vlaAddressPair.getRight()));
+
+
+
+
+        PiTableAction action = PiAction.builder()
+                .withId(PiActionId.of("IngressPipeImpl.vla_route_to_child")).withParameters(
+                        paramList)
+                .build();
+
+
+        FlowRule nameResolutionRule = Utils.buildFlowRule(
+                device, appId, tableId, match, action);
+
+        flowRuleService.applyFlowRules(nameResolutionRule);
     }
 
     private void setUpParentTable(DeviceId parent, DeviceId child, int childLevel) {

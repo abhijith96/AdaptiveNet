@@ -190,6 +190,21 @@ public class VlaTopologyInformation {
        hostIdDeviceIdHashMap = new HashMap<>();
    }
 
+   public ArrayList<DeviceId> GetAllDevicesContainingHosts(){
+
+
+
+        ArrayList<DeviceId> deviceContainingHosts = new ArrayList<>();
+       synchronized (this) {
+           deviceIdHostIdHashMap.forEach((deviceId, hostList) -> {
+               if (!hostList.isEmpty()) {
+                   deviceContainingHosts.add(deviceId);
+               }
+           });
+       }
+        return deviceContainingHosts;
+   }
+
    private Integer GetIdentifier(DeviceId deviceId){
        if(deviceIdentifierMap.containsKey(deviceId)){
            return deviceIdentifierMap.get(deviceId);
@@ -359,7 +374,6 @@ public class VlaTopologyInformation {
     }
 
     public ArrayList<HostInfo> AddHost(HostId hostId, DeviceId deviceId){
-
         ArrayList<HostInfo> results = new ArrayList<>();
         synchronized (this) {
             if (hostIdDeviceIdHashMap.containsKey(hostId)) {
