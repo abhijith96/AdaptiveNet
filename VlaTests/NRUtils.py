@@ -49,7 +49,7 @@ class ICMPv6NDNROptSrcLLAddr(_ICMPv6NDGuessPayload, Packet):
     
 def genNdpNrPkt(target_host_mac):
     NDP_NR_MAC = "33:33:00:00:00:01"
-    p = Ether(dst=NDP_NR_MAC, src ="00:00:00:00:00:01") / IPv6(dst="::", src="::", hlim=255)
+    p = Ether(dst=NDP_NR_MAC, src ="00:00:00:00:00:1a") / IPv6(dst="::", src="::", hlim=255)
     p /= ICMPv6ND_NR(tgt="::")
     p /= ICMPv6NDNROptSrcLLAddr(lladdr=target_host_mac)
     return p
