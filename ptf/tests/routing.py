@@ -255,7 +255,11 @@ class NdpNameResolutionTest(P4RuntimeTest):
         # NDP Neighbor Advertisement packet
         exp_pkt = genNdpNrReplyPkt(host_2_vla_part_one, host_2_vla_part_two, switch_ip, target_mac,
                                    HOST1_MAC, switch_mac)
+        
+        payload_data = exp_pkt.payload
+        exp_pkt[IPv6].remove_payload()
+        raw_packet = exp_pkt / Raw(load=payload_data)
 
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
-        testutils.verify_packet(self, exp_pkt, self.port1)
+        testutils.verify_packet(self, raw_packet, self.port1)
