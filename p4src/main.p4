@@ -614,6 +614,15 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         counters = direct_counter(CounterType.packets_and_bytes);
     }
 
+
+        /**
+           This action maps the mac address of any host in network with its vla address encoded in two fields,
+           target_vla_part_one containing first 128 bits,
+           target vla_part_two containing first 32 bits as number of levels and next 32 bits as remaning 32 bits of the 
+           160 bit vla address.
+           HostName is not supported by the onos host provider service, if so mac adddrss can be replaced with host name of the host
+                
+        **/
     action ndp_nr (bit<128> target_vla_part_one, bit<128> target_vla_part_two, mac_addr_t device_mac){
         mac_addr_t src_host = hdr.ethernet.src_addr;
         hdr.ethernet.src_addr = device_mac;
