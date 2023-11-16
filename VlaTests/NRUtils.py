@@ -94,6 +94,6 @@ def resolveHostVlaAddress(hostId, outInterface):
             replyMessage = "Unexpected Response Type"
     else:
         replyMessage = "No response  from gateway."
-        return (False, replyMessage)
+    return (False, replyMessage)
 
     
