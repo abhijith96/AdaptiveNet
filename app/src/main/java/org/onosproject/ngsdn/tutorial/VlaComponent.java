@@ -378,6 +378,8 @@ public class VlaComponent {
         vlaAddressPartTwo[0] = levelPortion[0];
         vlaAddressPartTwo[1] = levelPortion[1];
 
+        System.out.println("level portion length  " +  levelPortion.length);
+
 
         for(int i = 16, index = 2; i < vlaAddress.length; ++i, ++index){
             vlaAddressPartTwo[index] = vlaAddress[i];
