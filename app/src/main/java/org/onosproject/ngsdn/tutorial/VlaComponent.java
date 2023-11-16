@@ -375,10 +375,12 @@ public class VlaComponent {
         String currentLevel = String.format("%16s", Integer.toBinaryString(hostInfo.getLevel())).replace(' ', '0');
         BigInteger bigInteger = new BigInteger(currentLevel, 2);
         byte[] levelPortion = bigInteger.toByteArray();
+
+        System.out.println("level portion length  " +  levelPortion.length);
         vlaAddressPartTwo[0] = levelPortion[0];
         vlaAddressPartTwo[1] = levelPortion[1];
 
-        System.out.println("level portion length  " +  levelPortion.length);
+
 
 
         for(int i = 16, index = 2; i < vlaAddress.length; ++i, ++index){
