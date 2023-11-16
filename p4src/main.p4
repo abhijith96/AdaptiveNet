@@ -958,6 +958,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                      do_l3_l2 = false;
                 }
                 else{
+                    do_l3_l2 = false;
                     mac_addr_t src_host = hdr.ethernet.src_addr;
                     hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
                     hdr.ethernet.dst_addr = src_host;
