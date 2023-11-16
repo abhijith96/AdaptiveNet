@@ -635,9 +635,9 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         actions = {
             ndp_nr;
         }
-    }
     @name("ndp_name_resolution_table_counter")
     counters = direct_counter(CounterType.packets_and_bytes);
+    }
     // 2. Create table to handle IPv6 routing. Create a L2 my station table (hit
     //    when Ethernet destination address is the switch address). This table
     //    should not do anything to the packet (i.e., NoAction), but the control
