@@ -35,7 +35,7 @@ def process_udp_packet(packet):
             modified_packet = createVlaReplyPacket(packet, reply)
             # print("udp found , modified packet is ", modified_packet)
             # Send the modified packet back
-            sendp(modified_packet, iface="h3-eth0")  
+            sendp(modified_packet, iface="h1b-eth0")  
             print("reply send")
     else:
         print (packet.show())
