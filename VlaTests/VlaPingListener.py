@@ -48,7 +48,7 @@ def process_udp_packet(packet):
 def pingListner():
     # Create an IP packet with an ICMP Echo Request
     target_udp_port = 50001
-    interface = "h3-eth0"
+    interface = "h1b-eth0"
     # Start sniffing for UDP packets on the specified port
     #sniff(filter="ip6", prn=process_udp_packet, iface=interface, count = 1)
     sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
