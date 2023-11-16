@@ -224,8 +224,8 @@ class NdpNameResolutionTest(P4RuntimeTest):
         switch_mac = SWITCH1_MAC
         target_mac = HOST2_MAC
 
-        host_2_vla_part_one = 0x00010001000100011001100310021003
-        host_2_vla_part_two = 0x00000009100500000000000000000000
+        host_2_vla_part_one = "0001:0001:0001:0001:1001:1003:1002:1003"
+        host_2_vla_part_two = "0000:0009:1005:0000:0000:0000:0000:0000"
        
 
         # Insert entry to transform NDP NA packets for the given target address
