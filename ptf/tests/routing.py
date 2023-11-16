@@ -240,7 +240,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
                 # Exact match.
                 "hdr.ndp.target_mac_addr": target_mac
             },
-            action_name="IngressPipeImpl.ndp_ns_to_ndp_na",
+            action_name="IngressPipeImpl.ndp_nr",
             action_params={
                 "device_mac": switch_mac,
                 "target_vla_part_one" : host_2_vla_part_one,
