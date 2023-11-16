@@ -383,19 +383,21 @@ public class VlaComponent {
         byte[] levelPortion = bigInteger.toByteArray();
 
         System.out.println("level portion length  " +  levelPortion.length);
+        vlaAddressPartTwo[0] =  (byte)0xA0;
+        vlaAddressPartTwo[1] =  (byte)0x01;
         if(levelPortion.length == 2) {
-            vlaAddressPartTwo[0] = levelPortion[0];
-            vlaAddressPartTwo[1] = levelPortion[1];
+            vlaAddressPartTwo[2] = levelPortion[0];
+            vlaAddressPartTwo[3] = levelPortion[1];
         }
         else if(levelPortion.length == 1){
-            vlaAddressPartTwo[0] = 0;
-            vlaAddressPartTwo[1] = levelPortion[0];
+            vlaAddressPartTwo[2] = 0;
+            vlaAddressPartTwo[3] = levelPortion[0];
         }
 
 
 
 
-        for(int i = 16, index = 2; i < vlaAddress.length; ++i, ++index){
+        for(int i = 16, index = 4; i < vlaAddress.length; ++i, ++index){
             vlaAddressPartTwo[index] = vlaAddress[i];
         }
 
