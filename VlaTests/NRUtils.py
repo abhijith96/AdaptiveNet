@@ -77,15 +77,35 @@ def genNdpNrPkt(target_host_mac):
     print("packet is ", p)
     return p
 
+
+def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
+    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
+    d = inet_ntop(socket.AF_INET6, nsma)
+    dm = in6_getnsmac(nsma)
+    p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
+    p /= ICMPv6ND_NS(tgt=target_ip)
+    p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
+    return p
+
+
+def genNdpNaPkt(target_ip, target_mac,
+                src_mac=SWITCH1_MAC, dst_mac=IPV6_MCAST_MAC_1,
+                src_ip=SWITCH1_IPV6, dst_ip=HOST1_IPV6):
+    p = Ether(src=src_mac, dst=dst_mac)
+    p /= IPv6(dst=dst_ip, src=src_ip, hlim=255)
+    p /= ICMPv6ND_NA(tgt=target_ip)
+    p /= ICMPv6NDOptDstLLAddr(lladdr=target_mac)
+    return p
+
 def resolveHostVlaAddress(hostId, outInterface):
-    ndp_nr_packet = genNdpNrPkt(hostId)
+    ndp_nr_packet = genNdpNsPkt(src_ip= "2001:1:1::a", src_mac = "000000001a", target_ip="2001:1:1::b")
     reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
     if reply:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 58:
                 print("reply packet is ", reply)
-                ipPayload = ICMPv6ND_NRReply(reply[IPv6].payload)
+                ipPayload = ICMPv6ND_NA(reply[IPv6].payload)
                 print(ipPayload)
                 return (True,replyMessage)
             else:
