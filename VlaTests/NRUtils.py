@@ -74,7 +74,7 @@ def genNdpNrPkt(src_mac, target_host_mac, target_ip, src_ip):
     NDP_NR_MAC = "33:33:00:00:00:01"
     p = Ether(src=src_mac, dst=NDP_NR_MAC) / IPv6(dst="::1", src="::1", hlim=255)
     p /= ICMPv6ND_NS(tgt=target_ip, type = 200)
-    p /= ICMPv6NDOptSrcLLAddr(lladdr=target_host_mac)
+    p /= ICMPv6NDOptSrcLLAddr(lladdr="00:00:00:00:00:1b")
     print("packet is ", p)
     return p
 
@@ -101,7 +101,7 @@ def genNdpNaPkt(target_ip, target_mac,
 
 def resolveHostVlaAddress(hostId, outInterface):
     ndp_nr_packet = genNdpNrPkt(src_ip= "2001:1:1::a:ff", src_mac= "00:00:00:00:00:1a", target_ip="2001:1:1:0:0:0:0:ff",
-                                target_host_mac="00:00:00:00:00:1e")
+                                target_host_mac="00:00:00:00:00:1b")
     print("packet is ", ndp_nr_packet)
     reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
