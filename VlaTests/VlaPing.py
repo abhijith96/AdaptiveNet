@@ -23,7 +23,7 @@ def ping():
     # Create an IP packet with an ICMP Echo Request
     ethSrc= getMacAddress()
     ethDst="00:aa:00:00:00:01"
-    vlaSrcList = [4096,4097,4098]
+    vlaSrcList = [4096,4097,4099]
     vlaDstList = [4096, 4096, 4098]
     vlaCurrentLevel = 2
     dataPayload = "Ping Request"
@@ -37,7 +37,7 @@ def ping():
     # Send the packet and wait for a response
     start_time = time.time()
 
-    reply = srp1(packet,iface="h1c-eth0")
+    reply = srp1(packet,iface="h2-eth0")
     
     end_time = time.time()
 
