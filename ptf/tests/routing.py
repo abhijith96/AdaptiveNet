@@ -308,7 +308,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
         exp_pkt[ICMPv6ND_NS].tgt = switch_ip
         exp_pkt[ICMPv6ND_NS].res = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE
 
-        exp_pkt[ICMPv6NDOptSrcLLAddr].lladdr = HOST1_MAC
+        exp_pkt[ICMPv6NDOptSrcLLAddr].lladdr = not_found_mac
         exp_pkt[ICMPv6NDOptSrcLLAddr].type = NDP_OPT_TARGET_LL_ADDR
 
         testutils.send_packet(self, self.port1, str(pkt))
