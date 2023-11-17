@@ -230,7 +230,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
         target_mac = HOST2_MAC
 
         host_2_vla_part_one = "0001:0001:0001:0001:1001:1003:1002:1003"
-        host_2_vla_part_two = "0000:0009:1005:0000:0000:0000:0000:0000"
+        host_2_vla_part_two = "A001:0009:1005:0000:0000:0000:0000:0000"
        
 
         # Insert entry to transform NDP NA packets for the given target address
@@ -266,9 +266,10 @@ class NdpNameResolutionTest(P4RuntimeTest):
         # NDP Neighbor Advertisement packet
         exp_pkt = genNdpNsPkt(target_ip=switch_ip, src_mac = switch_mac, src_ip="::1")
       
-        exp_pkt[IPv6].src="::1"
-        exp_pkt[IPv6].dst="::1"
+        exp_pkt[IPv6].src=host_2_vla_part_one
+        exp_pkt[IPv6].dst=host_2_vla_part_two
         exp_pkt[Ether].src = switch_mac
+        exp_pkt[Ether].dst = IPV6_MCAST_MAC_1
         
         exp_pkt[ICMPv6ND_NS].type = 201
         exp_pkt[ICMPv6ND_NS].tgt = switch_ip
@@ -281,4 +282,6 @@ class NdpNameResolutionTest(P4RuntimeTest):
 
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
+        received_packet = testutils.receive_packet(self.port1, timeout=2)
+        print(received_packet)
         testutils.verify_packet(self,exp_pkt, self.port1)
