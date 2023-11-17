@@ -271,7 +271,7 @@ class NdpNameResolutionTest(P4RuntimeTest):
         exp_pkt[Ether].src = switch_mac
         exp_pkt[Ether].dst = IPV6_MCAST_MAC_1
         
-        exp_pkt[ICMPv6ND_NS].type = 201
+        exp_pkt[ICMPv6ND_NS].type = 202
         exp_pkt[ICMPv6ND_NS].tgt = switch_ip
         exp_pkt[ICMPv6ND_NS].res = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION
 
