@@ -22,7 +22,7 @@ def custom_packet_filter(packet):
     # Check if the destination MAC address matches the desired value
     return False
 
-
+interface = "h1c-eth0"
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
@@ -35,7 +35,7 @@ def process_udp_packet(packet):
             modified_packet = createVlaReplyPacket(packet, reply)
             # print("udp found , modified packet is ", modified_packet)
             # Send the modified packet back
-            sendp(modified_packet, iface="h1b-eth0")  
+            sendp(modified_packet, iface=interface)  
             print("reply send")
     else:
         print (packet.show())
@@ -48,7 +48,7 @@ def process_udp_packet(packet):
 def pingListner():
     # Create an IP packet with an ICMP Echo Request
     target_udp_port = 50001
-    interface = "h1c-eth0"
+    #interface = "h1c-eth0"
     # Start sniffing for UDP packets on the specified port
     #sniff(filter="ip6", prn=process_udp_packet, iface=interface, count = 1)
     sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
