@@ -24,7 +24,7 @@ def ping():
     ethSrc= getMacAddress()
     ethDst="00:aa:00:00:00:01"
     vlaSrcList = [4096,4097,4098]
-    vlaDstList = [4096, 4096, 4097]
+    vlaDstList = [4096, 4096, 4098]
     vlaCurrentLevel = 2
     dataPayload = "Ping Request"
     
