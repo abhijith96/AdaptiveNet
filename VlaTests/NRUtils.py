@@ -98,7 +98,7 @@ def genNdpNaPkt(target_ip, target_mac,
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
-    ndp_nr_packet = genNdpNsPkt(src_ip= "2001:1:1::a:ff", src_mac = "000000001a", target_ip="2001:1:2::1")
+    ndp_nr_packet = genNdpNsPkt(src_ip= "2001:1:1::a:ff", src_mac = "000000001a", target_ip="2001:1:2::1:ff")
     print("packet is ", ndp_nr_packet)
     reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
