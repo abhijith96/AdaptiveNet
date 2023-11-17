@@ -22,7 +22,7 @@ def custom_packet_filter(packet):
     # Check if the destination MAC address matches the desired value
     return False
 
-interface = "h4-eth0"
+interface = "h1c-eth0"
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
