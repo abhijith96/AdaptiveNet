@@ -959,16 +959,30 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                 }
                 else{
                     do_l3_l2 = false;
-                    mac_addr_t src_host = hdr.ethernet.src_addr;
-                    hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+                    local_metadata.is_multicast = false;
+                    // mac_addr_t src_host = hdr.ethernet.src_addr;
+                    // hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
+                    // hdr.ethernet.dst_addr = IPV6_MCAST_01;
+                    // hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
+                    // hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
+                    // hdr.ndp.flags = NDP_FLAG_ROUTER;
+                    // hdr.ndp.type = NDP_TARGET_VLA_ADDR_NOT_FOUND;
+                    // hdr.ndp.length = 1;
+                    // standard_metadata.egress_spec = standard_metadata.ingress_port;
+                    mac_addr_t target_mac = 0x00aa00000001;
+                     hdr.ethernet.src_addr = target_mac;
                     hdr.ethernet.dst_addr = IPV6_MCAST_01;
+                    ipv6_addr_t host_ipv6_tmp = hdr.ipv6.src_addr;
+                    hdr.ipv6.src_addr = hdr.ndp.target_ipv6_addr;
+                    hdr.ipv6.dst_addr = host_ipv6_tmp;
                     hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
-                    hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
-                    hdr.ndp.flags = NDP_FLAG_ROUTER;
-                    hdr.ndp.type = NDP_TARGET_VLA_ADDR_NOT_FOUND;
+                    hdr.icmpv6.type = ICMP6_TYPE_NA;
+                    hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE;
+                    hdr.ndp.type = NDP_OPT_TARGET_LL_ADDR;
                     hdr.ndp.length = 1;
+                    hdr.ndp.target_mac_addr = target_mac;
                     standard_metadata.egress_spec = standard_metadata.ingress_port;
-                }
+                        }
             }
         }
 
