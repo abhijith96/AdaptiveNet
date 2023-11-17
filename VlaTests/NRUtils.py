@@ -3,7 +3,6 @@ from scapy.layers.inet6 import *;
 from scapy.layers.inet6 import _ICMPv6NDGuessPayload, _ICMPv6
 from scapy.sendrecv import srp1, srp
 
-from base_test import *
 
 
 IPV6_MCAST_MAC_1 = "33:33:00:00:00:01"
