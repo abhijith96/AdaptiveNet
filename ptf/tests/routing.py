@@ -56,6 +56,12 @@ from base_test import *
 #     bit<48>      target_mac_addr;
 # }
 
+NDP_FLAG_ROUTER    = 0x80000000
+NDP_FLAG_SOLICITED = 0x40000000
+NDP_FLAG_OVERRIDE  = 0x20000000
+NDP_FLAG_NAME_RESOLUTION  = 0x10000000
+NDP_TARGET_VLA_ADDR = 3
+
 
 def genNdpNrPkt(target_ip, target_mac, eth_dst_mac = NDP_NR_MAC, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
     NDP_TARGET_VLA_ADDR = 3
@@ -204,8 +210,6 @@ class NdpReplyGenTest(P4RuntimeTest):
                               src_mac=target_mac,
                               src_ip=switch_ip,
                               dst_ip=pkt[IPv6].src)
-        exp_pkt[ICMPv6ND_NA].type = 127
-
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
         testutils.verify_packet(self, exp_pkt, self.port1)
@@ -251,11 +255,27 @@ class NdpNameResolutionTest(P4RuntimeTest):
         # ---- END SOLUTION ----
 
         # NDP Neighbor Solicitation packet
-        pkt = genNdpNrPkt(target_ip=switch_ip, target_mac= target_mac)
+        pkt = genNdpNsPkt(target_ip=switch_ip, src_mac = HOST1_MAC, src_ip=HOST1_IPV6)
+        pkt[IPv6].src="::1"
+        pkt[IPv6].dst="::1"
+        
+        pkt[ICMPv6ND_NS].type = 200
+        pkt[ICMPv6ND_NS].tgt = switch_ip
+        pkt[ICMPv6NDOptSrcLLAddr].lladdr = target_mac
 
         # NDP Neighbor Advertisement packet
-        exp_pkt = genNdpNrReplyPkt(host_2_vla_part_one, host_2_vla_part_two, switch_ip, target_mac,
-                                   HOST1_MAC, switch_mac)
+        exp_pkt = genNdpNsPkt(target_ip=switch_ip, src_mac = switch_mac, src_ip="::1")
+      
+        exp_pkt[IPv6].src="::1"
+        exp_pkt[IPv6].dst="::1"
+        exp_pkt[Ether].src = switch_mac
+        
+        exp_pkt[ICMPv6ND_NS].type = 201
+        exp_pkt[ICMPv6ND_NS].tgt = switch_ip
+        exp_pkt[ICMPv6ND_NS].res = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION
+
+        exp_pkt[ICMPv6NDOptSrcLLAddr].lladdr = target_mac
+        exp_pkt[ICMPv6NDOptSrcLLAddr].type = NDP_TARGET_VLA_ADDR
         
     
 
