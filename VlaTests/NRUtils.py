@@ -3,6 +3,8 @@ from scapy.layers.inet6 import *;
 from scapy.layers.inet6 import _ICMPv6NDGuessPayload, _ICMPv6
 from scapy.sendrecv import srp1, srp
 
+from base_test import NDP_NR_MAC
+
 
 IPV6_MCAST_MAC_1 = "33:33:00:00:00:01"
 
@@ -82,7 +84,7 @@ def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
     nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
-    p = Ether(src=src_mac, dst=SWITCH1_MAC) / IPv6(dst=d, src=src_ip, hlim=255)
+    p = Ether(src=src_mac, dst=NDP_NR_MAC) / IPv6(dst=d, src=src_ip, hlim=255)
     p /= ICMPv6ND_NS(tgt=target_ip)
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
     return p
