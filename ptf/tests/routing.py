@@ -61,6 +61,7 @@ NDP_FLAG_SOLICITED = 0x40000000
 NDP_FLAG_OVERRIDE  = 0x20000000
 NDP_FLAG_NAME_RESOLUTION  = 0x10000000
 NDP_TARGET_VLA_ADDR = 3
+NDP_OPT_TARGET_LL_ADDR = 2
 
 
 def genNdpNrPkt(target_ip, target_mac, eth_dst_mac = NDP_NR_MAC, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
@@ -283,3 +284,33 @@ class NdpNameResolutionTest(P4RuntimeTest):
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
         testutils.verify_packet(self,exp_pkt, self.port1)
+
+        pkt = genNdpNsPkt(target_ip=switch_ip, src_mac = HOST1_MAC, src_ip=HOST1_IPV6)
+        pkt[IPv6].src="::1"
+        pkt[IPv6].dst="::1"
+        
+        pkt[ICMPv6ND_NS].type = 200
+        pkt[ICMPv6ND_NS].tgt = switch_ip
+        pkt[ICMPv6NDOptSrcLLAddr].lladdr = HOST1_MAC
+
+
+        exp_pkt = genNdpNsPkt(target_ip=switch_ip, src_mac = switch_mac, src_ip="::1")
+
+
+        not_found_mac = "00:aa:00:00:00:01"
+      
+        exp_pkt[IPv6].src=switch_ip
+        exp_pkt[IPv6].dst="::1"
+        exp_pkt[Ether].src = not_found_mac
+        exp_pkt[Ether].dst = IPV6_MCAST_MAC_1
+        
+        exp_pkt[ICMPv6ND_NS].type = 136
+        exp_pkt[ICMPv6ND_NS].tgt = switch_ip
+        exp_pkt[ICMPv6ND_NS].res = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE
+
+        exp_pkt[ICMPv6NDOptSrcLLAddr].lladdr = HOST1_MAC
+        exp_pkt[ICMPv6NDOptSrcLLAddr].type = NDP_OPT_TARGET_LL_ADDR
+
+        testutils.send_packet(self, self.port1, str(pkt))
+        testutils.verify_packet(self,exp_pkt, self.port1)
+
