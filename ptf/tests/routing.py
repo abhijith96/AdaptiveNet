@@ -282,6 +282,4 @@ class NdpNameResolutionTest(P4RuntimeTest):
 
         # Send NDP NS, expect NDP NA from the same port.
         testutils.send_packet(self, self.port1, str(pkt))
-        received_packet = testutils.receive_packet(self.port1, timeout=2)
-        print(received_packet)
         testutils.verify_packet(self,exp_pkt, self.port1)
