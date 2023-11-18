@@ -94,9 +94,12 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
     # Optionally wait for the first file to terminate gracefully
     ping_listener_process.wait()
 
-    outputLines = output.decode('utf-8').split("\n")
+    outputString = output.decode('utf-8')
 
-    print(outputLines)
+
+    print(outputString)
+
+    outputLines = outputString.split("\n")
 
     for line in outputLines:
         if line.startswith("RoundTripTimeis"):
