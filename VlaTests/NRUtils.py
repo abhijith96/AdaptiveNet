@@ -3,7 +3,7 @@ from scapy.layers.inet6 import *;
 from scapy.utils import  inet_pton
 from scapy.sendrecv import srp1, srp, sr1
 import socket
-
+from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 
 
 IPV6_MCAST_MAC_1 = "33:33:00:00:00:01"
@@ -27,7 +27,22 @@ HOST1_IPV6 = "2001:0000:85a3::8a2e:370:1111"
 HOST2_IPV6 = "2001:0000:85a3::8a2e:370:2222"
 IPV6_MASK_ALL = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
 
+def getDefaultInterface():
+    ifacelist = get_if_list()
+    for interfaceName in ifacelist:
+        if(not interfaceName == "lo"):
+            return (True, interfaceName)
+    return (False, None)
 
+def getMacAddrForInterface(interfaceName):
+    mac = get_if_hwaddr(interfaceName)
+    return mac
+
+def getDefaultMacAddress():
+    ifaceStatus, iface = getDefaultInterface()
+    if(ifaceStatus):
+        return  (True, getMacAddrForInterface(iface))
+    return  (False, None)  
 
 def convert_128bit_to_16bit_list(integer_128bit):
     # Ensure the input is a valid 128-bit integer
@@ -154,9 +169,18 @@ def genNdpNaPkt(target_ip, target_mac,
     p /= ICMPv6NDOptDstLLAddr(lladdr=src_mac)
     return p
 
-def resolveHostVlaAddress(hostId, outInterface):
-    switch_Ip = "2001:1:2::ff"
-    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId,src_mac="00:00:00:00:00:1a")
+def resolveHostVlaAddress(hostId):
+
+    outIfaceStatus, outInterface = getDefaultInterface()
+    message = "Success"
+    if(not outIfaceStatus):
+        message = "No network interface found for device"
+        return (False, None, None, message)
+    macStatus, iFaceMac = getDefaultMacAddress()
+    if(not macStatus):
+        message = "No mac address found for interface in device"
+        return (False, None, None, message)
+    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId,src_mac=iFaceMac)
     print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
     if(reply):
