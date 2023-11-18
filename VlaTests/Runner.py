@@ -48,10 +48,14 @@ def getNetworkNamespaces():
         return []
     
 
-def run_python_file_in_namespace(namespace_name, python_file_path):
+def run_python_file_in_namespace(namespace_name, python_file_path, arg=None):
     try:
         # Use nsenter to enter the network namespace and run the Python file
-        nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
+        nsenter_command = None
+        if(arg):
+            nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path, arg]
+        else:    
+            nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
         process = subprocess.Popen(nsenter_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return process
 
@@ -83,7 +87,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
     time.sleep(1)
 
     # Run the second Python file in the second namespace
-    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand)
+    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, arg=receiverHostMac)
 
     # Wait for the second file to finish and capture its output
     output, errors = ping_sender_process.communicate()
