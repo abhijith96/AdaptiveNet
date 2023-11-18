@@ -51,7 +51,7 @@ def run_python_file_in_namespace(namespace_name, python_file_path):
         return process
 
     except subprocess.CalledProcessError as e:
-            print(f"Error: {e}")
+            print("Error: " % e)
             return None
 
 
