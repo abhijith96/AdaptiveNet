@@ -17,7 +17,7 @@ MAC_FULL_MASK = "FF:FF:FF:FF:FF:FF"
 MAC_MULTICAST = "33:33:00:00:00:00"
 MAC_MULTICAST_MASK = "FF:FF:00:00:00:00"
 
-SWITCH1_IPV6 = "2001:0:1::1"
+
 SWITCH2_IPV6 = "2001:0:2::1"
 SWITCH3_IPV6 = "2001:0:3::1"
 SWITCH4_IPV6 = "2001:0:4::1"
@@ -61,8 +61,8 @@ def genNdpNaPkt(target_ip, target_mac,
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
-    SWITCH1_IPV6 = "2001:1:2::1:ff"
-    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=SWITCH1_IPV6, src_ip="2001:1:1::a:ff", src_mac="00:00:00:00:00:1a")
+    switch_Ip = "2001:1:2::ff"
+    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=switch_Ip, src_ip="2001:1:1::a:ff", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
     replyMessage = ""
