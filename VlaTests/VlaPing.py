@@ -62,7 +62,7 @@ def ping(targetHostId):
 
     reply = srp1(packet,iface=defaultInterface)
     
-    end_time = time.time()
+    end_time = reply.time - packet.sent_time
 
 
     rtt = 0
