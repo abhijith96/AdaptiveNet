@@ -61,7 +61,7 @@ def genNdpNaPkt(target_ip, target_mac,
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
-    SWITCH1_IPV6 = "2001:0:1::1"
+    SWITCH1_IPV6 = "2001:1:2::1:ff"
     ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=SWITCH1_IPV6, src_ip="2001:1:1::a:ff", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
