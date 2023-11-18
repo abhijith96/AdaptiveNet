@@ -115,7 +115,7 @@ def parseNdpNrReply(nr_packet):
             vlaAddrPartOne = convert_128bit_to_16bit_list(nr_packet[IPv6].src)
             payload = nr_packet[IPv6].payload
             payloadAsNSpkt = ICMPv6ND_NS(payload)
-            payloadAsNSopt = ICMPv6NDOptSrcLLAddr(payloadAsNSopt.payload)
+            payloadAsNSopt = ICMPv6NDOptSrcLLAddr( payloadAsNSpkt.payload)
             vlaAddrPartTwo, numLevels = parse_vla_part_two(payloadAsNSopt.lladdr)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
