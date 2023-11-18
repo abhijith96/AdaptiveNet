@@ -13,6 +13,19 @@ def split_at_six_spaces(input_string):
         return result
     else:
         return []
+def print_third_and_last_word(input_string):
+    # Split the string into words
+    words = input_string.split()
+
+    # Check if the string has at least 3 words
+    if len(words) >= 3:
+        # Print the third word
+        print("Third Word:", words[2])
+
+    # Check if the string has at least 1 word
+    if len(words) >= 1:
+        # Print the last word
+        print("Last Word:", words[-1])
 
 def getNetworkNamespaces():
     try:
@@ -29,15 +42,7 @@ def getNetworkNamespaces():
 output_lines = getNetworkNamespaces()
 output_lines_2 = []
 for line in output_lines:
-    splitLines = split_at_six_spaces(line)
-    output_lines_2.append(splitLines)
+    print_third_and_last_word(line)
     
 
-
-
-# Print the result
-print("Output:")
-for line in output_lines_2:
-    for sub_line in line:
-        print(sub_line)
     
