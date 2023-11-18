@@ -626,7 +626,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
            HostName is not supported by the onos host provider service, if so mac adddrss can be replaced with host name of the host
 
         **/
-    action ndp_nr (bit<128> target_vla_part_one, bit<128> target_vla_part_two, mac_addr_t device_mac){
+    action ndp_nr (bit<128> target_vla_part_one, bit<48> target_vla_part_two, mac_addr_t device_mac){
         hdr.ethernet.src_addr = device_mac;
         hdr.ethernet.dst_addr = IPV6_MCAST_01;
         // hdr.ipv6.src_addr = target_vla_part_one;
@@ -636,7 +636,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         hdr.ipv6.dst_addr = host_ipv6_tmp;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
         hdr.icmpv6.type = ICMP6_TYPE_NA;
-        hdr.ndp.target_ipv6_addr = target_vla_part_two;
+        //hdr.ndp.target_ipv6_addr = target_vla_part_two;
         hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
         hdr.ndp.type = NDP_TARGET_VLA_ADDR;
         hdr.ndp.length = 1;

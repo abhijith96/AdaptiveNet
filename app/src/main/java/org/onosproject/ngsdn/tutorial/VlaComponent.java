@@ -370,11 +370,11 @@ public class VlaComponent {
 
        byte[] vlaAddressPartOne = Arrays.copyOf(vlaAddress, 16);
 
-       byte[] vlaAddressPartTwo = new byte[16];
+       byte[] vlaAddressPartTwo = new byte[6];
 
         String binaryString = Integer.toBinaryString(hostInfo.getLevel());
 
-       int bitCount = 16;
+       int bitCount = 8;
 
         // Left-pad the binary string with zeros to ensure it has the specified number of bits
         String paddedBinaryString = String.format("%" + bitCount + "s", binaryString).replace(' ', '0');
@@ -384,20 +384,8 @@ public class VlaComponent {
 
         System.out.println("level portion length  " +  levelPortion.length);
         vlaAddressPartTwo[0] =  (byte)0xA0;
-        vlaAddressPartTwo[1] =  (byte)0x01;
-        if(levelPortion.length == 2) {
-            vlaAddressPartTwo[2] = levelPortion[0];
-            vlaAddressPartTwo[3] = levelPortion[1];
-        }
-        else if(levelPortion.length == 1){
-            vlaAddressPartTwo[2] = 0;
-            vlaAddressPartTwo[3] = levelPortion[0];
-        }
-
-
-
-
-        for(int i = 16, index = 4; i < vlaAddress.length; ++i, ++index){
+        vlaAddressPartTwo[1] =  levelPortion[0];
+        for(int i = 16, index = 2; i < vlaAddress.length; ++i, ++index){
             vlaAddressPartTwo[index] = vlaAddress[i];
         }
 
