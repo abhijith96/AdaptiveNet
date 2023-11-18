@@ -4,11 +4,32 @@ import re
 import time
 import signal
 import os
+import csv
 
+MININET_FILE_PATH = "hostMacs.csv"
 
 
 pingReceiverProgram = "/home/VlaTests/VlaPingListener.py"
 pingSenderProgram = "/home/VlaTests/VlaPing.py" 
+
+
+import csv
+
+def read_csv_to_dict(file_path):
+    data_dict = {}
+    with open(file_path, 'rb') as csv_file:
+        csv_reader = csv.reader(csv_file)
+
+        # Skip the header row if it exists
+        next(csv_reader, None)
+
+        for row in csv_reader:
+            key = row[0]
+            value = row[1]
+            data_dict[key] = value
+
+    return data_dict
+
 
 def get_rest_of_string_after_prefix(input_string, prefix):
     prefix_position = input_string.find(prefix)
@@ -120,6 +141,9 @@ def main():
     output_hosts = getMininetHostNamesAndProcessIds()
     for i, j in output_hosts:
         print("host Name " + i + " pid : " + j)
+
+    hostMacMap = read_csv_to_dict(MININET_FILE_PATH)
+    print(hostMacMap)
 
     senderHostName = "h1a"
     receiverHostName = "h1b"
