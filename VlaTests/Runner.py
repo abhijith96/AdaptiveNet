@@ -10,7 +10,7 @@ def get_rest_of_string_after_prefix(input_string, prefix):
     else:
         return None
 
-def print_third_and_last_word(input_string):
+def extractHostNameAndPid(input_string):
     # Split the string into words
     hostName = None
     processId = None
@@ -19,13 +19,11 @@ def print_third_and_last_word(input_string):
     # Check if the string has at least 3 words
     if len(words) >= 4:
         # Print the third word
-        print("Third Word:", words[3])
         processId = words[3]
 
     # Check if the string has at least 1 word
     if len(words) >= 1:
         # Print the last word
-        print("Last Word:", words[-1])
         hostName = get_rest_of_string_after_prefix(words[-1], "mininet:")
     
     return (processId, hostName)
@@ -46,7 +44,7 @@ def getMininetHostNamesAndProcessIds():
     output = getNetworkNamespaces()
     output_hosts = []
     for line in output:
-        (procoess_id, hostName) = print_third_and_last_word(line)
+        (procoess_id, hostName) = extractHostNameAndPid(line)
         if(procoess_id and hostName):
             output_hosts.append((hostName, procoess_id))
     return output_hosts
