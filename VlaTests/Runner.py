@@ -96,6 +96,8 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
 
     outputLines = output.decode('utf-8').split("\n")
 
+    print(outputLines)
+
     for line in outputLines:
         if line.startswith("RoundTripTimeis"):
             words = line.split()
