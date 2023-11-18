@@ -1,7 +1,6 @@
 
-from asyncio import run_coroutine_threadsafe
-import sys
 
+import sys
 from scapy.all import get_if_hwaddr
 
 from scapy.sendrecv import srp
