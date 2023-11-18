@@ -172,6 +172,8 @@ def main():
                 print("rtt " + rtt)
                 rttDict[(senderHostName, receiverHostName)] = rtt
 
+    write_dict_to_csv(RTT_FILE_PATH, rttDict)
+
     
 
 
