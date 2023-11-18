@@ -636,7 +636,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         hdr.ipv6.dst_addr = host_ipv6_tmp;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
         hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
-        hdr.ndp. target_ipv6_addr = target_vla_part_two;
+        // hdr.ndp.target_ipv6_addr = target_vla_part_two;
         hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
         hdr.ndp.type = NDP_TARGET_VLA_ADDR;
         hdr.ndp.length = 1;
