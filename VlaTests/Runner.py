@@ -4,8 +4,15 @@ import re
 
 def split_at_six_spaces(input_string):
     # Use regular expression to split at the first occurrence of six non-continuous spaces
-    result = re.split(r'(?<!\s)(\s{6})(?!\s)', input_string, maxsplit=1)
-    return result
+    parts = input_string.split()
+
+    # Ensure there are at least six parts
+    if len(parts) >= 6:
+        # Take the first six parts and join them into six strings
+        result = [' '.join(parts[:6])] + parts[6:]
+        return result
+    else:
+        return []
 
 def getNetworkNamespaces():
     try:
