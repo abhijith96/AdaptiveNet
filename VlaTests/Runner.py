@@ -49,6 +49,7 @@ for line in output_lines:
     if(procoess_id and hostName):
         output_lines_2.append((hostName, procoess_id))
 
+print("len is "+ len(output_lines_2))
 for hostName, processId in output_lines_2:
     print("hostName : %s process Id : %s".format(hostName, processId))
     
