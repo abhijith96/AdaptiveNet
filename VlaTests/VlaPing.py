@@ -62,7 +62,7 @@ def ping(targetHostId):
 
     reply = srp1(packet,iface=defaultInterface)
     
-    end_time = reply.time - packet.sent_time
+    end_time = time.time()
 
 
     rtt = 0
@@ -76,7 +76,7 @@ def ping(targetHostId):
                 ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                 if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
                     replyMessage = "Ping  successful! " + ipPayload[Raw].load
-                    rtt = end_time - start_time
+                    rtt = end_time - packet.sent_time
                     return (True,replyMessage, rtt)
                 else:
                     replyMessage = "Ping Failed UDP not found or UDP src port does not match "
