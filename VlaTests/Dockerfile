@@ -9,7 +9,7 @@ FROM python:3 AS python3
 # Copy the content from the base image into the Python 3 image
 COPY --from=base / .
 
-WORKDIR /home
+WORKDIR /root
 
 # Install virtualenv
 RUN pip3 install virtualenv
