@@ -22,6 +22,7 @@ from mininet.net import Mininet
 from mininet.node import Host
 from mininet.topo import Topo
 from stratum import StratumBmv2Switch
+import mininetUtil
 
 CPU_PORT = 255
 
@@ -110,6 +111,11 @@ def main():
     print 'To detach from the CLI (without stopping), press Ctrl-D'
     print 'To permanently quit Mininet, use `make stop`'
     print '#' * 80
+
+    hostInfo = mininetUtil.get_hosts_info(net)
+    csvFilePath = "/home/hostMacs.csv"
+    mininetUtil.write_to_csv(csvFilePath, hostInfo)
+
 
 
 if __name__ == "__main__":
