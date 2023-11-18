@@ -78,7 +78,6 @@ def genNdpNrPkt(src_mac, target_host_mac, target_ip, src_ip):
     pkt[ICMPv6ND_NS].type = 200
     pkt[ICMPv6ND_NS].tgt = target_ip
     pkt[ICMPv6NDOptSrcLLAddr].lladdr = target_host_mac
-    pkt[Ether].dst = NDP_NR_MAC
     return pkt
 
 
@@ -103,7 +102,8 @@ def genNdpNaPkt(target_ip, target_mac,
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
-    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip="::1", src_ip="::1", src_mac="00:00:00:00:00:1a")
+    SWITCH1_IPV6 = "2001:0:1::1"
+    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=SWITCH1_IPV6, src_ip="::1", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
     reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
