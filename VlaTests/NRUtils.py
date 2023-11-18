@@ -27,6 +27,64 @@ IPV6_MASK_ALL = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
 
 
 
+def convert_128bit_to_16bit_list(integer_128bit):
+    # Ensure the input is a valid 128-bit integer
+    if not 0 <= integer_128bit < 2**128:
+        raise ValueError("Input must be a 128-bit integer")
+
+    # Initialize an empty list to store 16-bit chunks
+    result_list = []
+
+    # Extract 16-bit chunks using bitwise operations and a loop
+    for _ in range(8):
+        # Extract the least significant 16 bits
+        chunk = integer_128bit & 0xFFFF
+        # Add the chunk to the result list
+        result_list.append(chunk)
+        # Right shift by 16 bits to get the next chunk
+        integer_128bit >>= 16
+
+    # Reverse the list to maintain the order
+    result_list.reverse()
+
+    return result_list
+
+def parse_vla_part_two(integer_48_bit):
+    # Ensure the input is a valid 128-bit integer
+    if not 0 <= integer_128bit < 2**48:
+        raise ValueError("Input must be a 128-bit integer")
+
+    # Initialize an empty list to store 16-bit chunks
+    result_list = []
+
+    
+
+    # Extract 16-bit chunks using bitwise operations and a loop
+    for _ in range(2):
+        # Extract the least significant 16 bits
+        chunk = integer_48_bit & 0xFFFF
+        # Add the chunk to the result list
+        result_list.append(chunk)
+        # Right shift by 16 bits to get the next chunk
+        integer_128bit >>= 16
+
+    # Reverse the list to maintain the order
+    result_list.reverse()
+
+    len = integer_48_bit & 0xFF
+
+    number_of_levels = len
+
+    return (result_list, number_of_levels)
+
+# Example usage:
+integer_128bit = 0x123456789ABCDEF0123456789ABCDEF0
+result_list = convert_128bit_to_16bit_list(integer_128bit)
+print(result_list)
+
+
+
+
 def genNdpNrPkt(src_mac, target_host_mac, target_ip, src_ip):
     NDP_NR_MAC = "33:33:00:00:00:01"
     pkt = genNdpNsPkt(target_ip=target_ip, src_mac = src_mac, src_ip=src_ip)
@@ -49,6 +107,28 @@ def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
     return p
 
+def parseNdpNrReply(nr_packet):
+    parseMessage = "Success"
+    if(nr_packet[Ether] and nr_packet[IPv6]):
+        try:
+            gateway_ether = nr_packet[Ether].src
+            vlaAddrPartOne = convert_128bit_to_16bit_list(nr_packet[IPv6].src)
+            payload = nr_packet[IPv6].payload
+            payloadAsNSpkt = ICMPv6ND_NS(payload)
+            payloadAsNSopt = ICMPv6NDOptSrcLLAddr(payloadAsNSopt.payload)
+            vlaAddrPartTwo, numLevels = parse_vla_part_two(payloadAsNSopt.lladdr)
+            vlaAddrPartOne.extend(vlaAddrPartTwo)
+            vlaAddress = vlaAddrPartOne[:numLevels]
+            return (True, vlaAddress, gateway_ether, parseMessage)
+        except ValueError:
+            parseMessage = "Integers for vla part one and vla part two not valid"
+        except Exception:
+            parseMessage = "Error extracting ICMP payload" 
+    else:
+        parseMessage = "No Ether or IP Packet in nr reply"
+    return (False, None, None, parseMessage)
+
+
 
 
 def genNdpNaPkt(target_ip, target_mac,
@@ -65,21 +145,8 @@ def resolveHostVlaAddress(hostId, outInterface):
     ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=switch_Ip, src_ip="2001:1:1::a", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
-    replyMessage = ""
-    if reply:
-        if(Ether in reply and IPv6 in reply):
-            if reply[IPv6].nh == 58:
-                print("reply packet is ", reply)
-                ipPayload = ICMPv6ND_NA(reply[IPv6].payload)
-                print(ipPayload)
-                return (True,replyMessage)
-            else:
-                replyMessage =  "ICMP NDP NR not detected in reply"
-        else:
-            print("reply packet is ", reply)
-            replyMessage = "Unexpected Response Type"
-    else:
-        replyMessage = "No response  from gateway."
-    return (False, replyMessage)
+    if(reply):
+        return parseNdpNrReply(ndp_nr_packet)
+    return (False, None, None, "No reply for NR request")
 
     

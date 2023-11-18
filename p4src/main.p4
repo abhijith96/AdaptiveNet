@@ -963,7 +963,6 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
                 else
                 {
                     do_l3_l2 = false;
-                    local_metadata.is_multicast = false;
                     mac_addr_t src_host = hdr.ethernet.src_addr;
                     hdr.ethernet.src_addr = hdr.ethernet.dst_addr;
                     hdr.ethernet.dst_addr = IPV6_MCAST_01;

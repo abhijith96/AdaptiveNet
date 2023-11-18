@@ -83,8 +83,11 @@ def main():
     data = "HELLO WORLD"
 #    interfaceMacAddress = get_if_hwaddr(interface)
     targetHostMac = "00:00:00:00:00:1b"
-    responseStatus, responseMsg = resolveHostVlaAddress(targetHostMac, outInterface="h1a-eth0")
+    responseStatus, vlaAddress, gatewayEther, responseMsg = resolveHostVlaAddress(targetHostMac, outInterface="h1a-eth0")
     print(responseMsg)
+    if(responseStatus):
+        print(vlaAddress)
+        print(gatewayEther)
 
 if __name__ == "__main__":
     main()
