@@ -1,6 +1,6 @@
 
 from scapy.layers.inet6 import *;
-from scapy.utils import mac2int, inet_pton
+from scapy.utils import  inet_pton
 from scapy.sendrecv import srp1, srp, sr1
 import socket
 
