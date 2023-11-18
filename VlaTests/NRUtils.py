@@ -125,7 +125,9 @@ def parseNdpNrReply(nr_packet):
             vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
             print("vla part one int", vlaAddrPartOne)
             vlaPartTwoString = payloadAsNSopt.lladdr
-            vlaAddrPartTwo, numLevels = parse_vla_part_two(mac2str(vlaPartTwoString))
+            vlaPartTwoNumber = int(mac2str(vlaPartTwoString).encode('hex'),6)
+            print(vlaPartTwoNumber)
+            vlaAddrPartTwo, numLevels = parse_vla_part_two(vlaPartTwoNumber)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
             return (True, vlaAddress, gateway_ether, parseMessage)
