@@ -138,10 +138,10 @@ def parseNdpNrReply(nr_packet):
             vlaPartOneString = nr_packet[IPv6].src
             vlaPartOneNumber = int(socket.inet_pton(socket.AF_INET6, vlaPartOneString).encode('hex'), 16)
             vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
-            print("vla part one int", vlaAddrPartOne)
+            #print("vla part one int", vlaAddrPartOne)
             vlaPartTwoString = payloadAsNSopt.lladdr
             vlaPartTwoNumber = int(vlaPartTwoString.replace(":", ""), 16)
-            print("vla part two",vlaPartTwoNumber)
+            #print("vla part two",vlaPartTwoNumber)
             vlaAddrPartTwo, numLevels = parse_vla_part_two(vlaPartTwoNumber)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]

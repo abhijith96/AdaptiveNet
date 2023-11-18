@@ -1,5 +1,6 @@
 
 from scapy.all import sr1, srp1, srp, Raw
+import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6
@@ -7,6 +8,7 @@ from scapy.layers.l2 import Ether
 from Utils import createVlaPacket, getMacAddress
 import time
 from scapy.all import conf
+from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultMacAddress, getDefaultInterface
 
 def test():
 
@@ -19,25 +21,46 @@ def test():
     print(conf.route)
     #print(conf.ifaces)
 
-def ping():
-    # Create an IP packet with an ICMP Echo Request
-    ethSrc= getMacAddress()
-    ethDst="00:aa:00:00:00:02"
-    vlaSrcList = [4096,4096,4097]
-    vlaDstList = [4096, 4096, 4098]
-    vlaCurrentLevel = 2
-    dataPayload = "Ping Request"
-    
-    # packet = Ether(src="00:00:00:00:00:1a", dst="00:aa:00:00:00:01")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=dataPayload)
+def getCommandLineArguments():
+    try:
+        targetHost = sys.argv[1]
+        return targetHost
+    except Exception():
+        raise Exception("Pass Comandline Arguments Properly") 
 
-    # packet = insert_vla_header(packet, [4096,4096,4097],[4096,4096,4096,4096,4096], 4)
+def ping(targetHostId):
+    # Create an VLA IP packet with an UDP Ping
+    replyMessage = ""
+    ifaceStatus, defaultInterface = getDefaultInterface()
+    if(not ifaceStatus):
+        replyMessage = "No network interfaces found for device"
+        return (False, replyMessage, None)
+    ethSrcStatus, ethSrc= getDefaultMacAddress()
+    if(not ethSrcStatus):
+        replyMessage = "mac address not found for current device"
+        return (False, replyMessage, None)
+    hostVlaStatus, hostVlaAddress, gatewayMac, message = getCurrentHostVlaAddress()
+    if(not hostVlaStatus):
+        replyMessage = "vla address for current Device Not found"
+        return (False, replyMessage, None)
+
+    targetVlaStatus, targetVlaAddress, gatewayMac, message = resolveHostVlaAddress(targetHostId)
+    if(not hostVlaStatus):
+        replyMessage = "vla address for target device %s not found".format(targetHostId)
+        return (False, replyMessage, None)
+    
+    ethDst=gatewayMac
+    vlaSrcList = hostVlaAddress
+    vlaDstList = targetVlaAddress
+    vlaCurrentLevel = len(hostVlaAddress) - 1
+    dataPayload = "Ping Request"
 
     packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
 
     # Send the packet and wait for a response
     start_time = time.time()
 
-    reply = srp1(packet,iface="h3-eth0")
+    reply = srp1(packet,iface=defaultInterface)
     
     end_time = time.time()
 
@@ -45,11 +68,11 @@ def ping():
     rtt = 0
 
     # Check if a response was received
-    replyMessage = ""
+   
     if reply:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
-                print("reply packet is ", reply)
+                #print("reply packet is ", reply)
                 ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                 if ipPayload[UDP] and ipPayload[UDP].sport == 50001:
                     replyMessage = "Ping  successful! " + ipPayload[Raw].load
@@ -67,10 +90,14 @@ def ping():
 
 # Example usage
 def main():
-   test()
-   (pingStatus,replyMessage, rtt) = ping()
-   print(replyMessage)
-   print("Round Trip Time is  {:.3f} ".format(rtt*1000))
+    targetHost = "00:aa:00:00:00:02"
+    try:
+        targetHost = getCommandLineArguments()
+    except Exception as e:
+            print("ping target not found as command line argument using default target : " +  e)
+    (pingStatus,replyMessage, rtt) = ping()
+    print(replyMessage)
+    print("Round Trip Time is  {:.3f} ".format(rtt*1000))
 
 if __name__ == "__main__":
     main()

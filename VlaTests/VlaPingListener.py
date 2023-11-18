@@ -4,7 +4,9 @@ from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 from Utils import createVlaReplyPacket
+from NRUtils import getDefaultInterface
 
+PING_LISTEN_PORT = 50001
 
 def custom_packet_filter(packet):
     # Check if the packet is an Ethernet frame
@@ -15,18 +17,20 @@ def custom_packet_filter(packet):
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
         if(UDP in ipPayload):
             destination_port = ipPayload[UDP].dport
-            if(destination_port == 50001):
+            if(destination_port == PING_LISTEN_PORT):
                 return True
 
 
     # Check if the destination MAC address matches the desired value
     return False
 
-interface = "h4-eth0"
+interface = ""
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
-        print("cool pass")
+        reply = "Ping Reply"
+        modified_packet = createVlaReplyPacket(packet, reply)
+        sendp(modified_packet, iface=interface)  
     elif IPv6 in packet and packet[IPv6].nh == 48:
         # Extract relevant information from the received packet
         ipPayload = IPv6ExtHdrVLA(packet[IPv6].payload)
@@ -45,18 +49,19 @@ def process_udp_packet(packet):
 
 
 
-def pingListner():
-    # Create an IP packet with an ICMP Echo Request
-    target_udp_port = 50001
-    #interface = "h1c-eth0"
-    # Start sniffing for UDP packets on the specified port
-    #sniff(filter="ip6", prn=process_udp_packet, iface=interface, count = 1)
+def pingListener(interfaceName):
+    global interface
+    interface = interfaceName
+    target_udp_port = PING_LISTEN_PORT
     sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
-    #sniff(filter="udp and port {}".format(target_udp_port), prn=process_udp_packet, count = 1)    
     return None
 
 def main():
-    pingListner()
+    ifaceStatus, ifaceName = getDefaultInterface()
+    if(not ifaceStatus):
+        print("No network interfaces found for device")
+        return
+    pingListener()
 
 if __name__ == "__main__":
     main()
