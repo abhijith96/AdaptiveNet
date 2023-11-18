@@ -53,7 +53,7 @@ def convert_128bit_to_16bit_list(integer_128bit):
 
 def parse_vla_part_two(integer_48_bit):
     # Ensure the input is a valid 128-bit integer
-    if not 0 <= integer_128bit < 2**48:
+    if not 0 <= integer_48_bit < 2**48:
         raise ValueError("Input must be a 128-bit integer")
 
     # Initialize an empty list to store 16-bit chunks
