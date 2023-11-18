@@ -48,6 +48,9 @@ for line in output_lines:
     (procoess_id, hostName) = print_third_and_last_word(line)
     if(procoess_id and hostName):
         output_lines_2.append((hostName, procoess_id))
+
+for hostName, processId in output_lines_2:
+    print("hostName : %s process Id : %s".format(hostName, processId))
     
 
     
