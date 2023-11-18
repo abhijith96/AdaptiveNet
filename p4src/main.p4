@@ -640,7 +640,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE;
         hdr.ndp.type = NDP_OPT_TARGET_LL_ADDR;
         hdr.ndp.length = 1;
-        hdr.ndp.target_mac_addr = target_mac;
+        hdr.ndp.target_mac_addr = device_mac;
         standard_metadata.egress_spec = standard_metadata.ingress_port;
         // hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
         // hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
