@@ -5,10 +5,11 @@ FROM opennetworking/ngsdn-tutorial:stratum_bmv2 AS base
 FROM python:3 AS python3
 
 # Set the working directory
-WORKDIR /root
 
 # Copy the content from the base image into the Python 3 image
 COPY --from=base / .
+
+WORKDIR /home
 
 # Install virtualenv
 RUN pip3 install virtualenv
