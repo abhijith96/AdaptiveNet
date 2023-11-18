@@ -2,30 +2,33 @@ import subprocess
 import re
 
 
-def split_at_six_spaces(input_string):
-    # Use regular expression to split at the first occurrence of six non-continuous spaces
-    parts = input_string.split()
-
-    # Ensure there are at least six parts
-    if len(parts) >= 6:
-        # Take the first six parts and join them into six strings
-        result = [' '.join(parts[:6])] + parts[6:]
-        return result
+def get_rest_of_string_after_prefix(input_string, prefix):
+    prefix_position = input_string.find(prefix)
+    if prefix_position != -1:
+        rest_of_string = input_string[prefix_position + len(prefix):]
+        return rest_of_string
     else:
-        return []
+        return None
+
 def print_third_and_last_word(input_string):
     # Split the string into words
+    hostName = None
+    processId = None
     words = input_string.split()
 
     # Check if the string has at least 3 words
-    if len(words) >= 3:
+    if len(words) >= 4:
         # Print the third word
-        print("Third Word:", words[2])
+        print("Third Word:", words[3])
+        processId = words[3]
 
     # Check if the string has at least 1 word
     if len(words) >= 1:
         # Print the last word
         print("Last Word:", words[-1])
+        hostName = get_rest_of_string_after_prefix(words[-1], "mininet:")
+    
+    return (processId, hostName)
 
 def getNetworkNamespaces():
     try:
@@ -42,7 +45,9 @@ def getNetworkNamespaces():
 output_lines = getNetworkNamespaces()
 output_lines_2 = []
 for line in output_lines:
-    print_third_and_last_word(line)
+    (procoess_id, hostName) = print_third_and_last_word(line)
+    if(procoess_id and hostName):
+        output_lines_2.append((hostName, procoess_id))
     
 
     
