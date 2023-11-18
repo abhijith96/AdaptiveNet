@@ -27,14 +27,17 @@ def getNetworkNamespaces():
 
 
 output_lines = getNetworkNamespaces()
-#for line in output_lines:
-    #line = split_at_six_spaces(line)
+output_lines_2 = []
+for line in output_lines:
+    splitLines = split_at_six_spaces(line)
+    output_lines_2.append(splitLines)
     
 
 
 
 # Print the result
 print("Output:")
-for line in output_lines:
-    for word in line:
-        print(word)
+for line in output_lines_2:
+    for sub_line in line:
+        print(sub_line)
+    
