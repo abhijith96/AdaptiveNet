@@ -69,8 +69,8 @@ def main():
     for i, j in output_hosts:
         print("host Name " + i + " pid : " + j)
 
-    namespace_name_1 = "10"
-    namespace_name_2 = "12"
+    namespace_name_1 = "12"
+    namespace_name_2 = "10"
     python_file_path_2 = "/home/VlaTests/VlaPing.py"
     python_file_path_1 = "/home/VlaTests/VlaPingListener.py"
 
