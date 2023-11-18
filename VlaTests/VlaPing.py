@@ -28,7 +28,7 @@ def getCommandLineArguments():
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
 
-def ping(targetHostId):
+def vla_ping(targetHostId):
     # Create an VLA IP packet with an UDP Ping
     replyMessage = ""
     ifaceStatus, defaultInterface = getDefaultInterface()
@@ -95,7 +95,7 @@ def main():
         targetHost = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  e)
-    (pingStatus,replyMessage, rtt) = ping(targetHost)
+    (pingStatus,replyMessage, rtt) = vla_ping(targetHost)
     print(replyMessage)
     print("Round Trip Time is  {:.3f} ".format(rtt*1000))
 
