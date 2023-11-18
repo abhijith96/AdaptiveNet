@@ -98,7 +98,7 @@ def main():
             print("ping target not found as command line argument using default target : " +  str(e))
     (pingStatus,replyMessage, rtt) = vla_ping(targetHost)
     print(replyMessage)
-    print("Round Trip Time is  {:.3f} ".format(rtt*1000))
+    print("RoundTripTimeis  {:.3f}".format(rtt*1000))
 
 if __name__ == "__main__":
     main()

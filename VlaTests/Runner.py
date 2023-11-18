@@ -1,9 +1,15 @@
+from math import pi
 import subprocess
 import re
 import time
 import signal
 import os
 
+from VlaTests.VlaPingListener import pingListener
+
+
+pingReceiverProgram = "/home/VlaTests/VlaPingListener.py"
+pingSenderProgram = "/home/VlaTests/VlaPing.py" 
 
 def get_rest_of_string_after_prefix(input_string, prefix):
     prefix_position = input_string.find(prefix)
@@ -64,39 +70,92 @@ def getMininetHostNamesAndProcessIds():
             output_hosts.append((hostName, procoess_id))
     return output_hosts
 
+
+
+def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, receiverHostMac, receiverHostProcessId):
+    global pingSenderProgram
+    global pingReceiverProgram
+    pingPythonCommand = pingSenderProgram + " " + receiverHostMac
+    pingListenerPythonCommand = pingReceiverProgram
+       # Run the first Python file in the first namespace
+    ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
+
+    # Wait for a moment to ensure the first file is running
+    time.sleep(1)
+
+    # Run the second Python file in the second namespace
+    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingListenerPythonCommand)
+
+    # Wait for the second file to finish and capture its output
+    output, errors = ping_sender_process.communicate()
+
+    # Terminate the first file when the second file ends
+    ping_listener_process.terminate()
+
+    # Optionally wait for the first file to terminate gracefully
+    ping_listener_process.wait()
+
+    outputLines = output.decode('utf-8').split("\n")
+
+    for line in outputLines:
+        if line.startswith("RoundTripTimeis"):
+            words = line.split()
+            if(len(words) >= 2):
+                round_trip_time = words[1]
+                return (True,round_trip_time)
+    return (False, None)
+    
+
+
+
 def main():
     output_hosts = getMininetHostNamesAndProcessIds()
     for i, j in output_hosts:
         print("host Name " + i + " pid : " + j)
 
-    namespace_name_1 = "12"
-    namespace_name_2 = "10"
-    python_file_path_2 = "/home/VlaTests/VlaPing.py"
-    python_file_path_1 = "/home/VlaTests/VlaPingListener.py"
+    senderHostName = "h1a"
+    receiverHostName = "h1b"
+    
+    senderPid = "10"
+    receiverPid = "12"
+
+    receiverMac= "00:00:00:00:00:1b"
+
+    rttFound, rtt = runPingForHostPair(senderHostName, senderPid, receiverHostName, receiverMac, receiverPid)
+    if(rttFound):
+        print("rtt " + rtt)
 
     # Run the first Python file in the first namespace
-    process_1 = run_python_file_in_namespace(namespace_name_1, python_file_path_1)
+    # process_1 = run_python_file_in_namespace(namespace_name_1, python_file_path_1)
 
-    # Wait for a moment to ensure the first file is running
-    time.sleep(5)
+    # # Wait for a moment to ensure the first file is running
+    # time.sleep(1)
 
-    # Run the second Python file in the second namespace
-    process_2 = run_python_file_in_namespace(namespace_name_2, python_file_path_2)
+    # # Run the second Python file in the second namespace
+    # process_2 = run_python_file_in_namespace(namespace_name_2, python_file_path_2)
 
-    # Wait for the second file to finish and capture its output
-    output, errors = process_2.communicate()
+    # # Wait for the second file to finish and capture its output
+    # output, errors = process_2.communicate()
 
-    # Terminate the first file when the second file ends
-    process_1.terminate()
+    # # Terminate the first file when the second file ends
+    # process_1.terminate()
 
-    # Optionally wait for the first file to terminate gracefully
-    process_1.wait()
+    # # Optionally wait for the first file to terminate gracefully
+    # process_1.wait()
 
-    print("Output of the second file:")
-    print(output.decode('utf-8'))
-    print("Errors of the second file:")
-    print(errors.decode('utf-8'))
-    print("Both files completed.")
+    # outputLines = output.decode('utf-8').split("\n")
+
+    # for line in outputLines:
+    #     if line.startswith("RoundTripTimeis"):
+    #         words = line.split()
+    #         if(len(words) >= 2):
+    #             round_trip_time = words[1]
+
+    # print("Output of the second file:")
+    # print(output.decode('utf-8'))
+    # print("Errors of the second file:")
+    # print(errors.decode('utf-8'))
+    # print("Both files completed.")
 
 if __name__ == "__main__":
     main()
