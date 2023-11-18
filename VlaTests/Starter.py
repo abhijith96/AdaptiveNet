@@ -17,7 +17,7 @@ def main():
     copy_file_from_container(container_name, container_file_path, host_destination_path)
     print(f"File copied from container {container_name} to {os.path.abspath(host_destination_path)}")
 
-    container_destination_path = "/home/"
+    container_destination_path = "/home/VlaTests/"
     copy_to_container(container_name, ".", container_destination_path)
     print(f"Contents of the current directory copied to {container_name}:{container_destination_path}")
 
