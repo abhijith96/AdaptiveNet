@@ -68,7 +68,7 @@ def parse_vla_part_two(integer_48_bit):
         # Add the chunk to the result list
         result_list.append(chunk)
         # Right shift by 16 bits to get the next chunk
-        integer_128bit >>= 16
+        integer_48_bit >>= 16
 
     # Reverse the list to maintain the order
     result_list.reverse()
