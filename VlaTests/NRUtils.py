@@ -29,7 +29,7 @@ IPV6_MASK_ALL = "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"
 
 
 
-def convert_128bit_to_16bit_list(integer_128bit):
+def parse_vla_part_one(integer_128bit):
     # Ensure the input is a valid 128-bit integer
     if not 0 <= integer_128bit < 2**128:
         raise ValueError("Input must be a 128-bit integer")
@@ -81,7 +81,7 @@ def parse_vla_part_two(integer_48_bit):
 
 # Example usage:
 integer_128bit = 0x123456789ABCDEF0123456789ABCDEF0
-result_list = convert_128bit_to_16bit_list(integer_128bit)
+result_list = parse_vla_part_one(integer_128bit)
 print(result_list)
 
 
@@ -104,7 +104,7 @@ def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
     nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
-    p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
+    p = Ether(dst=dm) / IPv6(dst="::1", src="::1", hlim=255)
     p /= ICMPv6ND_NS(tgt=target_ip)
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
     return p
@@ -122,7 +122,7 @@ def parseNdpNrReply(nr_packet):
         try:
             vlaPartOneString = nr_packet[IPv6].src
             vlaPartOneNumber = int(socket.inet_pton(socket.AF_INET6, vlaPartOneString).encode('hex'), 16)
-            vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
+            vlaAddrPartOne = parse_vla_part_one(vlaPartOneNumber)
             print("vla part one int", vlaAddrPartOne)
             vlaPartTwoString = payloadAsNSopt.lladdr
             vlaPartTwoNumber = int(vlaPartTwoString.replace(":", ""), 16)
@@ -130,8 +130,10 @@ def parseNdpNrReply(nr_packet):
             vlaAddrPartTwo, numLevels = parse_vla_part_two(vlaPartTwoNumber)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
-            return (True, vlaAddress, gateway_ether, parseMessage)
-        except ValueError:
+            vlaAddressShortInt = [int(x) for x in vlaAddress]
+            return (True, vlaAddressShortInt, gateway_ether, parseMessage)
+        except ValueError as v:
+            print(v)
             parseMessage = "Integers for vla part one and vla part two not valid"
         except Exception as e:
             print(e)
