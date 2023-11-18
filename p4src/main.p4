@@ -633,11 +633,17 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         hdr.ipv6.src_addr = target_vla_part_one;
         hdr.ipv6.dst_addr = target_vla_part_two;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
-        hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
-        hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
-        hdr.ndp.type = NDP_TARGET_VLA_ADDR;
+        hdr.icmpv6.type = ICMP6_TYPE_NA;
+        hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE;
+        hdr.ndp.type = NDP_OPT_TARGET_LL_ADDR;
         hdr.ndp.length = 1;
+        hdr.ndp.target_mac_addr = target_mac;
         standard_metadata.egress_spec = standard_metadata.ingress_port;
+        // hdr.icmpv6.type = ICMP6_TYPE_ND_REPLY;
+        // hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_NAME_RESOLUTION;
+        // hdr.ndp.type = NDP_TARGET_VLA_ADDR;
+        // hdr.ndp.length = 1;
+        // standard_metadata.egress_spec = standard_metadata.ingress_port;
     }
 
     table ndp_name_resolution_table{
