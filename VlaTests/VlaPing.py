@@ -90,12 +90,12 @@ def ping(targetHostId):
 
 # Example usage
 def main():
-    targetHost = "00:aa:00:00:00:02"
+    targetHost = "00:00:00:00:00:1b"
     try:
         targetHost = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  e)
-    (pingStatus,replyMessage, rtt) = ping()
+    (pingStatus,replyMessage, rtt) = ping(targetHost)
     print(replyMessage)
     print("Round Trip Time is  {:.3f} ".format(rtt*1000))
 
