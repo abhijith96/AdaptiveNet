@@ -27,8 +27,8 @@ def getNetworkNamespaces():
 
 
 output_lines = getNetworkNamespaces()
-for line in output_lines:
-    line = split_at_six_spaces(line)
+#for line in output_lines:
+    #line = split_at_six_spaces(line)
     
 
 
