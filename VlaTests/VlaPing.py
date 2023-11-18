@@ -95,7 +95,7 @@ def main():
     try:
         targetHost = getCommandLineArguments()
     except Exception as e:
-            print("ping target not found as command line argument using default target : " +  e)
+            print("ping target not found as command line argument using default target : " +  str(e))
     (pingStatus,replyMessage, rtt) = vla_ping(targetHost)
     print(replyMessage)
     print("Round Trip Time is  {:.3f} ".format(rtt*1000))
