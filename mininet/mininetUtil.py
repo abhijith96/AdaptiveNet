@@ -14,7 +14,7 @@ def get_hosts_info(net):
     return hosts_info
 
 def write_to_csv(file_path, data):
-    with open(file_path, mode='w', newline='') as csv_file:
+    with open(file_path, 'wb') as csv_file:  # Use 'wb' for writing in Python 2
         fieldnames = ['name', 'mac']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
