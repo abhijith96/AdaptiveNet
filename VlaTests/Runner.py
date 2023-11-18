@@ -7,13 +7,12 @@ import os
 import csv
 
 MININET_FILE_PATH = "hostMacs.csv"
+RTT_FILE_PATH = "RTT.csv"
 
 
 pingReceiverProgram = "/home/VlaTests/VlaPingListener.py"
 pingSenderProgram = "/home/VlaTests/VlaPing.py" 
 
-
-import csv
 
 def read_csv_to_dict(file_path):
     data_dict = {}
@@ -29,6 +28,23 @@ def read_csv_to_dict(file_path):
             data_dict[key] = value
 
     return data_dict
+
+def write_dict_to_csv(file_path, data_dict):
+    with open(file_path, 'wb') as csv_file:
+        # Use csv.writer to write to the CSV file
+        csv_writer = csv.writer(csv_file)
+
+        # Write the header row (optional)
+        header = ["hostName", "RoundTripTime"]
+        csv_writer.writerow(header)
+
+        # Write the data rows
+        for key, value in data_dict.items():
+            row = []
+            row.append(key[0])
+            row.append(key[1])
+            row.append(value)
+            csv_writer.writerow(row)
 
 
 def get_rest_of_string_after_prefix(input_string, prefix):
@@ -139,23 +155,33 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
 
 def main():
     output_hosts = getMininetHostNamesAndProcessIds()
-    for i, j in output_hosts:
-        print("host Name " + i + " pid : " + j)
-
     hostMacMap = read_csv_to_dict(MININET_FILE_PATH)
-    print(hostMacMap)
+    hostCount = len(output_hosts)
+    rttDict = {}
+    for i in range(0, hostCount):
+        for j in range(i+ 1, hostCount):
+            senderHostName = output_hosts[i][0]
+            receiverHostName = output_hosts[j][0]
+            senderPid = output_hosts[i][1]
+            receiverPid = output_hosts[j][1]
 
-    senderHostName = "h1a"
-    receiverHostName = "h1b"
+            receiverMac= hostMacMap[receiverHostName]
+
+            rttFound, rtt = runPingForHostPair(senderHostName, senderPid, receiverHostName, receiverMac, receiverPid)
+            if(rttFound):
+                print("rtt " + rtt)
+                rttDict[(senderHostName, receiverHostName)] = rtt
+
     
-    senderPid = "10"
-    receiverPid = "12"
 
-    receiverMac= "00:00:00:00:00:1b"
 
-    rttFound, rtt = runPingForHostPair(senderHostName, senderPid, receiverHostName, receiverMac, receiverPid)
-    if(rttFound):
-        print("rtt " + rtt)
+
+
+
+   
+
+
+   
 
     # Run the first Python file in the first namespace
     # process_1 = run_python_file_in_namespace(namespace_name_1, python_file_path_1)
