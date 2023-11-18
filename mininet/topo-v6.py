@@ -15,6 +15,7 @@
 #  limitations under the License.
 
 import argparse
+import os
 
 from mininet.cli import CLI
 from mininet.log import setLogLevel
@@ -102,6 +103,11 @@ class TutorialTopo(Topo):
 def main():
     net = Mininet(topo=TutorialTopo(), controller=None)
     net.start()
+    hostInfo = mininetUtil.get_hosts_info(net)
+    csvFilePath = "/home/hostMacs.csv"
+    mininetUtil.write_to_csv(csvFilePath, hostInfo)
+    current_directory = os.getcwd()
+    print("Current Directory:", current_directory)
     CLI(net)
     net.stop()
     print '#' * 80
@@ -111,12 +117,6 @@ def main():
     print 'To detach from the CLI (without stopping), press Ctrl-D'
     print 'To permanently quit Mininet, use `make stop`'
     print '#' * 80
-
-    hostInfo = mininetUtil.get_hosts_info(net)
-    csvFilePath = "/home/hostMacs.csv"
-    mininetUtil.write_to_csv(csvFilePath, hostInfo)
-
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
