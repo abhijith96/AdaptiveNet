@@ -5,7 +5,6 @@ import time
 import signal
 import os
 
-from VlaTests.VlaPingListener import pingListener
 
 
 pingReceiverProgram = "/home/VlaTests/VlaPingListener.py"
