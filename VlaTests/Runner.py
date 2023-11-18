@@ -74,7 +74,7 @@ def getMininetHostNamesAndProcessIds():
 def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, receiverHostMac, receiverHostProcessId):
     global pingSenderProgram
     global pingReceiverProgram
-    pingPythonCommand = pingSenderProgram + " " + receiverHostMac
+    pingPythonCommand = pingSenderProgram
     pingListenerPythonCommand = pingReceiverProgram
        # Run the first Python file in the first namespace
     ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
