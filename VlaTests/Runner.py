@@ -46,7 +46,7 @@ def getNetworkNamespaces():
 def run_python_file_in_namespace(namespace_name, python_file_path):
     try:
         # Use nsenter to enter the network namespace and run the Python file
-        nsenter_command = ["nsenter", "--net --mount --ipc --pid --uts", "--target", namespace_name, "python", python_file_path]
+        nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
         process = subprocess.Popen(nsenter_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return process
 
