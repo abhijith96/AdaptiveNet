@@ -129,7 +129,8 @@ def parseNdpNrReply(nr_packet):
             return (True, vlaAddress, gateway_ether, parseMessage)
         except ValueError:
             parseMessage = "Integers for vla part one and vla part two not valid"
-        except Exception:
+        except Exception as e:
+            print(e)
             parseMessage = "Error extracting ICMP payload" 
     else:
         parseMessage = "No Ether or IP Packet in nr reply"
