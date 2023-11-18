@@ -1,7 +1,7 @@
 
 from scapy.layers.inet6 import *;
 from scapy.layers.inet6 import _ICMPv6NDGuessPayload, _ICMPv6
-from scapy.sendrecv import srp1, srp
+from scapy.sendrecv import srp1, srp, sr1
 
 
 
@@ -105,7 +105,7 @@ def resolveHostVlaAddress(hostId, outInterface):
     SWITCH1_IPV6 = "2001:0:1::1"
     ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip=SWITCH1_IPV6, src_ip="::1", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
-    reply = srp(ndp_nr_packet,outInterface)
+    reply = srp1(ndp_nr_packet,outInterface)
     replyMessage = ""
     if reply:
         if(Ether in reply and IPv6 in reply):
