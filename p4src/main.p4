@@ -630,8 +630,11 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         mac_addr_t src_host = hdr.ethernet.src_addr;
         hdr.ethernet.src_addr = device_mac;
         hdr.ethernet.dst_addr = IPV6_MCAST_01;
-        hdr.ipv6.src_addr = target_vla_part_one;
-        hdr.ipv6.dst_addr = target_vla_part_two;
+        // hdr.ipv6.src_addr = target_vla_part_one;
+        // hdr.ipv6.dst_addr = target_vla_part_two;
+        ipv6_addr_t host_ipv6_tmp = hdr.ipv6.src_addr;
+        hdr.ipv6.src_addr = hdr.ipv6.dst_addr;
+        hdr.ipv6.dst_addr = host_ipv6_tmp;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
         hdr.icmpv6.type = ICMP6_TYPE_NA;
         hdr.ndp.flags = NDP_FLAG_ROUTER | NDP_FLAG_OVERRIDE;
