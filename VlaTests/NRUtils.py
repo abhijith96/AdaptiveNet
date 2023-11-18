@@ -108,6 +108,7 @@ def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
     return p
 
 def parseNdpNrReply(nr_packet):
+    print("reply packet is is ", nr_packet)
     parseMessage = "Success"
     if(nr_packet[Ether] and nr_packet[IPv6]):
         try:
@@ -115,7 +116,9 @@ def parseNdpNrReply(nr_packet):
             vlaAddrPartOne = convert_128bit_to_16bit_list(nr_packet[IPv6].src)
             payload = nr_packet[IPv6].payload
             payloadAsNSpkt = ICMPv6ND_NS(payload)
+            print("payload icmp ", payloadAsNSpkt)
             payloadAsNSopt = ICMPv6NDOptSrcLLAddr( payloadAsNSpkt.payload)
+            print("payload ndp", payloadAsNSopt)
             vlaAddrPartTwo, numLevels = parse_vla_part_two(payloadAsNSopt.lladdr)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
