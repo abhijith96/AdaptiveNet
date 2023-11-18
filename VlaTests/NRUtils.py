@@ -1,6 +1,6 @@
 
 from scapy.layers.inet6 import *;
-from scapy.utils import mac2str, inet_pton
+from scapy.utils import mac2int, inet_pton
 from scapy.sendrecv import srp1, srp, sr1
 import socket
 
@@ -125,8 +125,8 @@ def parseNdpNrReply(nr_packet):
             vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
             print("vla part one int", vlaAddrPartOne)
             vlaPartTwoString = payloadAsNSopt.lladdr
-            vlaPartTwoNumber = int(mac2str(vlaPartTwoString).encode('hex'),6)
-            print(vlaPartTwoNumber)
+            vlaPartTwoNumber = int(vlaPartTwoString.replace(":", ""), 16)
+            print("vla part two",vlaPartTwoNumber)
             vlaAddrPartTwo, numLevels = parse_vla_part_two(vlaPartTwoNumber)
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
