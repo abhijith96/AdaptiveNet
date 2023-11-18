@@ -82,7 +82,7 @@ def main():
 #  interface, vlaList, vlaCurrentLevel = getCommandLineArguments()
     data = "HELLO WORLD"
 #    interfaceMacAddress = get_if_hwaddr(interface)
-    responseStatus, responseMsg = resolveHostVlaAddress(HOST2_MAC, outInterface="h1a-eth0")
+    responseStatus, responseMsg = resolveHostVlaAddress("00:00:00:00:00:1b", outInterface="h1a-eth0")
     print(responseMsg)
 
 if __name__ == "__main__":

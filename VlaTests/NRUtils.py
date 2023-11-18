@@ -72,22 +72,25 @@ class ICMPv6NDNROptSrcLLAddr(_ICMPv6NDGuessPayload, Packet):
     
 def genNdpNrPkt(src_mac, target_host_mac, target_ip, src_ip):
     NDP_NR_MAC = "33:33:00:00:00:01"
-    p = Ether(src=src_mac, dst=NDP_NR_MAC) / IPv6(dst="::1", src="::1", hlim=255)
-    p /= ICMPv6ND_NS(tgt=target_ip, type = 200)
-    p /= ICMPv6NDOptSrcLLAddr(lladdr="00:00:00:00:00:1b")
-    print("packet is ", p)
-    return p
+    pkt = genNdpNsPkt(target_ip=target_ip, src_mac = src_mac, src_ip=src_ip)
+    pkt[IPv6].src="::1"
+    pkt[IPv6].dst="::1"
+    pkt[ICMPv6ND_NS].type = 200
+    pkt[ICMPv6ND_NS].tgt = target_ip
+    pkt[ICMPv6NDOptSrcLLAddr].lladdr = target_host_mac
+    pkt[Ether].dst = NDP_NR_MAC
+    return pkt
 
 
 def genNdpNsPkt(target_ip, src_mac=HOST1_MAC, src_ip=HOST1_IPV6):
-    NDP_NR_MAC = "33:33:00:00:00:01"
     nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
-    p = Ether(src=src_mac, dst=NDP_NR_MAC) / IPv6(dst="::1", src="::1", hlim=255)
+    p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
     p /= ICMPv6ND_NS(tgt=target_ip)
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
     return p
+
 
 
 def genNdpNaPkt(target_ip, target_mac,
@@ -100,7 +103,7 @@ def genNdpNaPkt(target_ip, target_mac,
     return p
 
 def resolveHostVlaAddress(hostId, outInterface):
-    ndp_nr_packet = genNdpNsPkt(src_ip= "2001:1:1::a:ff", src_mac= "00:00:00:00:00:1a", target_ip="2001:1:2:0:0:0:0:ff")
+    ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId, target_ip="::1", src_ip="::1", src_mac="00:00:00:00:00:1a")
     print("packet is ", ndp_nr_packet)
     reply = srp(ndp_nr_packet,outInterface)
     replyMessage = ""
