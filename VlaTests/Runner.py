@@ -84,7 +84,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
     time.sleep(1)
 
     # Run the second Python file in the second namespace
-    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingListenerPythonCommand)
+    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand)
 
     # Wait for the second file to finish and capture its output
     output, errors = ping_sender_process.communicate()
