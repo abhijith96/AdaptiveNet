@@ -633,7 +633,7 @@ control IngressPipeImpl (inout parsed_headers_t    hdr,
         // hdr.ipv6.src_addr = target_vla_part_one;
         // hdr.ipv6.dst_addr = target_vla_part_two;
         ipv6_addr_t host_ipv6_tmp = hdr.ipv6.src_addr;
-        hdr.ipv6.src_addr = hdr.ipv6.dst_addr;
+        hdr.ipv6.src_addr = target_vla_part_one;
         hdr.ipv6.dst_addr = host_ipv6_tmp;
         hdr.ipv6.next_hdr = IP_PROTO_ICMPV6;
         hdr.icmpv6.type = ICMP6_TYPE_NA;
