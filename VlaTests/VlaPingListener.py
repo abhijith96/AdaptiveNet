@@ -61,7 +61,7 @@ def main():
     if(not ifaceStatus):
         print("No network interfaces found for device")
         return
-    pingListener()
+    pingListener(ifaceName)
 
 if __name__ == "__main__":
     main()
