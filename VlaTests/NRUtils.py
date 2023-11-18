@@ -120,7 +120,7 @@ def parseNdpNrReply(nr_packet):
         print("payload ndp", payloadAsNSopt)
         try:
             vlaPartOneString = nr_packet[IPv6].src
-            vlaPartOneNumber = int.from_bytes(inet_pton(socket.AF_INET6, vlaPartOneString), byteorder='big')
+            vlaPartOneNumber = int(vlaPartOneString)
             vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
             vlaPartTwoString = payloadAsNSopt.lladdr
             vlaAddrPartTwo, numLevels = parse_vla_part_two(mac2str(vlaPartTwoString))
