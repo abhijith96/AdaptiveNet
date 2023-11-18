@@ -153,7 +153,7 @@ def resolveHostVlaAddress(hostId, outInterface):
     print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
     if(reply):
-        return parseNdpNrReply(ndp_nr_packet)
+        return parseNdpNrReply(reply)
     return (False, None, None, "No reply for NR request")
 
     
