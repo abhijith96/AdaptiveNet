@@ -42,15 +42,21 @@ def getNetworkNamespaces():
         return []
 
 
-output_lines = getNetworkNamespaces()
-output_lines_2 = []
-for line in output_lines:
-    (procoess_id, hostName) = print_third_and_last_word(line)
-    if(procoess_id and hostName):
-        output_lines_2.append((hostName, procoess_id))
+def getMininetHostNamesAndProcessIds():
+    output = getNetworkNamespaces()
+    output_hosts = []
+    for line in output:
+        (procoess_id, hostName) = print_third_and_last_word(line)
+        if(procoess_id and hostName):
+            output_hosts.append((hostName, procoess_id))
+    return output_hosts
 
-print("len is  %s" % (len(output_lines_2)))
-for hostName, processId in output_lines_2:
-    print("hostName : " + hostName + "process Id : " + processId)
+def main():
+    output_hosts = getMininetHostNamesAndProcessIds()
+    for i, j in output_hosts:
+        print("host Name " + i + " pid : " + j)
+
+if __name__ == "__main__":
+    main()
 
     
