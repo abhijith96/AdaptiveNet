@@ -1,5 +1,6 @@
 
 from scapy.layers.inet6 import *;
+from scapy.utils import mac2str, inet_pton
 from scapy.sendrecv import srp1, srp, sr1
 
 
@@ -111,15 +112,18 @@ def parseNdpNrReply(nr_packet):
     print("reply packet is is ", nr_packet)
     parseMessage = "Success"
     if(nr_packet[Ether] and nr_packet[IPv6]):
+        gateway_ether = nr_packet[Ether].src
+        payload = nr_packet[IPv6].payload
+        payloadAsNSpkt = ICMPv6ND_NS(payload)
+        print("payload icmp ", payloadAsNSpkt)
+        payloadAsNSopt = ICMPv6NDOptSrcLLAddr( payloadAsNSpkt.payload)
+        print("payload ndp", payloadAsNSopt)
         try:
-            gateway_ether = nr_packet[Ether].src
-            vlaAddrPartOne = convert_128bit_to_16bit_list(nr_packet[IPv6].src)
-            payload = nr_packet[IPv6].payload
-            payloadAsNSpkt = ICMPv6ND_NS(payload)
-            print("payload icmp ", payloadAsNSpkt)
-            payloadAsNSopt = ICMPv6NDOptSrcLLAddr( payloadAsNSpkt.payload)
-            print("payload ndp", payloadAsNSopt)
-            vlaAddrPartTwo, numLevels = parse_vla_part_two(payloadAsNSopt.lladdr)
+            vlaPartOneString = nr_packet[IPv6].src
+            vlaPartOneNumber = int.from_bytes(inet_pton(socket.AF_INET6, vlaPartOneString), byteorder='big')
+            vlaAddrPartOne = convert_128bit_to_16bit_list(vlaPartOneNumber)
+            vlaPartTwoString = payloadAsNSopt.lladdr
+            vlaAddrPartTwo, numLevels = parse_vla_part_two(mac2str(vlaPartTwoString))
             vlaAddrPartOne.extend(vlaAddrPartTwo)
             vlaAddress = vlaAddrPartOne[:numLevels]
             return (True, vlaAddress, gateway_ether, parseMessage)
