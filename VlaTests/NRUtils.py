@@ -75,7 +75,7 @@ def genNdpNrPkt(src_mac, target_host_mac, target_ip, src_ip):
     pkt = genNdpNsPkt(target_ip=target_ip, src_mac = src_mac, src_ip=src_ip)
     pkt[IPv6].src="::1"
     pkt[IPv6].dst="::1"
-    pkt[ICMPv6ND_NS].type = 200
+    pkt[ICMPv6ND_NS].type = 135
     pkt[ICMPv6ND_NS].tgt = target_ip
     pkt[ICMPv6NDOptSrcLLAddr].lladdr = target_host_mac
     # pkt[Ether].src = src_mac
