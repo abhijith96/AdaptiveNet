@@ -125,15 +125,15 @@ def genNdpNsPkt(target_ip, src_mac=HOST1_MAC):
     return p
 
 def parseNdpNrReply(nr_packet):
-    print("reply packet is is ", nr_packet)
+    #print("reply packet is is ", nr_packet)
     parseMessage = "Success"
     if(nr_packet[Ether] and nr_packet[IPv6]):
         gateway_ether = nr_packet[Ether].src
         payload = nr_packet[IPv6].payload
         payloadAsNSpkt = ICMPv6ND_NS(payload)
-        print("payload icmp ", payloadAsNSpkt)
+        #print("payload icmp ", payloadAsNSpkt)
         payloadAsNSopt = ICMPv6NDOptSrcLLAddr( payloadAsNSpkt.payload)
-        print("payload ndp", payloadAsNSopt)
+        #print("payload ndp", payloadAsNSopt)
         try:
             vlaPartOneString = nr_packet[IPv6].src
             vlaPartOneNumber = int(socket.inet_pton(socket.AF_INET6, vlaPartOneString).encode('hex'), 16)
@@ -169,6 +169,18 @@ def genNdpNaPkt(target_ip, target_mac,
     p /= ICMPv6NDOptDstLLAddr(lladdr=src_mac)
     return p
 
+def getCurrentHostVlaAddress():
+    outIfaceStatus, outInterface = getDefaultInterface()
+    message = "Success"
+    if(not outIfaceStatus):
+        message = "No network interface found for device"
+        return (False, None, None, message)
+    macStatus, iFaceMac = getDefaultMacAddress()
+    if(not macStatus):
+        message = "No mac address found for interface in device"
+        return (False, None, None, message)
+    return resolveHostVlaAddress(iFaceMac)
+
 def resolveHostVlaAddress(hostId):
 
     outIfaceStatus, outInterface = getDefaultInterface()
@@ -181,7 +193,7 @@ def resolveHostVlaAddress(hostId):
         message = "No mac address found for interface in device"
         return (False, None, None, message)
     ndp_nr_packet = genNdpNrPkt(target_host_mac=hostId,src_mac=iFaceMac)
-    print("packet is ", ndp_nr_packet)
+    #print("packet is ", ndp_nr_packet)
     reply = srp1(ndp_nr_packet,outInterface)
     if(reply):
         return parseNdpNrReply(reply)

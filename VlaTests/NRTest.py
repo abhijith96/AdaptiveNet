@@ -1,4 +1,5 @@
 
+from asyncio import run_coroutine_threadsafe
 import sys
 
 from scapy.all import get_if_hwaddr
@@ -9,7 +10,7 @@ from scapy.layers.inet6 import *
 from scapy.layers.l2 import Ether
 from scapy.pton_ntop import inet_pton, inet_ntop
 from scapy.utils6 import in6_getnsma, in6_getnsmac
-from NRUtils import resolveHostVlaAddress
+from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress
 #from base_test import *
 
 
@@ -88,6 +89,12 @@ def main():
     if(responseStatus):
         print(vlaAddress)
         print(gatewayEther)
+
+    responseStatus2, currentVlaAddress, currentGatewayEther, responseMsg = getCurrentHostVlaAddress()
+    if(responseStatus2):
+        print(currentVlaAddress)
+        print(currentGatewayEther)
+        print(responseMsg)
 
 if __name__ == "__main__":
     main()
