@@ -21,7 +21,7 @@ def resolve_hostname(hostname):
         print("Error resolving hostname {hostname} ".format(str(e)))
         return (False,None)
     
-def get_ipv6_address(interface):
+def getIPAddress(interface):
     try:
         ipv6_address = get_if_addr6(interface)
         return  (True,ipv6_address)
@@ -66,7 +66,7 @@ def ip_ping(targetHostId):
     if(not ethSrcStatus):
         replyMessage = "mac address not found for current device"
         return (False, replyMessage, None)
-    hostIpStatus, hostIpAddress =get_if_addr6(defaultInterface)
+    hostIpStatus, hostIpAddress =getIPAddress(defaultInterface)
     if(not hostIpStatus):
         replyMessage = "ip address for current Device Not found"
         return (False, replyMessage, None)
