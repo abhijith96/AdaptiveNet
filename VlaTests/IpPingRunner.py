@@ -180,6 +180,7 @@ def main():
     rttDict = {}
     pingListenerList = createPingListenerProcesses(output_hosts, pingReceiverProgram)
     time.sleep(2)
+    print("listener processes created")
     try:
         for i in range(0, hostCount):
             for j in range(i+ 1, hostCount):

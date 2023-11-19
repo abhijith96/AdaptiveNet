@@ -138,7 +138,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
     outputString = output.decode('utf-8')
 
 
-    print(outputString)
+    print("output is ",outputString)
 
     outputLines = outputString.split("\n")
 
