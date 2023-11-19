@@ -127,8 +127,9 @@ def ip_ping(targetHostId, targetIp):
             replyMessage = "Ping  successful! " + reply[Raw].load
             rtt = end_time - start_time
             return (True,replyMessage, rtt)
-        else:
-            replyMessage = "Ping Failed UDP not found or UDP src port does not match "
+        elif IPv6 in reply:
+            replyMessage = "Ping partial failure, Scapy Issue "
+            return (True,replyMessage, rtt)
     else:
         replyMessage = "No response from ping."
     return (False, replyMessage, rtt)
