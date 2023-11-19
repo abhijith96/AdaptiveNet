@@ -3,10 +3,10 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
-from Utils import createVlaReplyPacket
+from Utils import createVlaReplyPacket, VLA_PING_D_PORT
 from NRUtils import getDefaultInterface
 
-PING_LISTEN_PORT = 50001
+
 
 def custom_packet_filter(packet):
     # Check if the packet is an Ethernet frame
@@ -17,7 +17,7 @@ def custom_packet_filter(packet):
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
         if(UDP in ipPayload):
             destination_port = ipPayload[UDP].dport
-            if(destination_port == PING_LISTEN_PORT):
+            if(destination_port == VLA_PING_D_PORT):
                 return True
 
 
@@ -52,7 +52,6 @@ def process_udp_packet(packet):
 def pingListener(interfaceName):
     global interface
     interface = interfaceName
-    target_udp_port = PING_LISTEN_PORT
     sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
     return None
 

@@ -7,7 +7,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6, ICMPv6ND_NS, ICMPv6ND_NA, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
-from Utils import createVlaPacket, getMacAddress, createIpPingPacket
+from Utils import createVlaPacket, getMacAddress, createIpPingPacket, IP_PING_D_PORT, IP_PING_S_PORT
 import time
 from scapy.all import conf
 from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultMacAddress, getDefaultInterface
@@ -123,7 +123,7 @@ def ip_ping(targetHostId, targetIp):
    
     if reply:
         print("reply is ", reply)
-        if  UDP in reply and reply[UDP].sport == 50001:
+        if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
             replyMessage = "Ping  successful! " + reply[Raw].load
             rtt = end_time - start_time
             return (True,replyMessage, rtt)

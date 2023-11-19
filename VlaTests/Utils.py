@@ -5,12 +5,15 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import conf
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 
-PING_S_PORT = 50000
-PING_D_PORT = 50001
+VLA_PING_S_PORT = 50000
+VLA_PING_D_PORT = 50001
+
+IP_PING_S_PORT = 50002
+IP_PING_D_PORT = 50003
 
 
 
-def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = PING_S_PORT, udp_dport = PING_D_PORT):
+def createIPPacketforVla(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = VLA_PING_S_PORT, udp_dport = VLA_PING_D_PORT):
     pktlen = 100
     ipv6_tc = 0
     ipv6_fl = 0
@@ -83,7 +86,7 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
 def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel, data_payload = None):
     ip_src = "::1"
     ip_dst = "::2"
-    pkt = createIPPacket(ethDst, ethSrc, ip_src, ip_dst, data_payload, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel)
+    pkt = createIPPacketForVla(ethDst, ethSrc, ip_src, ip_dst, data_payload, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel)
     #pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
 
@@ -101,7 +104,7 @@ def createVlaReplyPacket(vlaPacket, replyPayload):
         ethSource = vlaPacket[Ether].dst
         ethDst = vlaPacket[Ether].src
 
-        modified_packet = createIPPacket(ethDst, ethSource,source_ip, dest_ip, replyPayload, source_vla, dest_vla, reply_current_level, source_port, destination_port)
+        modified_packet = createIPPacketforVla(ethDst, ethSource,source_ip, dest_ip, replyPayload, source_vla, dest_vla, reply_current_level, source_port, destination_port)
        # modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
 
         return modified_packet
@@ -112,7 +115,7 @@ def getMacAddress():
     mac = get_if_hwaddr(ifacelist[1])
     return mac
 
-def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = PING_S_PORT, udp_dport = PING_D_PORT):
+def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = IP_PING_S_PORT, udp_dport = IP_PING_S_PORT):
     msg = "Ping Hello"
     pkt = Ether(src=ethsrc, dst=gateway_eth)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
     return pkt
