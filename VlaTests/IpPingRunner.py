@@ -97,7 +97,6 @@ def getNetworkNamespaces():
     
 
 def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
-    process = None
     try:
         # Use nsenter to enter the network namespace and run the Python file
         nsenter_command = None
@@ -108,8 +107,8 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
             nsenter_command.extend(args)
         else:    
             nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
-        process_result = subprocess.run(nsenter_command, timeout = PROCESS_TIME_OUT, check=True, text=True)
-        return process_result.stdout
+        process = subprocess.Popen(nsenter_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        return process
 
     except subprocess.CalledProcessError as e:
             print("Error: " % e)
