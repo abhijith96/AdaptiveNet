@@ -21,6 +21,13 @@ def copyRunnerOutputFile():
     copy_file_from_container(container_name, container_file_path, host_destination_path)
     print(f"File copied from container {container_name} to {os.path.abspath(host_destination_path)}")
 
+def copyIpRunnerOutputFile():
+    container_name = 'mininet'
+    container_file_path = '/home/VlaTests/IP_RTT.csv'
+    host_destination_path = 'IP_RTT.csv'
+    copy_file_from_container(container_name, container_file_path, host_destination_path)
+    print(f"File copied from container {container_name} to {os.path.abspath(host_destination_path)}")
+
 
 
 def main():
@@ -34,12 +41,19 @@ def main():
     copy_to_container(container_name, ".", container_destination_path)
     print(f"Contents of the current directory copied to {container_name}:{container_destination_path}")
 
+    docker_container_name = "mininet"
+    script_path_inside_container = "/home/VlaTests/IpPingRunner.py"
+    run_script_in_docker_container(docker_container_name, script_path_inside_container)
+
+
+    copyIpRunnerOutputFile()
+
     
     docker_container_name = "mininet"
     script_path_inside_container = "/home/VlaTests/VlaPingRunner.py"
     run_script_in_docker_container(docker_container_name, script_path_inside_container)
 
-    # Call another function after the script
+    
     copyRunnerOutputFile()
 
 if __name__ == '__main__':

@@ -23,17 +23,6 @@ def resolve_hostname(hostname):
     except socket.error as e:
         print("Error resolving hostname {} ".format(str(e)))
         return (False,None)
-def resolve_mininet_hostname_in_namespace(namespace, mininet_hostname):
-    try:
-        # Use the ip netns exec command to run the hostname resolution within the specified namespace
-        resolved_ip = subprocess.check_output(['ip', 'netns', 'exec', namespace, 'getent', 'ahosts', mininet_hostname])
-
-        # Extract the IP address from the output
-        resolved_ip = resolved_ip.decode().split()[0]
-        return (True, resolved_ip)
-    except subprocess.CalledProcessError as e:
-        print("Error resolving Mininet hostname {} in namespace {}: {}".format(mininet_hostname, namespace, str(e)))
-        return (False, None)
     
 def getIPAddress(interface):
     try:
@@ -70,7 +59,7 @@ def getCommandLineArguments():
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
 
-def ip_ping(targetHostId, targetPid):
+def ip_ping(targetHostId, targetIp):
     # Create an VLA IP packet with an UDP Ping
     replyMessage = ""
     ifaceStatus, defaultInterface = getDefaultInterface()
@@ -86,12 +75,11 @@ def ip_ping(targetHostId, targetPid):
         replyMessage = "ip address for current Device Not found"
         return (False, replyMessage, None)
 
-    targetIpStatus, targetIPAddress = resolve_mininet_hostname_in_namespace(targetPid,targetHostId)
+    targetIpStatus, targetIPAddress = resolve_hostname(targetHostId)
     if(not targetIpStatus):
         replyMessage = "ip address for target device {} not found".format(targetHostId)
-        print(replyMessage)
-        targetIPAddress = ""
-        return (False, replyMessage, None)
+        targetIPAddress = targetIp
+        #return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
     
@@ -126,12 +114,12 @@ def ip_ping(targetHostId, targetPid):
     
 def main():
     targetHost = "h2"
-    targetPid = ""
+    targetIp = "2001:1:2::1"
     try:
-        targetHost, targetPid = getCommandLineArguments()
+        targetHost, targetIp = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
-    (pingStatus,replyMessage, rtt) = ip_ping(targetHost, targetPid)
+    (pingStatus,replyMessage, rtt) = ip_ping(targetHost, targetIp)
     print(replyMessage)
     if(pingStatus):
         print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
