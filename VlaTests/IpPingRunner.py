@@ -194,6 +194,8 @@ def main():
 
                 senderIp = hostMacMap[senderHostName][1]
 
+                print("sender : {} receiver: {}".format(senderHostName, receiverHostName))
+
                 rttFound, rtt = runPingForHostPair(senderHostName, senderPid, senderIp, receiverHostName, receiverMac, receiverPid, receiverIp)
                 if(rttFound):
                     print("IP rtt " + rtt)
