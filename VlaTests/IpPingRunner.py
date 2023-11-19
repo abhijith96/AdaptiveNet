@@ -100,10 +100,13 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
             nsenter_command.extend(args)
         else:    
             nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
-        process = subprocess.Popen(nsenter_command, timeout = PROCESS_TIME_OUT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        return process
+        process_result = subprocess.run(nsenter_command, timeout = PROCESS_TIME_OUT, check=True, text=True)
+        return process_result.stdout
 
     except subprocess.CalledProcessError as e:
+            print("Error: " % e)
+            return None
+    except subprocess.TimeoutExpired as e:
             print("Error: " % e)
             return None
 
@@ -150,12 +153,11 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     # time.sleep(2)
 
     # Run the second Python file in the second namespace
-    ping_sender_process = None
     try:
-        ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
+        output = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
 
         # Wait for the second file to finish and capture its output
-        output, errors = ping_sender_process.communicate()
+        # output, errors = ping_sender_process.communicate()
 
         # Terminate the first file when the second file ends
         # ping_listener_process.terminate()
@@ -176,10 +178,8 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
                     round_trip_time = words[1]
                     return (True,round_trip_time)
         return (False, None)
-    except subprocess.TimeoutExpired as e:
+    except  Exception as e:
         print("Error : " % e)
-        ping_sender_process.terminate()
-        ping_sender_process.wait()
         return (False, None)
 
 
