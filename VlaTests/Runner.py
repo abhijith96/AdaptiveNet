@@ -6,8 +6,8 @@ import signal
 import os
 import csv
 
-MININET_FILE_PATH = "hostMacs.csv"
-RTT_FILE_PATH = "RTT.csv"
+MININET_FILE_PATH = "/home/VlaTests/hostMacs.csv"
+RTT_FILE_PATH = "/home/VlaTests/RTT.csv"
 
 
 pingReceiverProgram = "/home/VlaTests/VlaPingListener.py"
@@ -15,8 +15,8 @@ pingSenderProgram = "/home/VlaTests/VlaPing.py"
 
 
 def read_csv_to_dict(file_path):
-    current_working_directory = os.getcwd()
-    file_path = os.path.join(current_working_directory, file_path)
+    # current_working_directory = os.getcwd()
+    # file_path = os.path.join(current_working_directory, file_path)
     data_dict = {}
     with open(file_path, 'rb') as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -32,8 +32,8 @@ def read_csv_to_dict(file_path):
     return data_dict
 
 def write_dict_to_csv(file_path, data_dict):
-    current_working_directory = os.getcwd()
-    file_path = os.path.join(current_working_directory, file_path)
+    # current_working_directory = os.getcwd()
+    # file_path = os.path.join(current_working_directory, file_path)
     with open(file_path, 'wb') as csv_file:
         # Use csv.writer to write to the CSV file
         csv_writer = csv.writer(csv_file)
