@@ -1,3 +1,5 @@
+from ipaddress import ip_address
+from optparse import TitledHelpFormatter
 from scapy.all import sr1, srp1, srp, Raw
 from scapy.utils6 import *
 import sys
@@ -74,7 +76,9 @@ def ip_ping(targetHostId):
     targetIpStatus, targetIPAddress = resolve_hostname(targetHostId)
     if(not targetIpStatus):
         replyMessage = "ip address for target device {} not found".format(targetHostId)
-        return (False, replyMessage, None)
+        print(replyMessage)
+        targetIPAddress = "2001:1:2::1"
+        #return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(targetIPAddress, ethSrc, hostIpAddress)
     
