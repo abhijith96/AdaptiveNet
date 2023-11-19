@@ -64,9 +64,41 @@
           "isRoot": false
         }
       },
-      "device:spine1": {
+      "device:leaf5": {
         "basic": {
           "managementAddress": "grpc://mininet:50005?device_id=1",
+          "driver": "stratum-bmv2",
+          "pipeconf": "org.onosproject.ngsdn-tutorial",
+          "locType": "grid",
+          "gridX": 1600,
+          "gridY": 1000
+        },
+        "fabricDeviceConfig": {
+          "myStationMac": "00:aa:00:00:00:05",
+          "mySid": "3:105:2::",
+          "isSpine": false,
+          "isRoot": false
+        }
+      },
+      "device:leaf6": {
+        "basic": {
+          "managementAddress": "grpc://mininet:50006?device_id=1",
+          "driver": "stratum-bmv2",
+          "pipeconf": "org.onosproject.ngsdn-tutorial",
+          "locType": "grid",
+          "gridX": 1600,
+          "gridY": 1000
+        },
+        "fabricDeviceConfig": {
+          "myStationMac": "00:aa:00:00:00:06",
+          "mySid": "3:106:2::",
+          "isSpine": false,
+          "isRoot": false
+        }
+      },
+      "device:spine1": {
+        "basic": {
+          "managementAddress": "grpc://mininet:50007?device_id=1",
           "driver": "stratum-bmv2",
           "pipeconf": "org.onosproject.ngsdn-tutorial",
           "locType": "grid",
@@ -86,7 +118,7 @@
         "interfaces": [
           {
             "name": "leaf1-2",
-            "ips": ["2001:1:1::ff/64"]
+            "ips": ["2001:1:1:0:8000::ff/66"]
           }
         ]
       },
@@ -94,7 +126,15 @@
         "interfaces": [
           {
             "name": "leaf1-3",
-            "ips": ["2001:1:1::ff/64"]
+            "ips": ["2001:1:1:0:C000::ff/66"]
+          }
+        ]
+      },
+      "device:leaf1/4": {
+        "interfaces": [
+          {
+            "name": "leaf1-4",
+            "ips": ["2001:1:1:0:4000::ff/66"]
           }
         ]
       },
@@ -102,15 +142,7 @@
         "interfaces": [
           {
             "name": "leaf2-2",
-            "ips": ["2001:1:2::ff/64"]
-          }
-        ]
-      },
-      "device:leaf2/3": {
-        "interfaces": [
-          {
-            "name": "leaf2-3",
-            "ips": ["2001:1:2::ff/64"]
+            "ips": ["2001:1:1:0:8000:4000::ff/68"]
           }
         ]
       },
@@ -118,7 +150,7 @@
         "interfaces": [
           {
             "name": "leaf3-2",
-            "ips": ["2001:2:3::ff/64"]
+            "ips": ["2001:1:1:0:C0000:4000::ff/68"]
           }
         ]
       },
@@ -126,7 +158,47 @@
         "interfaces": [
           {
             "name": "leaf4-2",
-            "ips": ["2001:2:4::ff/64"]
+            "ips": ["2001:1:4:4000::ff/66"]
+          }
+        ]
+      },
+      "device:leaf4/3": {
+        "interfaces": [
+          {
+            "name": "leaf4-3",
+            "ips": ["2001:1:4:8000::ff/66"]
+          }
+        ]
+      },
+      "device:leaf5/2": {
+        "interfaces": [
+          {
+            "name": "leaf5-2",
+            "ips": ["2001:1:4:4000:4000::ff/68"]
+          }
+        ]
+      },
+      "device:leaf5/3": {
+        "interfaces": [
+          {
+            "name": "leaf5-3",
+            "ips": ["2001:1:4:4000:8000::ff/68"]
+          }
+        ]
+      },
+      "device:leaf6/2": {
+        "interfaces": [
+          {
+            "name": "leaf6-2",
+            "ips": ["2001:1:4:4000:4000:4000::ff/70"]
+          }
+        ]
+      },
+      "device:leaf6/3": {
+        "interfaces": [
+          {
+            "name": "leaf6-2",
+            "ips": ["2001:1:4:4000:4000:4000::ff/70"]
           }
         ]
       }
@@ -142,7 +214,15 @@
       },
       "00:00:00:00:00:1B/None": {
         "basic": {
-          "name": "h1b",
+          "name": "h2a",
+          "locType": "grid",
+          "gridX": 100,
+          "gridY": 800
+        }
+      },
+      "00:00:00:00:00:1C/None": {
+        "basic": {
+          "name": "h3a",
           "locType": "grid",
           "gridX": 100,
           "gridY": 800
@@ -150,7 +230,7 @@
       },
       "00:00:00:00:00:2A/None": {
         "basic": {
-          "name": "h2a",
+          "name": "h4a",
           "locType": "grid",
           "gridX": 250,
           "gridY": 800
@@ -158,23 +238,23 @@
       },
       "00:00:00:00:00:2B/None": {
         "basic": {
-          "name": "h2b",
+          "name": "h5a",
           "locType": "grid",
           "gridX": 400,
           "gridY": 700
         }
       },
-      "00:00:00:00:00:3A/None": {
+      "00:00:00:00:00:2C/None": {
         "basic": {
-          "name": "h3a",
+          "name": "h6a",
           "locType": "grid",
           "gridX": 750,
           "gridY": 700
         }
       },
-      "00:00:00:00:00:4A/None": {
+      "00:00:00:00:00:2D/None": {
         "basic": {
-          "name": "h4a",
+          "name": "h6b",
           "locType": "grid",
           "gridX": 850,
           "gridY": 700
