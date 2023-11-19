@@ -11,6 +11,8 @@ import csv
 MININET_FILE_PATH = "/home/VlaTests/hostMacs.csv"
 RTT_FILE_PATH = "/home/VlaTests/IP_RTT.csv"
 
+PROCESS_TIME_OUT = 5
+
 
 pingReceiverProgram = "/home/VlaTests/IpPingReply.py"
 pingSenderProgram = "/home/VlaTests/IpPing.py" 
@@ -89,6 +91,7 @@ def getNetworkNamespaces():
     
 
 def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
+    process = None
     try:
         # Use nsenter to enter the network namespace and run the Python file
         nsenter_command = None
@@ -97,12 +100,14 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
             nsenter_command.extend(args)
         else:    
             nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
-        process = subprocess.Popen(nsenter_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(nsenter_command, timeout = PROCESS_TIME_OUT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return process
 
     except subprocess.CalledProcessError as e:
             print("Error: " % e)
             return None
+
+
 
 
 def getMininetHostNamesAndProcessIds():
@@ -145,31 +150,37 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     # time.sleep(2)
 
     # Run the second Python file in the second namespace
-    ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
+    ping_sender_process = None
+    try:
+        ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
 
-    # Wait for the second file to finish and capture its output
-    output, errors = ping_sender_process.communicate()
+        # Wait for the second file to finish and capture its output
+        output, errors = ping_sender_process.communicate()
 
-    # Terminate the first file when the second file ends
-    # ping_listener_process.terminate()
+        # Terminate the first file when the second file ends
+        # ping_listener_process.terminate()
 
-    # # Optionally wait for the first file to terminate gracefully
-    # ping_listener_process.wait()
+        # # Optionally wait for the first file to terminate gracefully
+        # ping_listener_process.wait()
 
-    outputString = output.decode('utf-8')
+        outputString = output.decode('utf-8')
 
-    #print(outputString)
+        #print(outputString)
 
-    outputLines = outputString.split("\n")
+        outputLines = outputString.split("\n")
 
-    for line in outputLines:
-        if line.startswith("IpRoundTripTimeis"):
-            words = line.split()
-            if(len(words) >= 2):
-                round_trip_time = words[1]
-                return (True,round_trip_time)
-    return (False, None)
-    
+        for line in outputLines:
+            if line.startswith("IpRoundTripTimeis"):
+                words = line.split()
+                if(len(words) >= 2):
+                    round_trip_time = words[1]
+                    return (True,round_trip_time)
+        return (False, None)
+    except subprocess.TimeoutExpired as e:
+        print("Error : " % e)
+        ping_sender_process.terminate()
+        ping_sender_process.wait()
+        return (False, None)
 
 
 
