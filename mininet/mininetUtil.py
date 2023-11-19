@@ -1,6 +1,21 @@
 import csv
 
+import re
 
+def get_word_after_inet(input_string):
+    # Define the pattern using regular expression
+    pattern = r'\binet\s+(\w+)\b'
+
+    # Search for the pattern in the input string
+    match = re.search(pattern, input_string)
+
+    # Check if the pattern is found
+    if match:
+        # Extract the word after 'inet'
+        word_after_inet = match.group(1)
+        return word_after_inet
+    else:
+        return None
 
 def getIpv6(net, host_name):
 
@@ -9,12 +24,9 @@ def getIpv6(net, host_name):
     # Get MAC and IPv6 addresses using the 'ip' command
     cmd_result = host.cmd('ip -o -6 addr show dev %s' % host.defaultIntf())
 
-    print("cmd result is ", cmd_result)
-
-    # Extract MAC and IPv6 addresses from the command result
     lines = cmd_result.split('\n')
     mac_address = lines[0].split()[4]
-    ipv6_address = lines[1].split()[1].split('/')[0]
+    ipv6_address = get_word_after_inet(cmd_result)
     return ipv6_address
 
 
