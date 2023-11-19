@@ -1,6 +1,5 @@
 from math import pi
 import subprocess
-from subprocess import TimeoutExpired
 import re
 import time
 import signal
@@ -17,6 +16,12 @@ PROCESS_TIME_OUT = 5
 
 pingReceiverProgram = "/home/VlaTests/IpPingReply.py"
 pingSenderProgram = "/home/VlaTests/IpPing.py" 
+
+class TimeoutException(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutException("Subprocess timed out after 2 seconds. Terminating.")
 
 
 def read_csv_to_dict(file_path):
@@ -96,6 +101,8 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
     try:
         # Use nsenter to enter the network namespace and run the Python file
         nsenter_command = None
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(PROCESS_TIME_OUT)
         if(len(args) > 0):
             nsenter_command = ["nsenter", "--net", "--mount", "--ipc", "--pid", "--uts", "--target", namespace_name, "python", python_file_path]
             nsenter_command.extend(args)
@@ -105,9 +112,6 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
         return process_result.stdout
 
     except subprocess.CalledProcessError as e:
-            print("Error: " % e)
-            return None
-    except TimeoutExpired as e:
             print("Error: " % e)
             return None
 
@@ -154,11 +158,14 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     # time.sleep(2)
 
     # Run the second Python file in the second namespace
+    ping_sender_process = None
     try:
-        output = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
+        ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
 
         # Wait for the second file to finish and capture its output
-        # output, errors = ping_sender_process.communicate()
+        output, errors = ping_sender_process.communicate()
+
+        signal.alarm(0)
 
         # Terminate the first file when the second file ends
         # ping_listener_process.terminate()
@@ -179,8 +186,10 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
                     round_trip_time = words[1]
                     return (True,round_trip_time)
         return (False, None)
-    except  Exception as e:
+    except subprocess.TimeoutExpired as e:
         print("Error : " % e)
+        ping_sender_process.terminate()
+        ping_sender_process.wait()
         return (False, None)
 
 
