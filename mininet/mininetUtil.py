@@ -5,7 +5,7 @@ import re
 
 def get_word_after_inet(input_string):
     # Define the pattern using regular expression
-    pattern = r'\binet\s+(\w+)\b'
+    pattern = r'\binet6\s+(\w+)\b'
 
     # Search for the pattern in the input string
     match = re.search(pattern, input_string)
@@ -32,7 +32,7 @@ def getIpv6(net, host_name):
     print(lines [1])
     ipv6_address_with_mask_lie = lines[1].split()
     print(ipv6_address_with_mask_lie)
-    ipv6_address = ipv6_address_with_mask_lie.split('/')[0]
+    ipv6_address = get_word_after_inet(cmd_result)
     return ipv6_address
 
 
