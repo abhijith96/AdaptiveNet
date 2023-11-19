@@ -18,7 +18,7 @@ def resolve_hostname(hostname):
         ip_address = socket.gethostbyname(hostname)
         return (True,ip_address)
     except socket.error as e:
-        print("Error resolving hostname {hostname} ".format(str(e)))
+        print("Error resolving hostname {} ".format(str(e)))
         return (False,None)
     
 def getIPAddress(interface):
@@ -73,13 +73,13 @@ def ip_ping(targetHostId):
 
     targetIpStatus, targetIPAddress = resolve_hostname(targetHostId)
     if(not targetIpStatus):
-        replyMessage = "ip address for target device %s not found".format(targetHostId)
+        replyMessage = "ip address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(targetIPAddress, ethSrc, hostIpAddress)
     
     if(not gatewayMacStatus):
-        replyMessage = "gateway mac  address for target device %s not found".format(targetHostId)
+        replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
 
     packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
