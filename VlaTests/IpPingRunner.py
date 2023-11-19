@@ -129,6 +129,7 @@ def createPingListenerProcess(hostName, hostProcessId, pingListenerPythonCommand
 def terminatePingListenerProcesses(processList):
     for process in processList:
         process.terminate()
+        process.wait()
 
 
 

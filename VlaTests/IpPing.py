@@ -145,6 +145,8 @@ def main():
     print(replyMessage)
     if(pingStatus):
         print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
+    else:
+        print("ping time not found")
 
 if __name__ == "__main__":
     main()
