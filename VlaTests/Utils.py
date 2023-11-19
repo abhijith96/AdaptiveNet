@@ -5,8 +5,12 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import conf
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 
+PING_S_PORT = 50000
+PING_D_PORT = 50001
 
-def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = 50000, udp_dport = 50001):
+
+
+def createIPPacket(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = PING_S_PORT, udp_dport = PING_D_PORT):
     pktlen = 100
     ipv6_tc = 0
     ipv6_fl = 0
@@ -101,7 +105,27 @@ def createVlaReplyPacket(vlaPacket, replyPayload):
        # modified_packet = insert_vla_header(modified_packet, dest_vla, source_vla, reply_current_level)
 
         return modified_packet
+
+
 def getMacAddress():
     ifacelist = get_if_list()
     mac = get_if_hwaddr(ifacelist[1])
     return mac
+
+def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = 50000, udp_dport = 50001):
+    msg = "Ping Hello"
+    pkt = Ether(src=ethsrc, dst=gateway_eth)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
+    return pkt
+
+def createIpPingReplyPacket(requestPacket, replyMsg):
+    eth_src = requestPacket[Ether].dst
+    eth_dst = requestPacket[Ether].src
+
+    ip_src = requestPacket[IPv6].dst
+    ip_dst = requestPacket[IPv6].src
+
+    udp_sport = requestPacket[UDP].dport
+    udp_dport = requestPacket[UDP].sport
+
+    pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
+
