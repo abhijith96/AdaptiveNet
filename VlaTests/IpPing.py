@@ -26,7 +26,7 @@ def get_ipv6_address(interface):
         ipv6_address = get_if_addr6(interface)
         return  (True,ipv6_address)
     except Exception as e:
-        print(f"Error getting IPv6 address for interface {interface}: {e}")
+        print("Error getting IPv6 address for interface {}: {}".format(interface, e))
         return (False,None)
 
 def genNdpNsPkt(target_ip, src_mac, src_ip):
