@@ -1,6 +1,6 @@
 from ipaddress import ip_address
 from optparse import TitledHelpFormatter
-from scapy.all import sr1, srp1, srp, Raw, send
+from scapy.all import sr1, srp1, srp, Raw, sendp
 from scapy.utils6 import *
 import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
@@ -103,14 +103,14 @@ def ip_ping(targetHostId, targetIp):
         replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
 
-    #packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
-    packet = IPv6(dst = targetIPAddress)/UDP(sport=IP_PING_S_PORT, dport = IP_PING_D_PORT)
+    packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+    #packet = IPv6(dst = targetIPAddress)/UDP(sport=IP_PING_S_PORT, dport = IP_PING_D_PORT)
 
     #print("packet is ", packet)
     # Send the packet and wait for a response
     start_time = time.time()
 
-    reply = send(packet,iface=defaultInterface)
+    reply = sendp(packet,iface=defaultInterface, loop = 1)
     
     end_time = time.time()
 
