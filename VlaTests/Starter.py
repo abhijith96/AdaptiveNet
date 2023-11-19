@@ -36,7 +36,7 @@ def main():
 
     
     docker_container_name = "mininet"
-    script_path_inside_container = "/home/VlaTests/Runner.py"
+    script_path_inside_container = "/home/VlaTests/VlaPingRunner.py"
     run_script_in_docker_container(docker_container_name, script_path_inside_container)
 
     # Call another function after the script
