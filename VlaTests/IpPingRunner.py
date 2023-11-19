@@ -114,10 +114,10 @@ def getMininetHostNamesAndProcessIds():
             output_hosts.append((hostName, procoess_id))
     return output_hosts
 
-def createPingListenerProcesses(hostProcessDict, pingListenerPythonCommand):
+def createPingListenerProcesses(hostProcessList, pingListenerPythonCommand):
     subProcessList= []
-    for hostName, hostProcessId in hostProcessDict.items():
-        subProcess = createPingListenerProcess(hostName, hostProcessDict, pingListenerPythonCommand)
+    for hostName, hostProcessId in hostProcessList:
+        subProcess = createPingListenerProcess(hostName, hostProcessList, pingListenerPythonCommand)
         subProcessList.append(subProcess)
     return subProcessList
     
