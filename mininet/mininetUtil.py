@@ -7,7 +7,8 @@ def get_hosts_info(net):
     for host in net.hosts:
         host_info = {
             'name': host.name,
-            'mac': host.MAC()
+            'mac': host.MAC(),
+            'ip' : host.IP6()
         }
         hosts_info.append(host_info)
 
@@ -15,7 +16,7 @@ def get_hosts_info(net):
 
 def write_to_csv(file_path, data):
     with open(file_path, 'wb') as csv_file:  # Use 'wb' for writing in Python 2
-        fieldnames = ['name', 'mac']
+        fieldnames = ['name', 'mac', 'ip']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
         # Write the header
