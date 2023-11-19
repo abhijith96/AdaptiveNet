@@ -108,7 +108,7 @@ def ip_ping(targetHostId):
             replyMessage = "Ping Failed UDP not found or UDP src port does not match "
     else:
         replyMessage = "No response from ping."
-        return (False, replyMessage, rtt)
+    return (False, replyMessage, rtt)
 
     
 def main():
