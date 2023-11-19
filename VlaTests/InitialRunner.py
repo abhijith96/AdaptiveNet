@@ -106,7 +106,6 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
    
     ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, senderIp)
 
-    output2, errors = ping_listener_process.communicate()
 
     time.sleep(1)
 
@@ -134,6 +133,8 @@ def main():
             receiverIp = hostMacMap[receiverHostName][1]
 
             senderIp = hostMacMap[senderHostName][1]
+
+            runPingForHostPair(senderHostName, senderPid, senderIp, receiverHostName, receiverMac, receiverPid, receiverIp)
 
 print("initial ping done")
 
