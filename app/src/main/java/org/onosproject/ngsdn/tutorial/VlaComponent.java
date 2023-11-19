@@ -230,7 +230,8 @@ public class VlaComponent {
             setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
             ArrayList<DeviceId> devicesContainingHosts = vlaTopologyInformation.GetAllDevicesContainingHosts();
             for(DeviceId deviceId: devicesContainingHosts){
-                setUpHostNameResolutionTable(deviceId, hostInfo);
+                if(!isSpine(deviceId))
+                    setUpHostNameResolutionTable(deviceId, hostInfo);
             }
         }
 
@@ -254,7 +255,8 @@ public class VlaComponent {
             setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
             ArrayList<DeviceId> devicesContainingHosts = vlaTopologyInformation.GetAllDevicesContainingHosts();
             for(DeviceId deviceId: devicesContainingHosts){
-                setUpHostNameResolutionTable(deviceId, hostInfo);
+                if(!isSpine(deviceId))
+                    setUpHostNameResolutionTable(deviceId, hostInfo);
             }
         }
 
@@ -670,6 +672,12 @@ public class VlaComponent {
     private Optional<FabricDeviceConfig> getDeviceConfig(DeviceId deviceId) {
         FabricDeviceConfig config = networkConfigService.getConfig(deviceId, FabricDeviceConfig.class);
         return Optional.ofNullable(config);
+    }
+
+    private boolean isSpine(DeviceId deviceId) {
+        return getDeviceConfig(deviceId).map(FabricDeviceConfig::isSpine)
+                .orElseThrow(() -> new ItemNotFoundException(
+                        "Missing isSpine config for " + deviceId));
     }
 
     /**

@@ -197,9 +197,9 @@ public class VlaTopologyInformation {
         ArrayList<DeviceId> deviceContainingHosts = new ArrayList<>();
        synchronized (this) {
            deviceIdHostIdHashMap.forEach((deviceId, hostList) -> {
-               if (!hostList.isEmpty()) {
+
                    deviceContainingHosts.add(deviceId);
-               }
+
            });
        }
         return deviceContainingHosts;

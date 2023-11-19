@@ -42,11 +42,19 @@ def main():
     print(f"Contents of the current directory copied to {container_name}:{container_destination_path}")
 
     docker_container_name = "mininet"
+    script_path_inside_container = "/home/VlaTests/InitialRunner.py"
+    run_script_in_docker_container(docker_container_name, script_path_inside_container)
+
+    print("Running IP Ping Pair Test")
+
+    docker_container_name = "mininet"
     script_path_inside_container = "/home/VlaTests/IpPingRunner.py"
     run_script_in_docker_container(docker_container_name, script_path_inside_container)
 
 
     copyIpRunnerOutputFile()
+
+    print("Running Vla Ping Pair Test")
 
     
     docker_container_name = "mininet"
