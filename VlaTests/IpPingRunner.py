@@ -1,5 +1,6 @@
 from math import pi
 import subprocess
+from subprocess import TimeoutExpired
 import re
 import time
 import signal
@@ -106,7 +107,7 @@ def run_python_file_in_namespace(namespace_name, python_file_path, args = []):
     except subprocess.CalledProcessError as e:
             print("Error: " % e)
             return None
-    except subprocess.TimeoutExpired as e:
+    except TimeoutExpired as e:
             print("Error: " % e)
             return None
 
