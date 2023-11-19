@@ -14,6 +14,7 @@ from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultM
 import time
 import socket
 from scapy.utils import  inet_pton
+import subprocess
 
 def resolve_hostname(hostname):
     try:
@@ -22,6 +23,17 @@ def resolve_hostname(hostname):
     except socket.error as e:
         print("Error resolving hostname {} ".format(str(e)))
         return (False,None)
+def resolve_mininet_hostname_in_namespace(namespace, mininet_hostname):
+    try:
+        # Use the ip netns exec command to run the hostname resolution within the specified namespace
+        resolved_ip = subprocess.check_output(['ip', 'netns', 'exec', namespace, 'getent', 'ahosts', mininet_hostname])
+
+        # Extract the IP address from the output
+        resolved_ip = resolved_ip.decode().split()[0]
+        return resolved_ip
+    except subprocess.CalledProcessError as e:
+        print("Error resolving Mininet hostname {} in namespace {}: {}".format(mininet_hostname, namespace, str(e)))
+        return None
     
 def getIPAddress(interface):
     try:
@@ -53,11 +65,12 @@ def getGatewayMacAddress(interface, target_ip, src_mac, src_ip):
 def getCommandLineArguments():
     try:
         targetHost = sys.argv[1]
-        return targetHost
+        targetPid = sys.argv[2]
+        return targetHost, targetPid
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
 
-def ip_ping(targetHostId):
+def ip_ping(targetHostId, targetPid):
     # Create an VLA IP packet with an UDP Ping
     replyMessage = ""
     ifaceStatus, defaultInterface = getDefaultInterface()
@@ -73,11 +86,11 @@ def ip_ping(targetHostId):
         replyMessage = "ip address for current Device Not found"
         return (False, replyMessage, None)
 
-    targetIpStatus, targetIPAddress = resolve_hostname(targetHostId)
+    targetIpStatus, targetIPAddress = resolve_mininet_hostname_in_namespace(targetPid,targetHostId)
     if(not targetIpStatus):
         replyMessage = "ip address for target device {} not found".format(targetHostId)
         print(replyMessage)
-        targetIPAddress = "2001:1:2::1"
+        targetIPAddress = ""
         return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
@@ -113,8 +126,9 @@ def ip_ping(targetHostId):
     
 def main():
     targetHost = "h2"
+    targetPid = ""
     try:
-        targetHost = getCommandLineArguments()
+        targetHost, targetPid = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
     (pingStatus,replyMessage, rtt) = ip_ping(targetHost)
