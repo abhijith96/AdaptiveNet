@@ -115,7 +115,8 @@ def main():
             print("ping target not found as command line argument using default target : " +  str(e))
     (pingStatus,replyMessage, rtt) = ip_ping(targetHost)
     print(replyMessage)
-    print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
+    if(pingStatus)
+        print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
 
 if __name__ == "__main__":
     main()
