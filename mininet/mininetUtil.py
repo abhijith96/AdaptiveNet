@@ -32,7 +32,7 @@ def getIpv6(net, host_name):
     print(lines [1])
     ipv6_address_with_mask_lie = lines[1].split()
     print(ipv6_address_with_mask_lie)
-    ipv6_address = get_word_after_inet(cmd_result)
+    ipv6_address = get_word_after_inet6(cmd_result)
     return ipv6_address
 
 
