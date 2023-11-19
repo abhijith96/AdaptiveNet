@@ -185,7 +185,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
                     round_trip_time = words[1]
                     return (True,round_trip_time)
         return (False, None)
-    except Exception as e:
+    except TimeoutException as e:
         print("Error : " % e)
         if(ping_sender_process):
             ping_sender_process.terminate()
