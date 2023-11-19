@@ -3,9 +3,9 @@ from ipaddress import ip_address
 
 import re
 
-def get_word_after_inet(input_string):
+def get_word_after_inet6(input_string):
     # Define the pattern using regular expression
-    pattern = r'\binet6\s+(\w+)\b'
+    pattern = r'\binet6\s+([\da-fA-F:]+/\d+)\b'
 
     # Search for the pattern in the input string
     match = re.search(pattern, input_string)
