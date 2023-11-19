@@ -173,8 +173,8 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
         # ping_listener_process.wait()
 
         outputString = output.decode('utf-8')
-
-        #print(outputString)
+        print("output is ", outputString)
+        print(outputString)
 
         outputLines = outputString.split("\n")
 
