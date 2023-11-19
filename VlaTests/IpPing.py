@@ -131,7 +131,7 @@ def main():
         targetHost, targetPid = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
-    (pingStatus,replyMessage, rtt) = ip_ping(targetHost)
+    (pingStatus,replyMessage, rtt) = ip_ping(targetHost, targetPid)
     print(replyMessage)
     if(pingStatus):
         print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
