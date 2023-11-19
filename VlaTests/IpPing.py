@@ -112,7 +112,7 @@ def ip_ping(targetHostId):
 
     
 def main():
-    targetHostName = "h2"
+    targetHost = "h2"
     try:
         targetHost = getCommandLineArguments()
     except Exception as e:
