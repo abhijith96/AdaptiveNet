@@ -123,7 +123,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
 
     # Wait for a moment to ensure the first file is running
-    time.sleep(1)
+    time.sleep(2)
 
     # Run the second Python file in the second namespace
     ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])

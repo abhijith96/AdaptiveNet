@@ -112,7 +112,7 @@ def getMacAddress():
     mac = get_if_hwaddr(ifacelist[1])
     return mac
 
-def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = 50000, udp_dport = 50001):
+def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = PING_S_PORT, udp_dport = PING_D_PORT):
     msg = "Ping Hello"
     pkt = Ether(src=ethsrc, dst=gateway_eth)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
     return pkt

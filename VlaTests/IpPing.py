@@ -48,13 +48,13 @@ def genNdpNsPkt(target_ip, src_mac, src_ip):
 
     target_gateway = replace_last_16_bytes_with_ff(target_ip)
 
-    print("gateway is ", target_gateway)
+   # print("gateway is ", target_gateway)
 
     nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
-    print(" d is ", d)
-    print("dm is ", dm)
+    #print(" d is ", d)
+   # print("dm is ", dm)
     p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
     p /= ICMPv6ND_NS(tgt=target_gateway)
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
@@ -64,7 +64,7 @@ def getGatewayMacAddress(interface, target_ip, src_mac, src_ip):
     ndp_ns_pkt = genNdpNsPkt(target_ip, src_mac, src_ip)
     reply = srp1(ndp_ns_pkt, iface = interface)
     if reply:
-        print("gatewaylink addr", reply[ICMPv6NDOptDstLLAddr].lladdr)
+        #print("gatewaylink addr", reply[ICMPv6NDOptDstLLAddr].lladdr)
         return (True,reply[ICMPv6NDOptDstLLAddr].lladdr)
     return (False, None)
 
@@ -95,10 +95,8 @@ def ip_ping(targetHostId, targetIp):
         replyMessage = "ip address for current Device Not found"
         return (False, replyMessage, None)
 
-    targetIpStatus, targetIPAddress = resolve_hostname(targetHostId)
-    if(not targetIpStatus):
-        replyMessage = "ip address for target device {} not found".format(targetHostId)
-        targetIPAddress = targetIp
+  
+    targetIPAddress = targetIp
         #return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
@@ -109,7 +107,7 @@ def ip_ping(targetHostId, targetIp):
 
     packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
 
-    print("packet is ", packet)
+    #print("packet is ", packet)
     # Send the packet and wait for a response
     start_time = time.time()
 
