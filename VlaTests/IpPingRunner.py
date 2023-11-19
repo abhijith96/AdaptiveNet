@@ -180,25 +180,30 @@ def main():
     rttDict = {}
     pingListenerList = createPingListenerProcesses(output_hosts, pingReceiverProgram)
     time.sleep(2)
-    for i in range(0, hostCount):
-        for j in range(i+ 1, hostCount):
-            senderHostName = output_hosts[i][0]
-            receiverHostName = output_hosts[j][0]
-            senderPid = output_hosts[i][1]
-            receiverPid = output_hosts[j][1]
+    try:
+        for i in range(0, hostCount):
+            for j in range(i+ 1, hostCount):
+                senderHostName = output_hosts[i][0]
+                receiverHostName = output_hosts[j][0]
+                senderPid = output_hosts[i][1]
+                receiverPid = output_hosts[j][1]
 
-            receiverMac= hostMacMap[receiverHostName][0]
-            receiverIp = hostMacMap[receiverHostName][1]
+                receiverMac= hostMacMap[receiverHostName][0]
+                receiverIp = hostMacMap[receiverHostName][1]
 
-            senderIp = hostMacMap[senderHostName][1]
+                senderIp = hostMacMap[senderHostName][1]
 
-            rttFound, rtt = runPingForHostPair(senderHostName, senderPid, senderIp, receiverHostName, receiverMac, receiverPid, receiverIp)
-            if(rttFound):
-                print("IP rtt " + rtt)
-                rttDict[(senderHostName, receiverHostName)] = rtt
+                rttFound, rtt = runPingForHostPair(senderHostName, senderPid, senderIp, receiverHostName, receiverMac, receiverPid, receiverIp)
+                if(rttFound):
+                    print("IP rtt " + rtt)
+                    rttDict[(senderHostName, receiverHostName)] = rtt
 
-    write_dict_to_csv(RTT_FILE_PATH, rttDict)
-    terminatePingListenerProcesses(pingListenerList)
+        write_dict_to_csv(RTT_FILE_PATH, rttDict)
+        terminatePingListenerProcesses(pingListenerList)
+    except Exception as e:
+        print(str(e))
+        terminatePingListenerProcesses(pingListenerList)
+
 
 
 if __name__ == "__main__":
