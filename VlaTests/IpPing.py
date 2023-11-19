@@ -30,10 +30,10 @@ def resolve_mininet_hostname_in_namespace(namespace, mininet_hostname):
 
         # Extract the IP address from the output
         resolved_ip = resolved_ip.decode().split()[0]
-        return resolved_ip
+        return (True, resolved_ip)
     except subprocess.CalledProcessError as e:
         print("Error resolving Mininet hostname {} in namespace {}: {}".format(mininet_hostname, namespace, str(e)))
-        return None
+        return (False, None)
     
 def getIPAddress(interface):
     try:
