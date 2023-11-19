@@ -123,13 +123,13 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
 
     # Wait for a moment to ensure the first file is running
-    time.sleep(0.5)
+    time.sleep(1)
 
     # Run the second Python file in the second namespace
     ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
 
     # Wait for the second file to finish and capture its output
-    output1, errors = ping_sender_process.communicate()
+    output, errors = ping_sender_process.communicate()
 
     # Terminate the first file when the second file ends
     ping_listener_process.terminate()
@@ -137,20 +137,7 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     # Optionally wait for the first file to terminate gracefully
     ping_listener_process.wait()
 
-    ping_listener_process = run_python_file_in_namespace(senderHostProcessId, pingListenerPythonCommand)
-
-    time.sleep(0.5)
-
-    ping_sender_process = run_python_file_in_namespace(receiverHostProcessId, pingPythonCommand, args=[senderHostName, senderIp])
-    output, errors = ping_sender_process.communicate()
-
-    ping_listener_process.terminate()
-
-    # Optionally wait for the first file to terminate gracefully
-    ping_listener_process.wait()
-
     outputString = output.decode('utf-8')
-
 
     print(outputString)
 
