@@ -6,6 +6,8 @@ import signal
 import os
 import csv
 
+from VlaTests.IpPingReply import pingListener
+
 MININET_FILE_PATH = "/home/VlaTests/hostMacs.csv"
 RTT_FILE_PATH = "/home/VlaTests/IP_RTT.csv"
 
@@ -112,6 +114,22 @@ def getMininetHostNamesAndProcessIds():
             output_hosts.append((hostName, procoess_id))
     return output_hosts
 
+def createPingListenerProcesses(hostProcessDict, pingListenerPythonCommand):
+    subProcessList= []
+    for hostName, hostProcessId in hostProcessDict.items():
+        subProcess = createPingListenerProcess(hostName, hostProcessDict, pingListenerPythonCommand)
+        subProcessList.append(subProcess)
+    return subProcessList
+    
+
+def createPingListenerProcess(hostName, hostProcessId, pingListenerPythonCommand):
+    ping_listener_process = run_python_file_in_namespace(hostProcessId, pingListenerPythonCommand)
+    return ping_listener_process
+
+def terminatePingListenerProcesses(processList):
+    for process in processList:
+        process.terminate()
+
 
 
 def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHostName, receiverHostMac, receiverHostProcessId, receiverIp):
@@ -120,10 +138,10 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     pingPythonCommand = pingSenderProgram
     pingListenerPythonCommand = pingReceiverProgram
        # Run the first Python file in the first namespace
-    ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
+    # ping_listener_process = run_python_file_in_namespace(receiverHostProcessId, pingListenerPythonCommand)
 
-    # Wait for a moment to ensure the first file is running
-    time.sleep(2)
+    # # Wait for a moment to ensure the first file is running
+    # time.sleep(2)
 
     # Run the second Python file in the second namespace
     ping_sender_process = run_python_file_in_namespace(senderHostProcessId, pingPythonCommand, args=[receiverHostName,receiverIp])
@@ -132,14 +150,14 @@ def runPingForHostPair(senderHostName, senderHostProcessId, senderIp, receiverHo
     output, errors = ping_sender_process.communicate()
 
     # Terminate the first file when the second file ends
-    ping_listener_process.terminate()
+    # ping_listener_process.terminate()
 
-    # Optionally wait for the first file to terminate gracefully
-    ping_listener_process.wait()
+    # # Optionally wait for the first file to terminate gracefully
+    # ping_listener_process.wait()
 
     outputString = output.decode('utf-8')
 
-    print(outputString)
+    #print(outputString)
 
     outputLines = outputString.split("\n")
 
@@ -159,6 +177,8 @@ def main():
     hostMacMap = read_csv_to_dict(MININET_FILE_PATH)
     hostCount = len(output_hosts)
     rttDict = {}
+    pingListenerList = createPingListenerProcesses(output_hosts, pingReceiverProgram)
+    time.sleep(2)
     for i in range(0, hostCount):
         for j in range(i+ 1, hostCount):
             senderHostName = output_hosts[i][0]
@@ -177,6 +197,7 @@ def main():
                 rttDict[(senderHostName, receiverHostName)] = rtt
 
     write_dict_to_csv(RTT_FILE_PATH, rttDict)
+    terminatePingListenerProcesses(pingListenerList)
 
 
 if __name__ == "__main__":
