@@ -88,6 +88,8 @@ def ip_ping(targetHostId, targetIp):
         return (False, replyMessage, None)
 
     packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+
+    print("packet is ", packet)
     # Send the packet and wait for a response
     start_time = time.time()
 
