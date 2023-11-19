@@ -48,8 +48,6 @@ class IPv6Host(Host):
             return ipv6.split('/')[0]
 
         self.defaultIntf().updateIP = updateIP
-    def IPV6(self):
-        return self.ipv6
 
     def terminate(self):
         super(IPv6Host, self).terminate()

@@ -1,5 +1,21 @@
 import csv
 
+
+
+def getIpv6(net, host_name):
+
+    host = net.getNodeByName(host_name)
+
+    # Get MAC and IPv6 addresses using the 'ip' command
+    cmd_result = host.cmd('ip -o -6 addr show dev %s' % host.defaultIntf())
+
+    # Extract MAC and IPv6 addresses from the command result
+    lines = cmd_result.split('\n')
+    mac_address = lines[0].split()[4]
+    ipv6_address = lines[1].split()[1].split('/')[0]
+    return ipv6_address
+
+
 def get_hosts_info(net):
     hosts_info = []
 
@@ -8,7 +24,7 @@ def get_hosts_info(net):
         host_info = {
             'name': host.name,
             'mac': host.MAC(),
-            'ip' : host.IPv6()
+            'ip' : getIpv6(net, host.name)
         }
         hosts_info.append(host_info)
 
