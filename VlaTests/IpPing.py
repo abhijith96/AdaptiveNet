@@ -78,7 +78,7 @@ def ip_ping(targetHostId):
         replyMessage = "ip address for target device {} not found".format(targetHostId)
         print(replyMessage)
         targetIPAddress = "2001:1:2::1"
-        #return (False, replyMessage, None)
+        return (False, replyMessage, None)
     
     gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
     
@@ -87,7 +87,6 @@ def ip_ping(targetHostId):
         return (False, replyMessage, None)
 
     packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
-    print("packet is ", packet)
     # Send the packet and wait for a response
     start_time = time.time()
 
@@ -101,8 +100,7 @@ def ip_ping(targetHostId):
     # Check if a response was received
    
     if reply:
-        print("reply is ", reply)
-        if  UDP in reply and reply[UDP] and reply[UDP].sport == 50001:
+        if  UDP in reply and reply[UDP].sport == 50001:
             replyMessage = "Ping  successful! " + reply[Raw].load
             rtt = end_time - start_time
             return (True,replyMessage, rtt)

@@ -24,12 +24,10 @@ def custom_packet_filter(packet):
 interface = ""
 
 def process_udp_packet(packet):
-    print("packet received is ", packet)
     if IPv6 in packet and UDP in packet:
         reply = "Ping Reply"
         modified_packet = createIpPingReplyPacket(packet, reply)
         sendp(modified_packet, iface=interface)  
-        print("modified packet is ", modified_packet)
     else:
         print("UnRecognized packet")
 
