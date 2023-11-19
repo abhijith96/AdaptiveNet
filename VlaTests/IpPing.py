@@ -110,7 +110,7 @@ def ip_ping(targetHostId, targetIp):
     # Send the packet and wait for a response
     start_time = time.time()
 
-    reply = sendp(packet,iface=defaultInterface, loop = 1)
+    reply = srp1(packet,iface=defaultInterface)
     
     end_time = time.time()
 
