@@ -24,6 +24,18 @@ def resolve_hostname(hostname):
         print("Error resolving hostname {} ".format(str(e)))
         return (False,None)
     
+def replace_last_16_bytes_with_ff(ipv6_address):
+    # Check if the input string is a valid IPv6 address
+
+    # Split the address and replace the last 16 bytes with "ff"
+    parts = ipv6_address.split(':')
+    parts[-1] = 'ff'
+
+    # Join the parts to form the modified IPv6 address
+    modified_ipv6_address = ':'.join(parts)
+
+    return modified_ipv6_address
+    
 def getIPAddress(interface):
     try:
         ipv6_address = get_if_addr6(interface)
@@ -33,7 +45,10 @@ def getIPAddress(interface):
         return (False,None)
 
 def genNdpNsPkt(target_ip, src_mac, src_ip):
-    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
+
+    target_gateway = replace_last_16_bytes_with_ff(target_ip)
+
+    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_gateway))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
     p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
@@ -45,6 +60,7 @@ def getGatewayMacAddress(interface, target_ip, src_mac, src_ip):
     ndp_ns_pkt = genNdpNsPkt(target_ip, src_mac, src_ip)
     reply = srp1(ndp_ns_pkt, iface = interface)
     if reply:
+        print("gatewaylink addr", reply[ICMPv6NDOptDstLLAddr].lladdr)
         return (True,reply[ICMPv6NDOptDstLLAddr].lladdr)
     return (False, None)
 
