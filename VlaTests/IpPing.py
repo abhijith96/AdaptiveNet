@@ -61,11 +61,9 @@ def genNdpNsPkt(target_ip, src_mac, src_ip):
     return p
 
 def getGatewayMacAddress(interface, target_ip, src_mac, src_ip):
-    ndp_ns_pkt = genNdpNsPkt(target_ip, src_mac, src_ip)
-    reply = srp1(ndp_ns_pkt, iface = interface)
-    if reply:
-        #print("gatewaylink addr", reply[ICMPv6NDOptDstLLAddr].lladdr)
-        return (True,reply[ICMPv6NDOptDstLLAddr].lladdr)
+    gateWaystatus, vlaAddress, gatewayMac, message = getCurrentHostVlaAddress()
+    if(gateWaystatus):
+        return gateWaystatus, gatewayMac
     return (False, None)
 
 
