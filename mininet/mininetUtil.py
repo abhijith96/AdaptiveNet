@@ -9,6 +9,8 @@ def getIpv6(net, host_name):
     # Get MAC and IPv6 addresses using the 'ip' command
     cmd_result = host.cmd('ip -o -6 addr show dev %s' % host.defaultIntf())
 
+    print("cmd result is ", cmd_result)
+
     # Extract MAC and IPv6 addresses from the command result
     lines = cmd_result.split('\n')
     mac_address = lines[0].split()[4]
