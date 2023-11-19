@@ -109,28 +109,28 @@ class TutorialTopo(Topo):
 
        
         h3a = self.addHost('h3a', cls=IPv6Host, mac="00:00:00:00:00:1C",
-                          ipv6='2001:1:1:0:C000:4000::a/68', ipv6_gw='2001:1:1:C000:4000::ff')
+                          ipv6='2001:1:1:0:C000:4000::a/68', ipv6_gw='2001:1:1:0:C000:4000::ff')
         
         self.addLink(h3a, leaf3)
         
         h4a = self.addHost('h4a', cls=IPv6Host, mac="00:00:00:00:00:2A",
-                          ipv6='2001:1:4:8000::a/66', ipv6_gw='2001:1:4:8000::ff')
+                          ipv6='2001:1:4:0:8000::a/66', ipv6_gw='2001:1:4:0:8000::ff')
         
         self.addLink(h4a, leaf4)
 
 
         h5a = self.addHost('h5a', cls=IPv6Host, mac="00:00:00:00:00:2B",
-                          ipv6='2001:1:4:4000:8000::a/68', ipv6_gw='2001:1:4:4000:8000::ff')
+                          ipv6='2001:1:4:0:4000:8000::a/68', ipv6_gw='2001:1:4:0:4000:8000::ff')
         
         self.addLink(h5a, leaf5)
 
         h6a = self.addHost('h6a', cls=IPv6Host, mac="00:00:00:00:00:2C",
-                          ipv6='2001:1:4:4000:4000:4000::a/70', ipv6_gw='2001:1:4:4000:4000:4000::ff')
+                          ipv6='2001:1:4:0:4000:4000:4000::a/70', ipv6_gw='2001:1:4:0:4000:4000:4000::ff')
         
         self.addLink(h6a, leaf6)
 
-        h6b = self.addHost('h6b', cls=IPv6Host, mac="00:00:00:00:00:2C",
-                          ipv6='2001:1:4:4000:4000:4000::b/70', ipv6_gw='2001:1:4:4000:4000:4000::ff')
+        h6b = self.addHost('h6b', cls=IPv6Host, mac="00:00:00:00:00:2D",
+                          ipv6='2001:1:4:0:4000:4000:4000::b/70', ipv6_gw='2001:1:4:0:4000:4000:4000::ff')
         
         self.addLink(h6b, leaf6)
         
