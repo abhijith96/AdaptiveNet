@@ -87,7 +87,7 @@ def vla_ping(targetHostId):
             replyMessage = "Ping to failed. Unexpected response type."
     else:
         replyMessage = "No response from ping."
-        return (False, replyMessage, rtt)
+    return (False, replyMessage, rtt)
 
     
 def main():
