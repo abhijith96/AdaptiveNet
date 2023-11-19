@@ -5,7 +5,7 @@ from scapy.utils6 import *
 import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
-from scapy.layers.inet6 import UDP, IPv6, ICMPv6ND_NS, ICMPv6ND_NA, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr
+from scapy.layers.inet6 import UDP, IPv6, ICMPv6ND_NS, ICMPv6ND_NA, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
 from Utils import createVlaPacket, getMacAddress, createIpPingPacket
 import time
@@ -105,7 +105,8 @@ def ip_ping(targetHostId, targetIp):
         replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
 
-    packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+    #packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+    packet = IPv6(dst = targetIPAddress)/ICMPv6EchoRequest()
 
     #print("packet is ", packet)
     # Send the packet and wait for a response
