@@ -8,8 +8,8 @@ from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 VLA_PING_S_PORT = 50000
 VLA_PING_D_PORT = 50001
 
-IP_PING_S_PORT = 50002
-IP_PING_D_PORT = 50003
+IP_PING_S_PORT = 40000
+IP_PING_D_PORT = 40001
 
 
 
