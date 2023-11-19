@@ -8,7 +8,7 @@ def get_hosts_info(net):
         host_info = {
             'name': host.name,
             'mac': host.MAC(),
-            'ip' : host.IP()
+            'ip' : host.IPv6()
         }
         hosts_info.append(host_info)
 
