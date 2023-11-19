@@ -6,7 +6,7 @@ import signal
 import os
 import csv
 
-from VlaTests.IpPingReply import pingListener
+
 
 MININET_FILE_PATH = "/home/VlaTests/hostMacs.csv"
 RTT_FILE_PATH = "/home/VlaTests/IP_RTT.csv"
