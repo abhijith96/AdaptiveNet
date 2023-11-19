@@ -30,8 +30,9 @@ def getIpv6(net, host_name):
     lines = cmd_result.split('\n')
     mac_address = lines[0].split()[4]
     print(lines [1])
-    ipv6_address_with_mask = lines[1].split()[3]
-    ipv6_address = ipv6_address_with_mask.split('/')[0]
+    ipv6_address_with_mask_lie = lines[1].split()
+    print(ipv6_address_with_mask_lie)
+    ipv6_address = ipv6_address_with_mask_lie.split('/')[0]
     return ipv6_address
 
 
