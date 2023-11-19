@@ -50,13 +50,13 @@ def genNdpNsPkt(target_ip, src_mac, src_ip):
 
     print("gateway is ", target_gateway)
 
-    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_gateway))
+    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
     print(" d is ", d)
     print("dm is ", dm)
     p = Ether(dst=dm) / IPv6(dst=d, src=src_ip, hlim=255)
-    p /= ICMPv6ND_NS(tgt=target_ip)
+    p /= ICMPv6ND_NS(tgt=target_gateway)
     p /= ICMPv6NDOptSrcLLAddr(lladdr=src_mac)
     return p
 
