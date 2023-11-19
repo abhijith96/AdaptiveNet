@@ -105,8 +105,8 @@ def ip_ping(targetHostId, targetIp):
         replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
 
-    #packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
-    packet = IPv6(dst = targetIPAddress)/ICMPv6EchoRequest()
+    packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+    #packet = IPv6(dst = targetIPAddress)/ICMPv6EchoRequest()
 
     #print("packet is ", packet)
     # Send the packet and wait for a response
