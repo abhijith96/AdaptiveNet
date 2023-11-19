@@ -50,7 +50,7 @@ def genNdpNsPkt(target_ip, src_mac, src_ip):
 
     print("gateway is ", target_gateway)
 
-    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_ip))
+    nsma = in6_getnsma(inet_pton(socket.AF_INET6, target_gateway))
     d = inet_ntop(socket.AF_INET6, nsma)
     dm = in6_getnsmac(nsma)
     print(" d is ", d)
