@@ -80,7 +80,7 @@ def ip_ping(targetHostId):
         targetIPAddress = "2001:1:2::1"
         #return (False, replyMessage, None)
     
-    gatewayMacStatus, gatewayMac = getGatewayMacAddress(targetIPAddress, ethSrc, hostIpAddress)
+    gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
     
     if(not gatewayMacStatus):
         replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
