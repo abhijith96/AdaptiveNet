@@ -1,6 +1,6 @@
 from ipaddress import ip_address
 from optparse import TitledHelpFormatter
-from scapy.all import sr1, srp1, srp, Raw, sendp,send, sniff
+from scapy.all import sr1, srp1, srp, Raw, sendp
 from scapy.utils6 import *
 import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
@@ -15,26 +15,6 @@ import time
 import socket
 from scapy.utils import  inet_pton
 import subprocess
-
-start_time =0
-
-def process_udp_packet(reply):
-    if reply:
-        print("reply is ", reply)
-        if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
-            end_time = time.time()
-            replyMessage = "Ping  successful! " + reply[Raw].load
-            global start_time
-            rtt = end_time - start_time
-            print(replyMessage)
-            return (True,replyMessage, rtt)
-        elif IPv6 in reply:
-            print(replyMessage)
-            replyMessage = "Ping partial failure, Scapy Issue "
-            return (True,replyMessage, rtt)
-    else:
-        replyMessage = "No response from ping."
-    return (False, replyMessage, rtt)
 
 def resolve_hostname(hostname):
     try:
@@ -128,30 +108,29 @@ def ip_ping(targetHostId, targetIp):
 
     #print("packet is ", packet)
     # Send the packet and wait for a response
-    global start_time
     start_time = time.time()
 
-    send(packet,iface=defaultInterface)
+    reply = sr1(packet,iface=defaultInterface)
     
-    #end_time = time.time()
+    end_time = time.time()
 
 
-    #rtt = 0
+    rtt = 0
 
     # Check if a response was received
    
-    # if reply:
-    #     print("reply is ", reply)
-    #     if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
-    #         replyMessage = "Ping  successful! " + reply[Raw].load
-    #         rtt = end_time - start_time
-    #         return (True,replyMessage, rtt)
-    #     elif IPv6 in reply:
-    #         replyMessage = "Ping partial failure, Scapy Issue "
-    #         return (True,replyMessage, rtt)
-    # else:
-    #     replyMessage = "No response from ping."
-    # return (False, replyMessage, rtt)
+    if reply:
+        print("reply is ", reply)
+        if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
+            replyMessage = "Ping  successful! " + reply[Raw].load
+            rtt = end_time - start_time
+            return (True,replyMessage, rtt)
+        elif IPv6 in reply:
+            replyMessage = "Ping partial failure, Scapy Issue "
+            return (True,replyMessage, rtt)
+    else:
+        replyMessage = "No response from ping."
+    return (False, replyMessage, rtt)
 
     
 def main():
@@ -169,6 +148,4 @@ def main():
         print("ping time not found")
 
 if __name__ == "__main__":
-    filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
-    sniff(prn=process_udp_packet, filter = filter_expression)
     main()
