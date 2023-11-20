@@ -58,7 +58,7 @@ def getNetworkNamespaces():
         result = subprocess.check_output("lsns --type=net", shell=True)
 
         # Split the output into lines and return as a list
-        return result.strip().split('\n')
+        return result.strip().split(b'\n')
     except subprocess.CalledProcessError as e:
         print("Error: %s ".format(e))
         return []
