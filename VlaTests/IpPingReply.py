@@ -17,6 +17,7 @@ def custom_packet_filter(packet):
             if(destination_port == IP_PING_D_PORT):
                 return True
             else:
+                print(packet)
                 print("Invalid UDP port")
     return False
 interface = ""
