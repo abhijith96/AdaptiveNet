@@ -116,12 +116,12 @@ def main():
     print("printing commandline arguments")
     print("interface mac address ", interfaceMacAddress)
     print("interface", interface)
-    sourceVlaList = [4096,4096,4096,4096,4096]
+    sourceVlaList = [4096,4096,4098]
     # print("vla list is ", vlaList)
-    # print("vla currentLevel is ", vlaCurrentLevel)
-    # interface = "h1a-eth0"
-    # vlaList = [4096,4096,4096,4096, 4096]
-    # currentLevel = 2
+   
+    interface = "h1a-eth0"
+    vlaList = [4096,4096,4096,4096]
+    currentLevel = 2
     packet = Ether(src="00:00:00:00:00:30", dst="00:aa:00:00:00:02")/IPv6(src="::1", dst= "2002::2")/UDP()/Raw(load=data)
 
     packet = insert_vla_header(packet, vlaList,sourceVlaList, currentLevel)
