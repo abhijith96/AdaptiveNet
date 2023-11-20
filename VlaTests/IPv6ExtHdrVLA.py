@@ -115,8 +115,8 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                    ByteField("len", None),
                 BitField("address_type", 0, 2),
                    BitField("current_level", 0, 16),
-                   BitFieldLenField("number_of_levels", None, 16, length_of="addresses"),
-                    BitFieldLenField("number_of_source_levels", None, 16, length_of="source_addresses"),
+                   BitFieldLenField("number_of_levels", None, 16),
+                    BitFieldLenField("number_of_source_levels", None, 16),
                     BitField("pad", 0, 6),
                  FieldListField("addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
@@ -125,7 +125,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                 PacketListField("tlv_objects", [],
                                    IPv6ExtHdrVlaRoutingTLV
                                    ,length_from=lambda pkt: 8 * pkt.len - ((2 * (
-                                       pkt.number_of_levels + pkt.number_of_source_levels)) + 1)
+                                       pkt.number_of_levels + pkt.number_of_source_levels)) - 1)
                                        )
                             
     ]
@@ -133,7 +133,6 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
     overload_fields = {IPv6: {"nh": 48}}
     def post_build(self, pkt, pay):
         if self.len is None:
-            print("before pkt len", len(pkt))
             # The extension must be align on 8 bytes
             tmp_mod = (-len(pkt) + 8) % 8
             if tmp_mod == 1:
@@ -146,7 +145,6 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                 pkt += raw(tlv)
 
             tmp_len = (len(pkt) - 8) // 8
-            print("after pkt len", len(pkt))
             pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
 
         if self.number_of_levels is None:
