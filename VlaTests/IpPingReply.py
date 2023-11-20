@@ -27,7 +27,7 @@ def process_udp_packet(packet):
         print("received packet is ", packet)
         modified_packet = createIpPingReplyPacket(packet, reply)
         print("modified packet is ", modified_packet)
-        reply = srp1(modified_packet, iface=interface)  
+        reply = send(modified_packet, iface=interface)  
     else:
         print("UnRecognized packet")
 
