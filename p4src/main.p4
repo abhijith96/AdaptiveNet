@@ -116,10 +116,11 @@ header vlah_t {
     bit<8> next_hdr;
     bit<8> hdr_ext_len;
     bit<2> address_type;
-    bit<16> current_level;
-    bit<16> num_levels;
-    bit<16> num_source_levels;
+    bit<8> current_level;
+    bit<8> num_levels;
+    bit<8> num_source_levels;
     bit<6> _pad;
+    bit<16> _pad_list_length;
 }
 
 header vla_list_t{
@@ -405,7 +406,7 @@ parser ParserImpl (packet_in packet,
     state parse_vla_next_hdr{
         bit<32> vla_total_length = (((bit<32>)hdr.vlah.hdr_ext_len) *64) + 64;
         local_metadata.parser_local_metadata.vla_fixed_length_in_bits = vla_total_length;
-        bit<32> vla_fixed_length = 64 + 8 + ((bit<32>)(hdr.vlah.num_source_levels  + hdr.vlah.num_levels)* 16);
+        bit<32> vla_fixed_length = 64 + ((bit<32>)(hdr.vlah.num_source_levels  + hdr.vlah.num_levels)* 16);
         bit<32> padding_length = vla_total_length - vla_fixed_length;
         packet.extract(hdr.vla_padding, padding_length);
        transition select(hdr.vlah.next_hdr) {

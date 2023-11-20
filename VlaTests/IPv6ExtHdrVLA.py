@@ -114,19 +114,18 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
     fields_desc = [ByteEnumField("nh", 59, ipv6nh),
                    ByteField("len", None),
                 BitField("address_type", 0, 2),
-                   BitField("current_level", 0, 16),
-                   BitField("number_of_levels", None, 16),
-                    BitField("number_of_source_levels", None, 16),
+                   BitField("current_level", 0, 8),
+                   BitField("number_of_levels", None, 8),
+                    BitField("number_of_source_levels", None, 8),
                     BitField("pad", 0, 6),
+                    BitField("pad_list_length", None, 16),
                  FieldListField("addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
                 FieldListField("source_addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
-                PacketListField("tlv_objects", [],
-                                   IPv6ExtHdrVlaRoutingTLV
-                                   ,length_from=lambda pkt: 8 * pkt.len - ((2 * (
-                                       pkt.number_of_levels + pkt.number_of_source_levels)) + 1)
-                                       )
+                FieldListField("pad_list", [], ByteField("", 0), 
+                                 count_from=lambda pkt:  8 - ((pkt.number_of_source_levels + pkt.pkt.number_of_levels)%8))
+              
                             
     ]
 
@@ -134,18 +133,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
     def post_build(self, pkt, pay):
         if self.len is None:
             # The extension must be align on 8 bytes
-            tmp_mod = (-len(pkt) + 8) % 8
-            if tmp_mod == 1:
-                tlv = IPv6ExtHdrVlaRoutingTLVPad1()
-                pkt += raw(tlv)
-            elif tmp_mod >= 2:
-                # Add the padding extension
-                tmp_pad = b"\x00" * (tmp_mod - 2)
-                tlv = IPv6ExtHdrVlaRoutingTLVPadN(padding=tmp_pad)
-                pkt += raw(tlv)
-
-            tmp_len = (len(pkt) - 8) // 8
-            pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
+           self.len = len(pkt)//8
 
         if self.number_of_levels is None:
             tmp_len = len(self.addresses)
@@ -162,5 +150,9 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
         if self.current_level is None:
             current_level = 0
             pkt = pkt[:3] + struct.pack("B", current_level) + pkt[4:]
+        
+        if self.pad_list_length is None:
+            pad_list_len = 8 - ((pkt.number_of_source_levels + pkt.pkt.number_of_levels)%8)
+            pkt = pkt[:7] + struct.pack("B", pad_list_len) + pkt[8:]
 
         return _IPv6ExtHdr.post_build(self, pkt, pay)
