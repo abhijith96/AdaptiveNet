@@ -1,4 +1,4 @@
-from scapy.all import sr1,sendp, sniff, send, Raw
+from scapy.all import sr1,sendp, sniff, send, Raw, srp1
 from scapy.layers.inet6 import UDP, IPv6
 from scapy.layers.l2 import Ether
 from Utils import createIpPingReplyPacket, IP_PING_D_PORT
@@ -27,7 +27,7 @@ def process_udp_packet(packet):
         print("received packet is ", packet)
         modified_packet = createIpPingReplyPacket(packet, reply)
         print("modified packet is ", modified_packet)
-        sendp(modified_packet, iface=interface)  
+        reply = srp1(modified_packet, iface=interface)  
     else:
         print("UnRecognized packet")
 
