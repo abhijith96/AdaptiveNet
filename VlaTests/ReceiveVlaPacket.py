@@ -5,15 +5,17 @@ import sys
 sys.path.insert(0, os.path.join(os.getcwd(), 'lib'))
 
 from scapy.all import *
-from scapy.layers.inet6 import UDP
+from scapy.layers.inet6 import UDP, IPv6
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 
 
 def print_packet(packet):
     print(packet.show())
-    print("packet  vla hex dump ", packet[IPv6ExtHdrVLA])
-    if packet.haslayer(UDP):
-        print(packet[UDP].load)
+    print("packet  vla hex dump ", packet)
+    if packet.haslayer(IPv6):
+       payload = packet[IPv6].payload
+       vlapk = IPv6ExtHdrVLA(payload)
+       print(vlapk)
     if packet.haslayer(IPv6ExtHdrVLA):
         print(packet[IPv6ExtHdrVLA].summary())
     
