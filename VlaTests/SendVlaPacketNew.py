@@ -112,10 +112,10 @@ def getCommandLineArguments():
 def main():
     # interface, vlaList, currentLevel = getCommandLineArguments()
     data = "HELLO WORLD"
-    interfaceMacAddress = get_if_hwaddr(interface)
-    print("printing commandline arguments")
-    print("interface mac address ", interfaceMacAddress)
-    print("interface", interface)
+    # interfaceMacAddress = get_if_hwaddr(interface)
+    # print("printing commandline arguments")
+    # print("interface mac address ", interfaceMacAddress)
+    # print("interface", interface)
     sourceVlaList = [4096,4096,4098]
     # print("vla list is ", vlaList)
    
