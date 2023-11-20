@@ -124,7 +124,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                 FieldListField("source_addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
                 FieldListField("pad_list", [], ByteField("", 0), 
-                                 count_from=lambda pkt:  8 - ((pkt.number_of_source_levels + pkt.number_of_levels)%8))
+                                 count_from=lambda pkt:  (pkt.pkt.pad_list_length), length_from=lambda pkt: pkt.pad_list_length)
               
                             
     ]
