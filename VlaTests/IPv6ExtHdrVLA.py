@@ -133,7 +133,8 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
     def post_build(self, pkt, pay):
         if self.len is None:
             # The extension must be align on 8 bytes
-           self.len = len(pkt)//8
+           tmp_len = len(pkt)//8
+           pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
 
         if self.number_of_levels is None:
             tmp_len = len(self.addresses)
