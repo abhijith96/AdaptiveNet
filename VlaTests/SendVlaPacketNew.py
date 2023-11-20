@@ -110,7 +110,7 @@ def getCommandLineArguments():
         raise Exception("Pass Comandline Arguments Properly") 
 
 def main():
-    interface, vlaList, currentLevel = getCommandLineArguments()
+    # interface, vlaList, currentLevel = getCommandLineArguments()
     data = "HELLO WORLD"
     interfaceMacAddress = get_if_hwaddr(interface)
     print("printing commandline arguments")
