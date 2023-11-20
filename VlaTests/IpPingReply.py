@@ -17,13 +17,7 @@ def custom_packet_filter(packet):
             if(UDP in packet):
                 destination_port = packet[UDP].dport
                 if(destination_port == 40001):
-                    print("filter success")
                     return True
-                else:
-                    print("Invalid UDP port")
-            elif packet[IPv6].nh == 17:
-                print("nh checks out")
-                return True
     return False
 
 
@@ -45,7 +39,9 @@ def pingListener(interfaceName):
     global macAddress
     macAddress = getDefaultMacAddress()
     print(macAddress)
-    sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
+    # sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
+    filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
+    sniff(prn=process_udp_packet, filter = filter_expression)
     return None
 
 def main():
