@@ -28,9 +28,11 @@ def createIPPacketforVla(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaS
     vla_dst_len = len(vlaDst)
     vla_src_len = len(vlaSrc)
     padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    paddlistContent = list(range(padlen))
+
     pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(nh = 48,src=ipv6_src, dst=ipv6_dst)/IPv6ExtHdrVLA(nh=17, 
         addresses=vlaDst, source_addresses = vlaSrc,address_type=0b01, current_level = vlaCurrentLevel, number_of_levels=vla_dst_len,
-         number_of_source_levels = vla_src_len)/UDP(sport = udp_sport,dport = udp_dport)/Raw(load=data_payload)
+         number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list= paddlistContent)/UDP(sport = udp_sport,dport = udp_dport)/Raw(load=data_payload)
     # if with_udp_chksum:
     #     pkt /= UDP(sport=udp_sport, dport=udp_dport)
     # else:
