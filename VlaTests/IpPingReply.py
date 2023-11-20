@@ -11,16 +11,20 @@ def custom_packet_filter(packet):
     if Ether not in packet:
         return False
     global macAddress
-    print(packet.show())
     if(packet[Ether].dst == macAddress):
         if IPv6 in packet:
+            print(packet.show())
             if(UDP in packet):
                 destination_port = packet[UDP].dport
-                if(destination_port == IP_PING_D_PORT):
+                if(destination_port == 40001):
                     print("filter success")
                     return True
                 else:
                     print("Invalid UDP port")
+            elif packet[IPv6].nh == 17:
+                payload = packet[IPv6].payload()
+                udpP = UDP(payload)
+                return udpP.dport == 40001
     return False
 
 
