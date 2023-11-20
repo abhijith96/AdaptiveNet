@@ -13,7 +13,7 @@ def print_packet(packet):
     print(packet.show())
     print("packet  vla hex dump ", packet)
     if packet.haslayer(IPv6):
-       payload = packet[IPv6].payload
+       payload = packet[Raw]
        vlapk = IPv6ExtHdrVLA(payload)
        print(vlapk)
     if packet.haslayer(IPv6ExtHdrVLA):
