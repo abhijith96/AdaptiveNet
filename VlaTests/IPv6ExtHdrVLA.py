@@ -154,7 +154,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
         
         if self.pad_list_length is None:
             pad_list_len = 8 - ((self.number_of_source_levels + self.number_of_levels)%8)
-            pkt = pkt[:7] + struct.pack("B", pad_list_len) + pkt[8:]
+            pkt = pkt[:7] + struct.pack("H", pad_list_len) + pkt[8:]
             pad_list_filler = b"\x00" * pad_list_len
             pkt = pkt[:10] + struct.pack("B", pad_list_filler) + pkt[11:]
 
