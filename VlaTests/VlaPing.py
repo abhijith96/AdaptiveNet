@@ -44,11 +44,15 @@ def vla_ping(targetHostId):
     if(not hostVlaStatus):
         replyMessage = "vla address for current Device Not found"
         return (False, replyMessage, None)
+    
+    print("host vla Addrsss is ", hostVlaAddress)
 
     targetVlaStatus, targetVlaAddress, gatewayMac, message = resolveHostVlaAddress(targetHostId)
     if(not hostVlaStatus):
         replyMessage = "vla address for target device %s not found".format(targetHostId)
         return (False, replyMessage, None)
+    
+    print("Target vla address is ", targetVlaAddress)
     
     ethDst=gatewayMac
     vlaSrcList = hostVlaAddress

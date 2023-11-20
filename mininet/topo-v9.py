@@ -98,39 +98,39 @@ class TutorialTopo(Topo):
 
         # IPv6 hosts attached to leaf 1
         h1a = self.addHost('h1a', cls=IPv6Host, mac="00:00:00:00:00:1A",
-                           ipv6='2001:1:1:0:4000::a/66', ipv6_gw='2001:1:1:0:4000::ff')
+                           ipv6='2001:1:1:4::a/66', ipv6_gw='2001:1:1:4::ff')
         self.addLink(h1a, leaf1)  
         
 
         h2a = self.addHost('h2a', cls=IPv6Host, mac="00:00:00:00:00:1B",
-                           ipv6='2001:1:1:0:8000:4000::a/68', ipv6_gw='2001:1:1:0:8000:4000::ff')
+                           ipv6='2001:1:1:8:4::a/68', ipv6_gw='2001:1:1:8:4::ff')
         
         self.addLink(h2a, leaf2)  
 
        
         h3a = self.addHost('h3a', cls=IPv6Host, mac="00:00:00:00:00:1C",
-                          ipv6='2001:1:1:0:C000:4000::a/68', ipv6_gw='2001:1:1:0:C000:4000::ff')
+                          ipv6='2001:1:1:C:4::a/68', ipv6_gw='2001:1:1:C:4::ff')
         
         self.addLink(h3a, leaf3)
         
         h4a = self.addHost('h4a', cls=IPv6Host, mac="00:00:00:00:00:2A",
-                          ipv6='2001:1:4:0:8000::a/66', ipv6_gw='2001:1:4:0:8000::ff')
+                          ipv6='2001:1:4:8::a/66', ipv6_gw='2001:1:4:8::ff')
         
         self.addLink(h4a, leaf4)
 
 
         h5a = self.addHost('h5a', cls=IPv6Host, mac="00:00:00:00:00:2B",
-                          ipv6='2001:1:4:0:4000:8000::a/68', ipv6_gw='2001:1:4:0:4000:8000::ff')
+                          ipv6='2001:1:4:4:8::a/68', ipv6_gw='2001:1:4:4:8::ff')
         
         self.addLink(h5a, leaf5)
 
         h6a = self.addHost('h6a', cls=IPv6Host, mac="00:00:00:00:00:2C",
-                          ipv6='2001:1:4:0:4000:4000:4000::a/70', ipv6_gw='2001:1:4:0:4000:4000:4000::ff')
+                          ipv6='2001:1:4:4:4:4::a/70', ipv6_gw='2001:1:4:4:4:4::ff')
         
         self.addLink(h6a, leaf6)
 
         h6b = self.addHost('h6b', cls=IPv6Host, mac="00:00:00:00:00:2D",
-                          ipv6='2001:1:4:0:4000:4000:4000::b/70', ipv6_gw='2001:1:4:0:4000:4000:4000::ff')
+                          ipv6='2001:1:4:4:4:4::b/70', ipv6_gw='2001:1:4:4:4:4::ff')
         
         self.addLink(h6b, leaf6)
         
