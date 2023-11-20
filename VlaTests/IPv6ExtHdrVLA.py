@@ -115,8 +115,8 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                    ByteField("len", None),
                 BitField("address_type", 0, 2),
                    BitField("current_level", 0, 16),
-                   BitField("number_of_levels", 0, 16),
-                    BitField("number_of_source_levels", 0, 16),
+                   BitFieldLenField("number_of_levels", None, 16, length_of="addresses"),
+                    BitFieldLenField("number_of_source_levels", None, 16, length_of="source_addresses"),
                     BitField("pad", 0, 6),
                  FieldListField("addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_levels), length_from = lambda pkt: pkt.number_of_levels * 2),
@@ -124,8 +124,8 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                                  count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
                 PacketListField("tlv_objects", [],
                                    IPv6ExtHdrVlaRoutingTLV
-                                #    ,length_from=lambda pkt: 8 * pkt.len - ((2 * (
-                                #        pkt.number_of_levels + pkt.number_of_source_levels)) + 1)
+                                   ,length_from=lambda pkt: 8 * pkt.len - ((2 * (
+                                       pkt.number_of_levels + pkt.number_of_source_levels)) + 1)
                                        )
                             
     ]
