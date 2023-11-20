@@ -17,7 +17,7 @@ def custom_packet_filter(packet):
             if(UDP in packet):
                 destination_port = packet[UDP].dport
                 if(destination_port == 40001):
-                    print("filter success")
+                    # print("filter success")
                     return True
                 else:
                     print("Invalid UDP port")
