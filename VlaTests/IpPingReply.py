@@ -16,13 +16,9 @@ def custom_packet_filter(packet):
             destination_port = packet[UDP].dport
             if(destination_port == IP_PING_D_PORT):
                 return True
-        else:
-            
-
-
-    # Check if the destination MAC address matches the desired value
+            else:
+                print("Invalid UDP port")
     return False
-
 interface = ""
 
 def process_udp_packet(packet):
