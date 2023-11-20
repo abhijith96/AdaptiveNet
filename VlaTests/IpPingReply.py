@@ -4,11 +4,14 @@ from scapy.layers.l2 import Ether
 from Utils import createIpPingReplyPacket, IP_PING_D_PORT
 from NRUtils import getDefaultInterface, getDefaultMacAddress
 
-
+interface = ""
+macAddress = ""
 
 def custom_packet_filter(packet):
     if Ether not in packet:
         return False
+    global macAddress
+    print(packet.show())
     if(packet[Ether].dst == macAddress):
         if IPv6 in packet:
             if(UDP in packet):
@@ -18,8 +21,7 @@ def custom_packet_filter(packet):
                 else:
                     print("Invalid UDP port")
     return False
-interface = ""
-macAddress = ""
+
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
@@ -38,6 +40,7 @@ def pingListener(interfaceName):
     interface = interfaceName
     global macAddress
     macAddress = getDefaultMacAddress()
+    print(macAddress)
     sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
     return None
 
