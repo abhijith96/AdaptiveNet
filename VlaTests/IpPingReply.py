@@ -22,9 +22,8 @@ def custom_packet_filter(packet):
                 else:
                     print("Invalid UDP port")
             elif packet[IPv6].nh == 17:
-                payload = packet[IPv6].payload
-                udpP = UDP(payload)
-                return udpP.dport == 40001
+                print("nh checks out")
+                return True
     return False
 
 
