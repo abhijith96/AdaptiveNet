@@ -125,7 +125,7 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                 PacketListField("tlv_objects", [],
                                    IPv6ExtHdrVlaRoutingTLV
                                    ,length_from=lambda pkt: 8 * pkt.len - ((2 * (
-                                       pkt.number_of_levels + pkt.number_of_source_levels)) - 1)
+                                       pkt.number_of_levels + pkt.number_of_source_levels)))
                                        )
                             
     ]
