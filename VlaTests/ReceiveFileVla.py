@@ -10,9 +10,9 @@ def custom_packet_filter(packet):
     if Ether not in packet:
         return False
     # Specify the desired destination MAC address
+    print(packet)
     if IPv6 in packet and packet[IPv6].nh == 48:
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
-        #print("ip payload is ", ipPayload)
         if(UDP in ipPayload):
             destination_port = ipPayload[UDP].dport
             if(destination_port == Utils.VLA_FILE_TRANSFER_D_PORT):
