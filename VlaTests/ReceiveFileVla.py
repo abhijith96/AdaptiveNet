@@ -29,11 +29,11 @@ def custom_packet_filter(packet):
     # Specify the desired destination MAC address
     #print(packet)
     if IPv6 in packet and packet[IPv6].nh == 48:
-        print(packet.show())
+        #print(packet.show())
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
-        print(ipPayload)
+       # print(ipPayload)
         if(UDP in ipPayload):
-            print("udp check")
+            #print("udp check")
             destination_port = ipPayload[UDP].dport
             if(destination_port == Utils.VLA_FILE_TRANSFER_D_PORT):
                 return True
