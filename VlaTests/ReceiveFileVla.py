@@ -46,7 +46,7 @@ def receive_file(output_file_path, listening_port):
     file_size = count_bytes_in_file(Utils.FILE_TRANSFER_SEND_FILE)
     count = 0
     if(file_size):
-        count = math.ceil(file_size/1024.0)
+        count = int(math.ceil(file_size/1024.0))
     print("count is ", count)
     ifaceStatus, iface = NRUtils.getDefaultInterface()
     if(not ifaceStatus):

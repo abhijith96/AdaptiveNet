@@ -104,7 +104,6 @@ if __name__ == "__main__":
     try:
         targetHostId = getCommandLineArguments()
         file_path = Utils.FILE_TRANSFER_SEND_FILE
-        createFile(file_path, file_size_mb=10)
         delete_file(Utils.FILE_TRANSFER_RECEIVE_FILE)
         send_file(targetHostId, file_path)
     except CommandLineArgumentExeception as e:
