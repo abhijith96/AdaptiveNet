@@ -41,8 +41,7 @@ def delete_file(file_path):
 def getCommandLineArguments():
     try:
         targetHost = sys.argv[1]
-        filePath = sys.argv[2]
-        return targetHost, filePath
+        return targetHost
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
 
