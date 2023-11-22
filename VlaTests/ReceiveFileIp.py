@@ -31,7 +31,7 @@ def custom_packet_filter(packet):
     if IPv6 in packet and packet[IPv6].nh == 17:
         print(packet.show())
         ipPayload = UDP(packet[IPv6].payload)
-        #print(ipPayload)
+        print(ipPayload)
      
        
         destination_port = packet[UDP].dport
@@ -57,7 +57,7 @@ def receive_file(output_file_path, listening_port):
     endTime = time.time()
     print("End Time is ", get_time_in_milliseconds(endTime))
     for packet in packets:
-        rawData = UDP(packet[Raw].load)
+        rawData = packet[Raw].load
         file_data += rawData
 
     with open(output_file_path, 'wb') as output_file:
