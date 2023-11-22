@@ -23,6 +23,7 @@ def createFile(filePath, file_size_mb):
 def getCommandLineArguments():
     try:
         fileSizeInMB = int(sys.argv[1])
+        return fileSizeInMB
     except Exception():
         raise CommandLineArgumentExeception("Pass Comandline Arguments Properly") 
     
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     try:
         file_path = Utils.FILE_TRANSFER_SEND_FILE
         file_size_mb = getCommandLineArguments()
-        createFile(file_path, file_size_mb=10)
+        createFile(file_path, file_size_mb)
         delete_file(Utils.FILE_TRANSFER_RECEIVE_FILE)
         print("file {} with size {} MB created successfully".format(file_path, str(file_size_mb)))
     except CommandLineArgumentExeception as e:
