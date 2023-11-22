@@ -30,7 +30,7 @@ def getInterfaceToListenOn():
         raise Exception("Pass Interface name to listen on as command line argument")
 def main():
    interface = getInterfaceToListenOn()
-   sniff(filter="ip6", prn=print_packet, iface=interface)
+   sniff(filter="ip6", prn=print_packet, iface=interface, verbose=False)
 
 if __name__ == "__main__":
     main()

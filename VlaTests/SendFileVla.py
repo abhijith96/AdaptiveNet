@@ -89,7 +89,7 @@ def send_file(targetHostId, file_path):
                                                 udp_dport= Utils.VLA_FILE_TRANSFER_D_PORT, data_payload=file_data[i:i+1024]) for i in range(0, len(file_data), 1024)]
             startTime = time.time()
             for packet in packets:
-                sendp(packet, iface=iface)
+                sendp(packet, iface=iface, verbose=False)
             endTime =  time.time()
             totalTime = endTime - startTime
             print("total time is ", get_time_in_milliseconds(totalTime))
