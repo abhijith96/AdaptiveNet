@@ -23,7 +23,7 @@ def custom_packet_filter(packet):
     return False
 
 def receive_file(output_file_path, listening_port):
-    packets = sniff(filter='udp and port {listening_port}'.format(listening_port), count=0, iface=NRUtils.getDefaultInterface())
+    packets = sniff(filter='udp and port {}'.format(listening_port), count=0, iface=NRUtils.getDefaultInterface())
     file_data = b""
     for packet in packets:
         file_data += packet[Raw].load
