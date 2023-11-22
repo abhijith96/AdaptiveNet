@@ -14,8 +14,9 @@ def custom_packet_filter(packet):
     if IPv6 in packet and packet[IPv6].nh == 48:
         print(packet.show())
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
-        print(ipPayload.show())
+        print(ipPayload)
         if(UDP in ipPayload):
+            print("udp check")
             destination_port = ipPayload[UDP].dport
             if(destination_port == Utils.VLA_FILE_TRANSFER_D_PORT):
                 return True
@@ -32,7 +33,7 @@ def receive_file(output_file_path, listening_port):
     file_data = b""
     print(packets)
     for packet in packets:
-        file_data += packet[Raw].load
+        file_data += IPv6ExtHdrVLA(packet[Raw].load)[Raw].load()
 
     with open(output_file_path, 'wb') as output_file:
         output_file.write(file_data)
