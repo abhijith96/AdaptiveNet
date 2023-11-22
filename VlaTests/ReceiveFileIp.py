@@ -29,14 +29,11 @@ def custom_packet_filter(packet):
     # Specify the desired destination MAC address
     #print(packet)
     if IPv6 in packet and packet[IPv6].nh == 17:
-        print(packet.show())
         ipPayload = UDP(packet[IPv6].payload)
-        print(ipPayload)
-     
-       
+        #print(ipPayload)
         destination_port = packet[UDP].dport
         if(destination_port == Utils.IP_FILE_TRANSFER_D_PORT):
-            print("udp check")
+            #print("udp check")
             return True
 
 
@@ -57,6 +54,7 @@ def receive_file(output_file_path, listening_port):
     endTime = time.time()
     print("End Time is ", get_time_in_milliseconds(endTime))
     for packet in packets:
+        ipPayload = UDP(packet[IPv6].payload)
         rawData = packet[Raw].load
         file_data += rawData
 
