@@ -100,8 +100,8 @@ def send_file(targetHostId,targetHostIp):
         iface, ethSrc, ethDst, vlaSrcList, vlaDstList, hostIpAddress = addressTuple
         with open(file_path, 'rb') as file:
             file_data = file.read()
-            packets = [Utils.createIpUdpFilePacket(gateway_eth=ethDst, ethsrc=ethSrc,ip_src=hostIpAddress, ip_dst=targetHostIp, udp_sport=Utils.VLA_FILE_TRANSFER_S_PORT,
-                                                udp_dport= Utils.VLA_FILE_TRANSFER_D_PORT, dataPayload=file_data[i:i+1024]) for i in range(0, len(file_data), 1024)]
+            packets = [Utils.createIpUdpFilePacket(gateway_eth=ethDst, ethsrc=ethSrc,ip_src=hostIpAddress, ip_dst=targetHostIp, udp_sport=Utils.IP_FILE_TRANSFER_S_PORT,
+                                                udp_dport= Utils.IP_FILE_TRANSFER_D_PORT, dataPayload=file_data[i:i+1024]) for i in range(0, len(file_data), 1024)]
             print("packet count ", len(packets))
             startTime = time.time()
             for packet in packets:
