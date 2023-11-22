@@ -14,6 +14,12 @@ IP_PING_D_PORT = 40001
 VLA_FILE_TRANSFER_S_PORT = 42000
 VLA_FILE_TRANSFER_D_PORT = 42001
 
+IP_FILE_TRANSFER_S_PORT = 43000
+IP_FILE_TRANSFER_D_PORT = 43001
+
+FILE_TRANSFER_SEND_FILE = "sample-file.txt"
+FILE_TRANSFER_RECEIVE_FILE = "output-file.txt"
+
 
 
 def createIPPacketforVla(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = VLA_PING_S_PORT, udp_dport = VLA_PING_D_PORT):
@@ -128,6 +134,10 @@ def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = IP_PING_
     msg = "Ping Hello"
     #pkt = Ether(src=ethsrc, dst=gateway_eth)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
     pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
+    return pkt
+
+def createIpUdpFilePacket(ethsrc, gateway_eth, ip_src, ip_dst, dataPayload, udp_sport = IP_FILE_TRANSFER_S_PORT, udp_dport = IP_FILE_TRANSFER_D_PORT):
+    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=dataPayload)
     return pkt
 
 def createIpPingReplyPacket(requestPacket, replyMsg):
