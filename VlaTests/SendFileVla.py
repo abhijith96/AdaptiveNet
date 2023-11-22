@@ -77,10 +77,10 @@ def send_file(targetHostId, file_path):
             packets = [Utils.createIPPacketforVla(eth_dst=ethDst, eth_src=ethSrc,ipv6_src="::2", ipv6_dst="::3", vlaSrc=vlaSrcList,
                                                 vlaDst = vlaDstList, vlaCurrentLevel= len(vlaSrcList) - 1, udp_sport=Utils.VLA_FILE_TRANSFER_S_PORT,
                                                 udp_dport= Utils.VLA_FILE_TRANSFER_D_PORT, data_payload=file_data[i:i+1024]) for i in range(0, len(file_data), 1024)]
-            startTime = time.perf_counter()
+            startTime = time.time()
             for packet in packets:
                 sendp(packet, iface=iface)
-            endTime =  time.perf_counter()
+            endTime =  time.time()
             totalTime = endTime - startTime
             print("total time is ", get_time_in_milliseconds(totalTime))
             print("start time is ", get_time_in_milliseconds(startTime))

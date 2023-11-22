@@ -53,7 +53,7 @@ def receive_file(output_file_path, listening_port):
         return
     packets = sniff(lfilter=custom_packet_filter, count=count, iface=iface)
     file_data = b""
-    endTime = time.perf_counter()
+    endTime = time.time()
     print("End Time is ", get_time_in_milliseconds(endTime))
     for packet in packets:
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
