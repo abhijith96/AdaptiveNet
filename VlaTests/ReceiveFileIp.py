@@ -34,7 +34,7 @@ def custom_packet_filter(packet):
         #print(ipPayload)
      
        
-        destination_port = ipPayload.dport
+        destination_port = packet[UDP].dport
         if(destination_port == Utils.IP_FILE_TRANSFER_D_PORT):
             print("udp check")
             return True
