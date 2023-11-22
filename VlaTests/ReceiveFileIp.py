@@ -31,11 +31,12 @@ def custom_packet_filter(packet):
     if IPv6 in packet and packet[IPv6].nh == 17:
         #print(packet.show())
         ipPayload = UDP(packet[IPv6].payload)
-        print(ipPayload)
+        #print(ipPayload)
      
-            #print("udp check")
-        destination_port = ipPayload[UDP].dport
+       
+        destination_port = ipPayload.dport
         if(destination_port == Utils.IP_FILE_TRANSFER_D_PORT):
+            print("udp check")
             return True
 
 
