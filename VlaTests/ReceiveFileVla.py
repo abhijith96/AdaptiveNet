@@ -14,6 +14,7 @@ def custom_packet_filter(packet):
     if IPv6 in packet and packet[IPv6].nh == 48:
         print(packet.show())
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+        print(ipPayload.show())
         if(UDP in ipPayload):
             destination_port = ipPayload[UDP].dport
             if(destination_port == Utils.VLA_FILE_TRANSFER_D_PORT):
