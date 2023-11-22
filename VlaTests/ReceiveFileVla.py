@@ -26,7 +26,7 @@ def receive_file(output_file_path, listening_port):
     ifaceStatus, iface = NRUtils.getDefaultInterface()
     if(not ifaceStatus):
         return
-    packets = sniff(filter='udp and port {}'.format(listening_port), count=0, iface=iface)
+    packets = sniff(lfilter=custom_packet_filter, count=0, iface=iface)
     file_data = b""
     print(packets)
     for packet in packets:
