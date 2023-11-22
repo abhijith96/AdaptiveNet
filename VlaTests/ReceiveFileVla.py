@@ -33,7 +33,8 @@ def receive_file(output_file_path, listening_port):
     file_data = b""
     print(packets)
     for packet in packets:
-        file_data += IPv6ExtHdrVLA(packet[Raw].load)[Raw].load()
+        ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
+        file_data += ipPayload[Raw].load
 
     with open(output_file_path, 'wb') as output_file:
         output_file.write(file_data)
