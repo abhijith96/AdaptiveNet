@@ -11,6 +11,9 @@ VLA_PING_D_PORT = 45001
 IP_PING_S_PORT = 40000
 IP_PING_D_PORT = 40001
 
+VLA_FILE_TRANSFER_S_PORT = 42000
+VLA_FILE_TRANSFER_D_PORT = 42001
+
 
 
 def createIPPacketforVla(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaSrc, vlaDst, vlaCurrentLevel, udp_sport = VLA_PING_S_PORT, udp_dport = VLA_PING_D_PORT):
