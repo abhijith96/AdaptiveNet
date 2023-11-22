@@ -30,8 +30,8 @@ def custom_packet_filter(packet):
     #print(packet)
     if IPv6 in packet and packet[IPv6].nh == 17:
         #print(packet.show())
-        ipPayload = UDP(packet[IPv6].load)
-       # print(ipPayload)
+        ipPayload = UDP(packet[IPv6].payload)
+        print(ipPayload)
      
             #print("udp check")
         destination_port = ipPayload[UDP].dport
