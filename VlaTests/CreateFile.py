@@ -43,6 +43,6 @@ if __name__ == "__main__":
         file_size_mb = getCommandLineArguments()
         createFile(file_path, file_size_mb=10)
         delete_file(Utils.FILE_TRANSFER_RECEIVE_FILE)
-        print("file {} with size {} MB created successfully".format(file_path, str(file_size_mb))
+        print("file {} with size {} MB created successfully".format(file_path, str(file_size_mb)))
     except CommandLineArgumentExeception as e:
         print("pass valid commandline arguments , syntax is  FileName targetHostId filePath")
