@@ -5,6 +5,23 @@ from scapy.layers.inet6 import IPv6, UDP
 import socket
 from scapy.all import *
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
+import os
+import math
+
+def get_time_in_milliseconds(current_time):
+    milliseconds = int((current_time - int(current_time)) * 1000) 
+
+    time_string = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(int(current_time)))
+    time_with_milliseconds = "{}.{:03d}".format(time_string, milliseconds)
+    return time_with_milliseconds
+
+def count_bytes_in_file(file_path):
+    try:
+        file_size = os.path.getsize(file_path)
+        return file_size
+    except OSError as e:
+        print("Error: {}".format(str(e)))
+        return None
 
 def custom_packet_filter(packet):
     if Ether not in packet:
@@ -26,12 +43,18 @@ def custom_packet_filter(packet):
     return False
 
 def receive_file(output_file_path, listening_port):
+    file_size = count_bytes_in_file("sample_file.txt")
+    count = 0
+    if(file_size):
+        count = math.ceil(file_size/1024.0)
+    print("count is ", count)
     ifaceStatus, iface = NRUtils.getDefaultInterface()
     if(not ifaceStatus):
         return
-    packets = sniff(lfilter=custom_packet_filter, count=0, iface=iface)
+    packets = sniff(lfilter=custom_packet_filter, count=count, iface=iface)
     file_data = b""
-    print(packets)
+    endTime = time.perf_counter()
+    print("End Time is ", get_time_in_milliseconds(endTime))
     for packet in packets:
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
         file_data += ipPayload[Raw].load
