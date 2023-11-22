@@ -28,6 +28,7 @@ def receive_file(output_file_path, listening_port):
         return
     packets = sniff(filter='udp and port {}'.format(listening_port), count=0, iface=iface)
     file_data = b""
+    print(packets)
     for packet in packets:
         file_data += packet[Raw].load
 
