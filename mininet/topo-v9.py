@@ -22,6 +22,7 @@ from mininet.log import setLogLevel
 from mininet.net import Mininet
 from mininet.node import Host
 from mininet.topo import Topo
+from mininet.link import TCLink
 from stratum import StratumBmv2Switch
 import mininetUtil
 
@@ -136,7 +137,7 @@ class TutorialTopo(Topo):
         
 
 def main():
-    net = Mininet(topo=TutorialTopo(), controller=None)
+    net = Mininet(link=TCLink(), topo=TutorialTopo(), controller=None)
     net.start()
     hostInfo = mininetUtil.get_hosts_info(net)
     csvFilePath = "/home/hostMacs.csv"

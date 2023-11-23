@@ -8,6 +8,10 @@ LINK_BANDWIDTH = 50
 LINK_DELAY = "100us"
 LINK_MAX_QUEUE_SIZE = 1000
 
+#LINK_OPTS = dict(bw=10, delay='5ms', loss=10, max_queue_size=1000, use_htb=True)
+
+LINK_OPTS = dict(bw=10, delay='5ms', loss=0, max_queue_size=1000, use_htb=True)
+
 def get_word_after_inet6(input_string):
     # Define the pattern using regular expression
     pattern = r'\binet6\s+([\da-fA-F:]+/\d+)\b'
