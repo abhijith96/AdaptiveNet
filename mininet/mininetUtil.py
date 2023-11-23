@@ -4,7 +4,9 @@ from ipaddress import ip_address
 import re
 
 
-LINK_BANDWIDTH = 500000000
+LINK_BANDWIDTH = 50
+LINK_DELAY = "100us"
+LINK_MAX_QUEUE_SIZE = 1000
 
 def get_word_after_inet6(input_string):
     # Define the pattern using regular expression
