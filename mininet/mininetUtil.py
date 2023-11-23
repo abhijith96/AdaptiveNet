@@ -3,6 +3,9 @@ from ipaddress import ip_address
 
 import re
 
+
+LINK_BANDWIDTH = 500000000
+
 def get_word_after_inet6(input_string):
     # Define the pattern using regular expression
     pattern = r'\binet6\s+([\da-fA-F:]+/\d+)\b'
