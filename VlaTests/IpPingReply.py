@@ -13,10 +13,10 @@ def custom_packet_filter(packet):
     global macAddress
     if(packet[Ether].dst == macAddress):
         if IPv6 in packet:
-            print(packet.show())
+            #print(packet.show())
             if(UDP in packet):
                 destination_port = packet[UDP].dport
-                if(destination_port == 40001):
+                if(destination_port == IP_PING_D_PORT):
                     return True
     return False
 
@@ -41,7 +41,7 @@ def pingListener(interfaceName):
     print(macAddress)
     # sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
     filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
-    sniff(prn=process_udp_packet, filter = filter_expression)
+    sniff(prn=process_udp_packet, lfilter = custom_packet_filter)
     return None
 
 def main():
