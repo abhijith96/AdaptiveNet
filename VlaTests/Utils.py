@@ -98,9 +98,9 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
 #     return pkt
 
 def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel, data_payload = None):
-    ip_src = "::1"
+    ip_src = "::2"
     # ip_dst = "::2"
-    ip_dst = "2002::2"
+    ip_dst = "::2"
     pkt = createIPPacketforVla(ethDst, ethSrc, ip_src, ip_dst, data_payload, srcVlaAddrList, dstVlaAddrList, vlaCurrentLevel)
     #pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
