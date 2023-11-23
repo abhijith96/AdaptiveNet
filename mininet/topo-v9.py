@@ -137,7 +137,7 @@ class TutorialTopo(Topo):
         
 
 def main():
-    net = Mininet(Link=TCLink(), topo=TutorialTopo(), controller=None)
+    net = Mininet(Link=TCLink, topo=TutorialTopo(), controller=None)
     net.start()
     hostInfo = mininetUtil.get_hosts_info(net)
     csvFilePath = "/home/hostMacs.csv"
