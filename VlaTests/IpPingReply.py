@@ -12,7 +12,7 @@ def custom_packet_filter(packet):
         return False
     if IPv6 in packet:
         if(UDP in packet):
-            print(packet.show())
+            # print(packet.show())
             if(packet[UDP].dport == IP_PING_D_PORT):
                 return True
     return False
@@ -21,10 +21,10 @@ def custom_packet_filter(packet):
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
         reply = "Ping Reply"
-        print("received packet is ", packet)
         modified_packet = createIpPingReplyPacket(packet, reply)
-        print("modified packet is ", modified_packet)
         reply = send(modified_packet, iface=interface)  
+        print("received packet is ", packet)
+        print("modified packet is ", modified_packet)
     else:
         print("UnRecognized packet")
 
