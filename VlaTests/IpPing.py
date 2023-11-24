@@ -111,7 +111,7 @@ def ip_ping(targetHostId, targetIp):
     start_time = time.time()
 
     #reply = sr(packet,iface=defaultInterface)
-    answered, unanswered = sr(packet, timeout=2, retry=0, count=1, verbose=True, iface = defaultInterface)
+    answered, unanswered = sr(packet, timeout=2, retry=0, verbose=True, iface = defaultInterface)
     
     end_time = time.time()
 
