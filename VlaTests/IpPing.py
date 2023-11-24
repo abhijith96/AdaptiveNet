@@ -107,7 +107,7 @@ def pingHandler(targetHostId, targetIp):
     pingStatus, rttAverage = doIpPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostIpAddress, targetIp, count=count)
     if(pingStatus):
         replyMessage = "Sucess"
-        print("Ping sucessfully don  {} ".format(int(count)))
+        print("Ping sucessfully done {} ".format(int(count)))
         print("IpRoundTripTimeis  {:.3f}".format(rttAverage*1000))
         return (True, replyMessage, rttAverage)
     else:
@@ -127,10 +127,13 @@ def doIpPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostIpAddress, t
         elif IPv6 in reply:
             replyMessage = "Ping partial failure, Scapy Issue "
             return False,None
+        else:
+            replyMessage = "Ping Failed No Reply"
+            return False,None
         end_time = time.time()
         rtt = end_time - start_time
         rttValues.append(rtt)
-    average = sum(rttValues) / len(rttValues)
+    average = sum(rttValues) / count
     return True,average
     
 
