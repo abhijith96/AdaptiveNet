@@ -80,7 +80,7 @@ def vla_ping(targetHostId):
     if reply:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
-                #print("reply packet is ", reply)
+                print("reply packet is ", reply)
                 ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                 if ipPayload[UDP] and ipPayload[UDP].sport == VLA_PING_D_PORT:
                     replyMessage = "Ping  successful! " + ipPayload[Raw].load
