@@ -151,6 +151,6 @@ def createIpPingReplyPacket(requestPacket, replyMsg):
     udp_dport = requestPacket[UDP].sport
 
     #pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
-    pkt = IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
+    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
     return pkt
 

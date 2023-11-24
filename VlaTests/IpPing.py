@@ -1,6 +1,6 @@
 from ipaddress import ip_address
 from optparse import TitledHelpFormatter
-from scapy.all import sr1, srp1, srp, Raw, sendp
+from scapy.all import sr1, srp1, srp, Raw, sendp, sr
 from scapy.utils6 import *
 import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
