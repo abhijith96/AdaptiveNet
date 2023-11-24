@@ -22,7 +22,7 @@ def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
         replyMessage = "Ping Reply"
         modified_packet = createIpPingReplyPacket(packet, replyMessage)
-        send(modified_packet, iface=getDefaultInterface()[1], count = 1)  
+        send(modified_packet, iface=getDefaultInterface()[1])  
         print("received packet is ", packet)
         print("modified packet is ", modified_packet)
     else:
