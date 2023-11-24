@@ -137,7 +137,7 @@ def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = IP_PING_
     return pkt
 
 def createIpUdpFilePacket(ethsrc, gateway_eth, ip_src, ip_dst, dataPayload, udp_sport = IP_FILE_TRANSFER_S_PORT, udp_dport = IP_FILE_TRANSFER_D_PORT):
-    pkt = IPv6(dst = ip_dst)/ICMPv6EchoRequest()
+    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=dataPayload)
     return pkt
 
 def createIpPingReplyPacket(requestPacket, replyMsg):

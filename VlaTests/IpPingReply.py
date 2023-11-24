@@ -36,7 +36,7 @@ def pingListener(interfaceName):
     macAddress = getDefaultMacAddress()
     print(macAddress)
     # sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
-    filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
+    #filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
     sniff(prn=process_udp_packet, lfilter = custom_packet_filter)
     return None
 
