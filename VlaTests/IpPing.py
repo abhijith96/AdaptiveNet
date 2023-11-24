@@ -1,5 +1,6 @@
 from ipaddress import ip_address
 from optparse import TitledHelpFormatter
+from tabnanny import verbose
 from scapy.all import sr1, srp1, srp, Raw, sendp, sr
 from scapy.utils6 import *
 import sys
@@ -111,7 +112,7 @@ def ip_ping(targetHostId, targetIp):
     start_time = time.time()
 
     #reply = sr(packet,iface=defaultInterface)
-    reply = srp1(packet, timeout=20, iface = defaultInterface)
+    reply = srp1(packet, timeout=20, iface = defaultInterface, verbose=False)
     
     end_time = time.time()
 
@@ -121,13 +122,13 @@ def ip_ping(targetHostId, targetIp):
     # Check if a response was received
    
     if reply:
-        print("reply is ", reply)
-        if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
+        #print("reply is ", reply)
+        # if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
+        #     replyMessage = "Ping  successful! " + reply[Raw].load
+        #     rtt = end_time - start_time
+        #     return (True,replyMessage, rtt)
+        if ICMPv6EchoReply in reply:
             replyMessage = "Ping  successful! " + reply[Raw].load
-            rtt = end_time - start_time
-            return (True,replyMessage, rtt)
-        elif ICMPv6EchoReply in reply:
-            replyMessage = "Ping  successful! "
             rtt = end_time - start_time
             return (True,replyMessage, rtt)
         elif IPv6 in reply:
@@ -139,8 +140,8 @@ def ip_ping(targetHostId, targetIp):
 
     
 def main():
-    targetHost = "h2"
-    targetIp = "2001:1:2::1"
+    targetHost =""
+    targetIp = ""
     try:
         targetHost, targetIp = getCommandLineArguments()
     except Exception as e:

@@ -1,3 +1,4 @@
+from tabnanny import verbose
 from scapy.all import sr1,sendp, sniff, send, Raw, srp1
 from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
@@ -22,9 +23,9 @@ def process_udp_packet(packet):
         replyMessage = "Ping Reply"
         global interface
         modified_packet = createIpPingReplyPacket(packet, replyMessage)
-        sendp(modified_packet, iface=interface)  
-        print("received packet is ", packet)
-        print("modified packet is ", modified_packet)
+        sendp(modified_packet, iface=interface, verbose=False)  
+        # print("received packet is ", packet)
+        # print("modified packet is ", modified_packet)
     # else:
     #     print("UnRecognized packet")
 
