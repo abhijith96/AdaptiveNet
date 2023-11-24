@@ -136,7 +136,7 @@ def CreateVlaPingReplyPacket(vlaPacket):
     paddlistContent = list(range(padlen))
     modified_packet =  Ether(src=ethSource, dst=ethDst)/IPv6(nh = 48, src=source_ip, dst=dest_ip)/IPv6ExtHdrVLA(nh=17, 
         addresses=dest_vla, source_addresses = source_vla,address_type=0b01, current_level = reply_current_level, number_of_levels=vla_dst_len,
-        number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list= paddlistContent)/UDP(sport = VLA_PING_D_PORT, dport = VLA_FILE_TRANSFER_S_PORT)
+        number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list= paddlistContent)/UDP(sport = VLA_PING_D_PORT, dport = VLA_PING_D_PORT)
     return modified_packet
 
 

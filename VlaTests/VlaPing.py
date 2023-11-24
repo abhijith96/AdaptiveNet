@@ -77,6 +77,7 @@ def vla_ping(targetHostId):
 
     # Check if a response was received
    
+    print(reply)
     if reply:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
