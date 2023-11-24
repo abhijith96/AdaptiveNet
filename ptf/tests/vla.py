@@ -100,7 +100,7 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
         nh=pkt[IPv6].nh,
         addresses=sid_list,
         source_addresses = source_vla_list,
-        len =  (2*(vla_dst_len + vla_src_len)) + padlen,
+        len =  ((2*(vla_dst_len + vla_src_len)) + padlen)//8,
         address_type = 0b01,
         current_level = current_level_param,
         number_of_levels= vla_dst_len,
