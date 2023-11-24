@@ -77,6 +77,63 @@ def getCommandLineArguments():
         return targetHost, targetPid
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
+    
+def pingHandler(targetHostId, targetIp):
+    # Create an VLA IP packet with an UDP Ping
+    replyMessage = ""
+    ifaceStatus, defaultInterface = getDefaultInterface()
+    if(not ifaceStatus):
+        replyMessage = "No network interfaces found for device"
+        return (False, replyMessage, None)
+    ethSrcStatus, ethSrc= getDefaultMacAddress()
+    if(not ethSrcStatus):
+        replyMessage = "mac address not found for current device"
+        return (False, replyMessage, None)
+    hostIpStatus, hostIpAddress =getIPAddress(defaultInterface)
+    if(not hostIpStatus):
+        replyMessage = "ip address for current Device Not found"
+        return (False, replyMessage, None)
+
+  
+    targetIPAddress = targetIp
+        #return (False, replyMessage, None)
+    
+    gatewayMacStatus, gatewayMac = getGatewayMacAddress(defaultInterface, targetIPAddress, ethSrc, hostIpAddress)
+    
+    if(not gatewayMacStatus):
+        replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
+        return (False, replyMessage, None)
+    count = 5
+    pingStatus, rttAverage = doIpPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostIpAddress, targetIp, count=count)
+    if(pingStatus):
+        replyMessage = "Sucess"
+        print("Ping sucessfully don  {} ".format(int(count)))
+        print("IpRoundTripTimeis  {:.3f}".format(rttAverage*1000))
+        return (True, replyMessage, rttAverage)
+    else:
+        print("Ping Failed")
+        replyMessage = "Ping Failed"
+    return (False, replyMessage, None)
+
+    
+def doIpPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostIpAddress, targetIPAddress, count):
+    rttValues = []
+    packet = createIpPingPacket(ethSrc, gatewayMac, hostIpAddress, targetIPAddress)
+    for _ in range(0, count):
+        start_time = time.time()
+        reply = srp1(packet, timeout=20, iface = defaultInterface, verbose=False)
+        if ICMPv6EchoReply in reply:
+            replyMessage = "Ping  successful!"
+        elif IPv6 in reply:
+            replyMessage = "Ping partial failure, Scapy Issue "
+            return False,None
+        end_time = time.time()
+        rtt = end_time - start_time
+        rttValues.append(rtt)
+    average = sum(rttValues) / len(rttValues)
+    return True,average
+    
+
 
 def ip_ping(targetHostId, targetIp):
     # Create an VLA IP packet with an UDP Ping
@@ -146,12 +203,10 @@ def main():
         targetHost, targetIp = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
-    (pingStatus,replyMessage, rtt) = ip_ping(targetHost, targetIp)
-    print(replyMessage)
-    if(pingStatus):
-        print("IpRoundTripTimeis  {:.3f}".format(rtt*1000))
-    else:
-        print("ping time not found")
+    pingStatus, replyMessage, rttAverage = pingHandler(targetHost, targetIp)
+    if(not pingStatus): 
+        print(replyMessage)
+  
 
 if __name__ == "__main__":
     main()
