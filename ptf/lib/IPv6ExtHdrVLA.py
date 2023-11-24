@@ -124,18 +124,13 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
                 FieldListField("source_addresses", [], ShortField("", 0), 
                                  count_from=lambda pkt: (pkt.number_of_source_levels), length_from=lambda pkt: pkt.number_of_source_levels * 2),
                 FieldListField("pad_list", [], ByteField("", 0), 
-                                 count_from=lambda pkt:  8 - ((pkt.number_of_source_levels + pkt.number_of_levels)%8))
+                                 count_from=lambda pkt:  (pkt.pkt.pad_list_length), length_from=lambda pkt: pkt.pad_list_length)
               
                             
     ]
 
     overload_fields = {IPv6: {"nh": 48}}
     def post_build(self, pkt, pay):
-        if self.len is None:
-            # The extension must be align on 8 bytes
-            tmp_len = len(pkt)//8
-            pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
-
         if self.number_of_levels is None:
             tmp_len = len(self.addresses)
             if tmp_len:
@@ -153,7 +148,15 @@ class IPv6ExtHdrVLA(_IPv6ExtHdr):
             pkt = pkt[:3] + struct.pack("B", current_level) + pkt[4:]
         
         if self.pad_list_length is None:
-            pad_list_len = 8 - ((self.number_of_source_levels + self.number_of_levels)%8)
-            pkt = pkt[:7] + struct.pack("B", pad_list_len) + pkt[8:]
+            pad_list_len = 8 - ((2*(self.number_of_source_levels + self.number_of_levels))%8)
+            pkt = pkt[:7] + struct.pack("H", pad_list_len) + pkt[8:]
+            pad_list_filler = b"\x00" * pad_list_len
+            if(pad_list_len > 0):
+                pkt += raw(pad_list_filler)
+        if self.len is None:
+            # The extension must be align on 8 bytes
+           tmp_len = len(pkt)//8
+           pkt = pkt[:1] + struct.pack("B", tmp_len) + pkt[2:]
+
 
         return _IPv6ExtHdr.post_build(self, pkt, pay)

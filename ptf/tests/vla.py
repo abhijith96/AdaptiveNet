@@ -52,7 +52,7 @@ sys.maxint = 1 << 167
 VLA_MAX_LEVEL_LIMIT = 10
 VLA_LEVEL_ADDRESS_SIZE = 16
 
-print("import paths", sys.path)
+
 
 
 def create_vla_current_address_entry(address_list, max_level_limit, level_size):
@@ -72,32 +72,40 @@ def create_vla_current_address_entry(address_list, max_level_limit, level_size):
 def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
     """Applies SRv6 insert transformation to the given packet.
     """
+
+    ethSrc = pkt[Ether].src
+    ethDst = pkt[Ether].dst
+
+    IpPayload = pkt[IPv6].payload
+
+
+    packet = Ether(src=ethSrc, dst = ethDst)/IPv6(src="::2", dst="::2")/IPv6ExtHdrVLA(nh = pkt[IPv6].nh,
+            addresses = sid_list, source_addresses = source_vla_list, address_type = 0b01, current_level = current_level_param,
+            number_of_levels = len(sid_list), number_of_source_levels = len(source_vla_list))/IpPayload
+    
+    return packet
     # Set IPv6 dst to some valid IPV6 Address
-    pkt[IPv6].dst = HOST2_IPV6
-    # Insert VLA header between IPv6 header and payload
-    sid_len = len(sid_list)
-    source_vla_list_len = len(source_vla_list)
-    vla_hdr = IPv6ExtHdrVLA(
-        nh=pkt[IPv6].nh,
-        addresses=sid_list,
-        source_addresses = source_vla_list,
-        # len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
-        len = None,
-        address_type = 0b01,
-        current_level = current_level_param,
-        number_of_levels= sid_len,
-        number_of_source_levels = source_vla_list_len
-        )
-    pkt[IPv6].nh = 48  # next IPv6 header is VLA header
-    pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
-    return pkt
+    # pkt[IPv6].dst = HOST2_IPV6
+    # # Insert VLA header between IPv6 header and payload
+    # sid_len = len(sid_list)
+    # source_vla_list_len = len(source_vla_list)
+    # vla_hdr = IPv6ExtHdrVLA(
+    #     nh=pkt[IPv6].nh,
+    #     addresses=sid_list,
+    #     source_addresses = source_vla_list,
+    #     # len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
+    #     len = None,
+    #     address_type = 0b01,
+    #     current_level = current_level_param,
+    #     number_of_levels= sid_len,
+    #     number_of_source_levels = source_vla_list_len
+    #     )
+    # pkt[IPv6].nh = 48  # next IPv6 header is VLA header
+    # pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
+    # return pkt
 
 
-def pop_srv6_header(pkt):
-    """Removes SRv6 header from the given packet.
-    """
-    pkt[IPv6].nh = pkt[IPv6ExtHdrVLA].nh
-    pkt[IPv6].payload = pkt[IPv6ExtHdrVLA].payload
+
 
 
 def set_cksum(pkt, cksum):
@@ -266,7 +274,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         # Route and decrement TTL
         pkt_route(exp_pkt, next_hop_mac)
 
-        exp_pkt[IPv6ExtHdrVLA].current_level = 2;
+        exp_pkt[IPv6ExtHdrVLA].current_level = 2
         #pkt_decrement_ttl(exp_pkt)
 
         # Bonus: update P4 program to calculate correct checksum
