@@ -1,5 +1,5 @@
 from scapy.all import sr1,sendp, sniff, send, Raw, srp1
-from scapy.layers.inet6 import UDP, IPv6
+from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
 from Utils import createIpPingReplyPacket, IP_PING_D_PORT
 from NRUtils import getDefaultInterface, getDefaultMacAddress
@@ -11,22 +11,21 @@ def custom_packet_filter(packet):
     if Ether not in packet:
         return False
     if IPv6 in packet:
-        if(UDP in packet):
+        if(ICMPv6EchoRequest in packet):
             # print(packet.show())
-            if(packet[UDP].dport == IP_PING_D_PORT):
-                return True
+            return True
     return False
 
 
 def process_udp_packet(packet):
-    if IPv6 in packet and UDP in packet:
+    # if IPv6 in packet and I in packet:
         replyMessage = "Ping Reply"
         modified_packet = createIpPingReplyPacket(packet, replyMessage)
         send(modified_packet, iface=getDefaultInterface()[1])  
         print("received packet is ", packet)
         print("modified packet is ", modified_packet)
-    else:
-        print("UnRecognized packet")
+    # else:
+    #     print("UnRecognized packet")
 
 
 

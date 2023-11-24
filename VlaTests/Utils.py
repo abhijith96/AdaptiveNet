@@ -1,5 +1,5 @@
 from scapy.all import  Raw
-from scapy.layers.inet6 import UDP, IPv6
+from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest, ICMPv6EchoReply
 from scapy.layers.l2 import Ether
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import conf
@@ -137,7 +137,7 @@ def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = IP_PING_
     return pkt
 
 def createIpUdpFilePacket(ethsrc, gateway_eth, ip_src, ip_dst, dataPayload, udp_sport = IP_FILE_TRANSFER_S_PORT, udp_dport = IP_FILE_TRANSFER_D_PORT):
-    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=dataPayload)
+    pkt = IPv6(dst = ip_dst)/ICMPv6EchoRequest()
     return pkt
 
 def createIpPingReplyPacket(requestPacket, replyMsg):
@@ -151,6 +151,6 @@ def createIpPingReplyPacket(requestPacket, replyMsg):
     udp_dport = requestPacket[UDP].sport
 
     #pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
-    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=replyMsg)
+    pkt = IPv6(dst = ip_dst)/ICMPv6EchoReply()
     return pkt
 

@@ -111,7 +111,7 @@ def ip_ping(targetHostId, targetIp):
     start_time = time.time()
 
     #reply = sr(packet,iface=defaultInterface)
-    answered, unanswered = sr(packet, timeout=20, retry=1, verbose=True, iface = defaultInterface)
+    reply = sr1(packet, timeout=20, iface = defaultInterface)
     
     end_time = time.time()
 
@@ -120,8 +120,7 @@ def ip_ping(targetHostId, targetIp):
 
     # Check if a response was received
    
-    if answered:
-        send_packet, reply = answered[0]
+    if reply:
         print("reply is ", reply)
         if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
             replyMessage = "Ping  successful! " + reply[Raw].load
