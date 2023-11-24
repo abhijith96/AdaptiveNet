@@ -63,7 +63,7 @@ def vla_ping(targetHostId):
     #packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
     packet = createVlaPingPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel)
 
-    #print("packet is ", packet)
+    print("packet is ", packet)
 
     # Send the packet and wait for a response
     start_time = time.time()

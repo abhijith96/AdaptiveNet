@@ -111,6 +111,8 @@ def createVlaPingPacket(ethDst, ethSrc, vlaSrc, vlaDst, vlaCurrentLevel):
     vla_dst_len = len(vlaDst)
     vla_src_len = len(vlaSrc)
     padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    if(padlen == 8):
+        padlen = 0
     paddlistContent = list(range(padlen))
     pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(nh = 48, src=ip_src, dst=ip_dst)/IPv6ExtHdrVLA(nh=58, 
         addresses=vlaDst, source_addresses = vlaSrc,address_type=0b01, current_level = vlaCurrentLevel, number_of_levels=vla_dst_len,
@@ -129,6 +131,8 @@ def CreateVlaPingReplyPacket(vlaPacket):
     vla_dst_len = len(dest_vla)
     vla_src_len = len(source_vla)
     padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    if(padlen == 8):
+        padlen = 0
     paddlistContent = list(range(padlen))
     modified_packet =  Ether(src=ethSource, dst=ethDst)/IPv6(nh = 48, src=source_ip, dst=dest_ip)/IPv6ExtHdrVLA(nh=58, 
         addresses=dest_vla, source_addresses = source_vla,address_type=0b01, current_level = reply_current_level, number_of_levels=vla_dst_len,
