@@ -105,6 +105,37 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
     #pkt = insert_vla_header(pkt,dstVlaAddrList, srcVlaAddrList, vlaCurrentLevel)
     return pkt
 
+def createVlaPingPacket(ethDst, ethSrc, vlaSrc, vlaDst, vlaCurrentLevel):
+    ip_src = "::2"
+    ip_dst = "::2"
+    vla_dst_len = len(vlaDst)
+    vla_src_len = len(vlaSrc)
+    padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    paddlistContent = list(range(padlen))
+    pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(nh = 48, src=ip_src, dst=ip_dst)/IPv6ExtHdrVLA(nh=58, 
+        addresses=vlaDst, source_addresses = vlaSrc,address_type=0b01, current_level = vlaCurrentLevel, number_of_levels=vla_dst_len,
+         number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list= paddlistContent)/ICMPv6EchoRequest()
+    return pkt
+
+def CreateVlaPingReplyPacket(vlaPacket):
+    ipPayload = IPv6ExtHdrVLA(vlaPacket[Raw].load)
+    source_ip = vlaPacket[IPv6].dst
+    dest_ip = vlaPacket[IPv6].src
+    source_vla =  ipPayload[IPv6ExtHdrVLA].addresses
+    dest_vla = ipPayload[IPv6ExtHdrVLA].source_addresses
+    reply_current_level =  ipPayload[IPv6ExtHdrVLA].current_level - 1
+    ethSource = vlaPacket[Ether].dst
+    ethDst = vlaPacket[Ether].src
+    vla_dst_len = len(dest_vla)
+    vla_src_len = len(source_vla)
+    padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    paddlistContent = list(range(padlen))
+    modified_packet =  Ether(src=ethSource, dst=ethDst)/IPv6(nh = 48, src=source_ip, dst=dest_ip)/IPv6ExtHdrVLA(nh=58, 
+        addresses=dest_vla, source_addresses = source_vla,address_type=0b01, current_level = reply_current_level, number_of_levels=vla_dst_len,
+        number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list= paddlistContent)/ICMPv6EchoReply()
+    return modified_packet
+
+
 def createVlaReplyPacket(vlaPacket, replyPayload):
     ipPayload = IPv6ExtHdrVLA(vlaPacket[Raw].load)
     if(UDP in ipPayload):
