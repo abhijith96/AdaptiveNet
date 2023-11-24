@@ -78,31 +78,39 @@ def insert_vla_header(pkt, sid_list, source_vla_list, current_level_param):
 
     IpPayload = pkt[IPv6].payload
 
+    vla_dst_len = len(sid_list)
+    vla_src_len = len(source_vla_list)
+    padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    if(padlen == 8):
+        padlen = 0
+    paddlistContent = list(range(padlen))
 
-    packet = Ether(src=ethSrc, dst = ethDst)/IPv6(src="::2", dst="::2")/IPv6ExtHdrVLA(nh = pkt[IPv6].nh,
-            addresses = sid_list, source_addresses = source_vla_list, address_type = 0b01, current_level = current_level_param,
-            number_of_levels = len(sid_list), number_of_source_levels = len(source_vla_list))/IpPayload
+
+    # packet = Ether(src=ethSrc, dst = ethDst)/IPv6(src="::2", dst="::2")/IPv6ExtHdrVLA(nh = pkt[IPv6].nh,
+    #         addresses = sid_list, source_addresses = source_vla_list, address_type = 0b01, current_level = current_level_param,
+    #         number_of_levels = vla_dst_len, number_of_source_levels = vla_src_len, pad_list_length=padlen, pad_list=paddlistContent)/IpPayload
     
-    return packet
+    #return packet
     # Set IPv6 dst to some valid IPV6 Address
     # pkt[IPv6].dst = HOST2_IPV6
     # # Insert VLA header between IPv6 header and payload
     # sid_len = len(sid_list)
     # source_vla_list_len = len(source_vla_list)
-    # vla_hdr = IPv6ExtHdrVLA(
-    #     nh=pkt[IPv6].nh,
-    #     addresses=sid_list,
-    #     source_addresses = source_vla_list,
-    #     # len=(sid_len * 2) + (source_vla_list_len * 2) + 1,
-    #     len = None,
-    #     address_type = 0b01,
-    #     current_level = current_level_param,
-    #     number_of_levels= sid_len,
-    #     number_of_source_levels = source_vla_list_len
-    #     )
-    # pkt[IPv6].nh = 48  # next IPv6 header is VLA header
-    # pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
-    # return pkt
+    vla_hdr = IPv6ExtHdrVLA(
+        nh=pkt[IPv6].nh,
+        addresses=sid_list,
+        source_addresses = source_vla_list,
+        len =  (2*(vla_dst_len + vla_src_len)) + padlen,
+        address_type = 0b01,
+        current_level = current_level_param,
+        number_of_levels= vla_dst_len,
+        number_of_source_levels = vla_src_len,
+        pad_list_length=padlen,
+        pad_list=paddlistContent
+        )
+    pkt[IPv6].nh = 48  # next IPv6 header is VLA header
+    pkt[IPv6].payload = vla_hdr / pkt[IPv6].payload
+    return pkt
 
 
 
@@ -137,7 +145,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
         source_sid_list = [10,3,6,2]
         next_hop_mac = SWITCH2_MAC
         current_level_index = 3
-        current_level_value = 2
+        current_level_value = 4
         next_level_value = 1
         destinationIp = HOST2_IPV6
 
