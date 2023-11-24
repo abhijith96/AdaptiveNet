@@ -37,6 +37,8 @@ def createIPPacketforVla(eth_dst, eth_src,ipv6_src, ipv6_dst, data_payload, vlaS
     vla_dst_len = len(vlaDst)
     vla_src_len = len(vlaSrc)
     padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
+    if(padlen == 8):
+        padlen = 0
     paddlistContent = list(range(padlen))
 
     pkt = Ether(src=eth_src, dst=eth_dst)/IPv6(nh = 48,src=ipv6_src, dst=ipv6_dst)/IPv6ExtHdrVLA(nh=17, 
