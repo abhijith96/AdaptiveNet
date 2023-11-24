@@ -122,7 +122,7 @@ def ip_ping(targetHostId, targetIp):
     # Check if a response was received
    
     if reply:
-        #print("reply is ", reply)
+        print("reply is ", reply)
         # if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
         #     replyMessage = "Ping  successful! " + reply[Raw].load
         #     rtt = end_time - start_time
