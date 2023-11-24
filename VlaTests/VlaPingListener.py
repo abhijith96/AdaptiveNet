@@ -42,14 +42,14 @@ def process_udp_packet(packet):
             modified_packet = createVlaReplyPacket(packet, reply)
             # Send the modified packet back
             sendp(modified_packet, iface=interface)  
-            print("ping found , modified packet is ", modified_packet)
             print("reply send")
         elif (ICMPv6EchoRequest in ipPayload):
             reply = "Ping Reply"
             modified_packet = CreateVlaPingReplyPacket(packet)
             # print("udp found , modified packet is ", modified_packet)
-            # Send the modified packet back
+            # Send the modified packet bac
             sendp(modified_packet, iface=interface)  
+            print("ping found , modified packet is ", modified_packet)
             print("reply send")
     else:
         print (packet.show())
