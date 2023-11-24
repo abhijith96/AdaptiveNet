@@ -128,7 +128,7 @@ def ip_ping(targetHostId, targetIp):
         #     rtt = end_time - start_time
         #     return (True,replyMessage, rtt)
         if ICMPv6EchoReply in reply:
-            replyMessage = "Ping  successful!, reply is  {}".format(reply[Raw].load)
+            replyMessage = "Ping  successful!"
             rtt = end_time - start_time
             return (True,replyMessage, rtt)
         elif IPv6 in reply:
