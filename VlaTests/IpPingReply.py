@@ -22,7 +22,7 @@ def process_udp_packet(packet):
         replyMessage = "Ping Reply"
         global interface
         modified_packet = createIpPingReplyPacket(packet, replyMessage)
-        send(modified_packet, iface=interface)  
+        sendp(modified_packet, iface=interface)  
         print("received packet is ", packet)
         print("modified packet is ", modified_packet)
     # else:
