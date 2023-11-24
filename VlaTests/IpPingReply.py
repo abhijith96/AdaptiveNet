@@ -10,14 +10,13 @@ macAddress = ""
 def custom_packet_filter(packet):
     if Ether not in packet:
         return False
-    global macAddress
-    if(packet[Ether].dst == macAddress):
-        if IPv6 in packet:
-            #print(packet.show())
-            if(UDP in packet):
-                destination_port = packet[UDP].dport
-                if(destination_port == IP_PING_D_PORT):
-                    return True
+    
+    if IPv6 in packet:
+        print(packet.show())
+        if(UDP in packet):
+            destination_port = packet[UDP].dport
+            if(destination_port == IP_PING_D_PORT):
+                return True
     return False
 
 
