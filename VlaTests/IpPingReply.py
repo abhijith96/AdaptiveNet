@@ -20,9 +20,9 @@ def custom_packet_filter(packet):
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
-        reply = "Ping Reply"
-        modified_packet = createIpPingReplyPacket(packet, reply)
-        reply = send(modified_packet, iface=interface)  
+        replyMessage = "Ping Reply"
+        modified_packet = createIpPingReplyPacket(packet, replyMessage)
+        send(modified_packet, iface=interface)  
         print("received packet is ", packet)
         print("modified packet is ", modified_packet)
     else:
