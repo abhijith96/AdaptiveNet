@@ -121,17 +121,17 @@ class TutorialTopo(Topo):
 
 
         h5a = self.addHost('h5a', cls=IPv6Host, mac="00:00:00:00:00:2B",
-                          ipv6='2001:1:4:4:8::a/68', ipv6_gw='2001:1:4:4:8::ff')
+                          ipv6='2001:1:4:4:2::a/68', ipv6_gw='2001:1:4:4:2::ff')
         
         self.addLink(h5a, leaf5, bw=mininetUtil.LINK_BANDWIDTH, delay = mininetUtil.LINK_DELAY, max_queue_size=mininetUtil.LINK_MAX_QUEUE_SIZE)
 
         h6a = self.addHost('h6a', cls=IPv6Host, mac="00:00:00:00:00:2C",
-                          ipv6='2001:1:4:4:4:4::a/70', ipv6_gw='2001:1:4:4:4:4::ff')
+                          ipv6='2001:1:4:4:3:C::a/70', ipv6_gw='2001:1:4:4:3:C::ff')
         
         self.addLink(h6a, leaf6, bw=mininetUtil.LINK_BANDWIDTH, delay = mininetUtil.LINK_DELAY, max_queue_size=mininetUtil.LINK_MAX_QUEUE_SIZE)
 
         h6b = self.addHost('h6b', cls=IPv6Host, mac="00:00:00:00:00:2D",
-                          ipv6='2001:1:4:4:4:4::b/70', ipv6_gw='2001:1:4:4:4:4::ff')
+                          ipv6='2001:1:4:4:3:C::b/70', ipv6_gw='2001:1:4:4:3:C::ff')
         
         self.addLink(h6b, leaf6, bw=mininetUtil.LINK_BANDWIDTH, delay = mininetUtil.LINK_DELAY, max_queue_size=mininetUtil.LINK_MAX_QUEUE_SIZE)
         
