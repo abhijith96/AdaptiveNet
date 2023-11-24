@@ -133,7 +133,8 @@ def getMacAddress():
 def createIpPingPacket(ethsrc, gateway_eth, ip_src, ip_dst, udp_sport = IP_PING_S_PORT, udp_dport = IP_PING_D_PORT):
     msg = "Ping Hello"
     #pkt = Ether(src=ethsrc, dst=gateway_eth)/IPv6(src=ip_src, dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
-    pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
+    #pkt = IPv6(dst = ip_dst)/UDP(sport= udp_sport, dport = udp_dport)/Raw(load=msg)
+    pkt = IPv6(dst = ip_dst)/ICMPv6EchoRequest()
     return pkt
 
 def createIpUdpFilePacket(ethsrc, gateway_eth, ip_src, ip_dst, dataPayload, udp_sport = IP_FILE_TRANSFER_S_PORT, udp_dport = IP_FILE_TRANSFER_D_PORT):
