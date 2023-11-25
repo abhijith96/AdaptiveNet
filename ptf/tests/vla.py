@@ -156,6 +156,7 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
                 new_packet = pkt.copy()
                 new_packet[IPv6].payload = ICMPv6EchoReply()
+                new_packet[IPv6].nh = 58
                 new_packet = insert_vla_header(new_packet, sid_list, source_sid_list, current_level_index)
 
 
