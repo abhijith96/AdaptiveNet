@@ -25,7 +25,7 @@ def DoVlaPingMultipleTimes(defaultInterface, ethSrc, ethDst, hostVla, targetVla,
     vlaCurrentLevel = len(hostVla) - 1
     packet = createVlaPingPacket(ethDst, ethSrc, hostVla, targetVla, vlaCurrentLevel)
 
-    replyMessage = "Ping Sucessful"
+    replyMessage = "Ping Sucessful {} times ".format(count)
 
     rttList = []
     for i in range(0, count):
