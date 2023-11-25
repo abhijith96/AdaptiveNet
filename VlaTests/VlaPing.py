@@ -60,8 +60,8 @@ def vla_ping(targetHostId):
     vlaCurrentLevel = len(hostVlaAddress) - 1
     dataPayload = "Ping Request"
 
-    packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
-    #packet = createVlaPingPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel)
+    #packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
+    packet = createVlaPingPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel)
 
     print("packet is ", packet)
 

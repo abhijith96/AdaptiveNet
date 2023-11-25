@@ -15,13 +15,13 @@ def custom_packet_filter(packet):
     # Specify the desired destination MAC address
     if IPv6 in packet:
         ipPayload = IPv6ExtHdrVLA(packet[Raw].load)
-        # if(ICMPv6EchoRequest in ipPayload):
-        #     return True
-        print("ip payload is ", ipPayload)
-        if(UDP in ipPayload):
-            destination_port = ipPayload[UDP].dport
-            if(destination_port == VLA_PING_D_PORT):
-                return True
+        if(ICMPv6EchoRequest in ipPayload):
+            return True
+        # print("ip payload is ", ipPayload)
+        # if(UDP in ipPayload):
+        #     destination_port = ipPayload[UDP].dport
+        #     if(destination_port == VLA_PING_D_PORT):
+        #         return True
 
 
     # Check if the destination MAC address matches the desired value
