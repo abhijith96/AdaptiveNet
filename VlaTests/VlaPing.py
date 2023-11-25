@@ -116,7 +116,7 @@ def vla_ping(targetHostId):
     #packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
     packet = createVlaPingPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel)
 
-    print("packet is ", packet)
+    #print("packet is ", packet)
 
     # Send the packet and wait for a response
     start_time = time.time()
@@ -134,7 +134,7 @@ def vla_ping(targetHostId):
     if not reply is None:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
-                print("reply packet is ", reply)
+                #print("reply packet is ", reply)
                 ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
                 if ipPayload[UDP] and ipPayload[UDP].sport == VLA_PING_D_PORT:
                     replyMessage = "Ping  successful! " + ipPayload[Raw].load
