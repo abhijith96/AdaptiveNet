@@ -421,7 +421,6 @@ public class VlaTopologyInformation {
        Queue<DeviceId> queue = new LinkedList<>();
        queue.add(source);
        HashSet<DeviceId> visited = new HashSet<>();
-       visited.add(source);
        HashMap<DeviceId, DeviceId> parentMap = new HashMap<>();
 
 
@@ -489,6 +488,8 @@ public class VlaTopologyInformation {
                     Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent())
                         log.info("Next hop device {} found for source {} and destination {}", nextHop.get(), sourceDeviceId, destinationDeviceId);
+                    else
+                        log.info("Next hop device not found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent()){
                         Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
                         Set<Ip6Prefix> destInterfacesCopy = new HashSet<>(destInterfaces);
