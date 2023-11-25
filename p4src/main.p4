@@ -466,7 +466,7 @@ parser ParserImpl (packet_in packet,
     }
 
     state parse_echo {
-        packet.extract(hdr.icmp_echo)
+        packet.extract(hdr.icmp_echo);
         transition accept;
     }
 
