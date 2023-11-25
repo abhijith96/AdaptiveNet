@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class VlaTopologyInformation {
 
 
-    private final int TIMER_GAP = 60;
+    private final int TIMER_GAP = 300;
 
 
     private  java.time.LocalDateTime timeStart = null;
@@ -468,6 +468,7 @@ public class VlaTopologyInformation {
                 Duration duration = Duration.between(timeStart, now);
 
                 long secondsDifference = duration.getSeconds();
+                log.info("Difference in seconds {}", secondsDifference);
                 if(secondsDifference > TIMER_GAP && !isInitialTraversalDone) {
                     isInitialTraversalDone = true;
                     return DoInitialTraversal();
