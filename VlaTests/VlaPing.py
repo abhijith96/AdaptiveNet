@@ -11,16 +11,6 @@ from scapy.all import conf
 from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultMacAddress, getDefaultInterface
 import time
 
-def test():
-
-    ifacelist = get_if_list()
-    print(ifacelist)
-    ip = get_if_addr6(ifacelist[1])
-    print(ip)
-    mac = get_if_hwaddr(ifacelist[1])
-    print(mac)
-    print(conf.route)
-    #print(conf.ifaces)
 
 def getCommandLineArguments():
     try:
@@ -28,6 +18,72 @@ def getCommandLineArguments():
         return targetHost
     except Exception():
         raise Exception("Pass Comandline Arguments Properly") 
+    
+def DoVlaPingMultipleTimes(defaultInterface, ethSrc, ethDst, hostVla, targetVla, count):
+    
+
+    dataPayload = "Ping Request"
+
+    #packet = createVlaPacket(ethDst, ethSrc, vlaSrcList, vlaDstList, vlaCurrentLevel, dataPayload)
+    vlaCurrentLevel = len(hostVla) - 1
+    packet = createVlaPingPacket(ethDst, ethSrc, hostVla, targetVla, vlaCurrentLevel)
+
+    replyMessage = "Ping Sucessful"
+
+    rttList = []
+    for i in range(0, count):
+        start_time = time.time()
+        reply = srp1(packet,iface=defaultInterface)
+        end_time = time.time()
+        rtt = end_time - start_time
+        if(Ether in reply and IPv6 in reply and reply[IPv6].nh == 48):
+            ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
+            if ipPayload[UDP] and ipPayload[UDP].sport == VLA_PING_D_PORT:
+                rttList.append(rtt)
+            else:
+                replyMessage = "Ping {} failed  Problem with UDP Packet".format(str(i + 1))
+                return (False, replyMessage, None)
+        else:
+            replyMessage = "Ping {} failed ".format(str(i + 1))
+            return (False, None)
+    
+    rttAverage = sum(rttList)/count
+
+    return (True, replyMessage, rttAverage)
+
+
+def VlaPingHandler(targetHostId):
+    replyMessage = ""
+    ifaceStatus, defaultInterface = getDefaultInterface()
+    if(not ifaceStatus):
+        replyMessage = "No network interfaces found for device"
+        return (False, replyMessage, None)
+    ethSrcStatus, ethSrc= getDefaultMacAddress()
+    if(not ethSrcStatus):
+        replyMessage = "mac address not found for current device"
+        return (False, replyMessage, None)
+    hostVlaStatus, hostVlaAddress, gatewayMac, message = getCurrentHostVlaAddress()
+    if(not hostVlaStatus):
+        replyMessage = "vla address for current Device Not found"
+        return (False, replyMessage, None)
+    
+
+    targetVlaStatus, targetVlaAddress, gatewayMac, message = resolveHostVlaAddress(targetHostId)
+    if(not hostVlaStatus):
+        replyMessage = "vla address for target device %s not found".format(targetHostId)
+        return (False, replyMessage, None)
+    
+    #print("Target vla address is ", targetVlaAddress)
+    
+    ethDst=gatewayMac
+    vlaSrcList = hostVlaAddress
+    vlaDstList = targetVlaAddress
+    vlaCurrentLevel = len(hostVlaAddress) - 1
+    dataPayload = "Ping Request"
+    count = 5
+    status, message, rttAverage = DoVlaPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostVlaAddress, targetVlaAddress, count)
+
+    return status, message, rttAverage
 
 def vla_ping(targetHostId):
     # Create an VLA IP packet with an UDP Ping
@@ -108,9 +164,9 @@ def main():
         targetHost = getCommandLineArguments()
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
-    (pingStatus,replyMessage, rtt) = vla_ping(targetHost)
+    (pingStatus,replyMessage, rttAverage) = VlaPingHandler(targetHost)
     print(replyMessage)
-    print("RoundTripTimeis  {:.3f}".format(rtt*1000))
+    print("RoundTripTimeis  {:.3f} average obervation".format(rttAverage*1000))
 
 if __name__ == "__main__":
     main()
