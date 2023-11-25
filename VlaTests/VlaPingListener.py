@@ -1,3 +1,4 @@
+from argparse import _MutuallyExclusiveGroup
 from scapy.all import sr1,sendp, sniff, send, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
@@ -28,6 +29,8 @@ def custom_packet_filter(packet):
     return False
 
 interface = ""
+packet_counter = 0
+max_packets = 5
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
@@ -56,13 +59,17 @@ def process_udp_packet(packet):
         extension_header = IPv6ExtHdrVLA(packet[Raw].load)
         extension_header.show()
         print("UnRecognized packet")
+    global packet_counter
+    global max_packets
+    packet_counter += 1
+    return packet_counter < max_packets
 
 
 
 def pingListener(interfaceName):
     global interface
     interface = interfaceName
-    sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
+    sniff(prn=process_udp_packet, lfilter=custom_packet_filter, stop_filter=lambda x: False)
     return None
 
 def main():

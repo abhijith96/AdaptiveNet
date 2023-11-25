@@ -33,10 +33,10 @@ def DoVlaPingMultipleTimes(defaultInterface, ethSrc, ethDst, hostVla, targetVla,
     rttList = []
     for i in range(0, count):
         start_time = time.time()
-        reply = srp1(packet,iface=defaultInterface)
+        reply = srp1(packet,iface=defaultInterface, verbose=False)
         end_time = time.time()
         rtt = end_time - start_time
-        if(Ether in reply and IPv6 in reply and reply[IPv6].nh == 48):
+        if(reply and Ether in reply and IPv6 in reply and reply[IPv6].nh == 48):
             ipPayload = IPv6ExtHdrVLA(reply[IPv6].payload)
             if ipPayload[UDP] and ipPayload[UDP].sport == VLA_PING_D_PORT:
                 rttList.append(rtt)
