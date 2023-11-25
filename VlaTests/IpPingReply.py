@@ -4,7 +4,7 @@ from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
 from Utils import createIpPingReplyPacket, IP_PING_D_PORT
 from NRUtils import getDefaultInterface, getDefaultMacAddress
-from VlaTests.VlaPingListener import stop_filter
+
 
 interface = ""
 macAddress = ""
