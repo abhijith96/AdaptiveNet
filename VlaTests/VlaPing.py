@@ -165,8 +165,10 @@ def main():
     except Exception as e:
             print("ping target not found as command line argument using default target : " +  str(e))
     (pingStatus,replyMessage, rttAverage) = VlaPingHandler(targetHost)
+    if(pingStatus):
+        print("RoundTripTimeis  {:.3f} average obervation".format(rttAverage*1000))
     print(replyMessage)
-    print("RoundTripTimeis  {:.3f} average obervation".format(rttAverage*1000))
+    
 
 if __name__ == "__main__":
     main()
