@@ -5,7 +5,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import conf
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 
-from ptf.tests.vla import insert_vla_header
+
 
 VLA_PING_S_PORT = 45000
 VLA_PING_D_PORT = 45001
