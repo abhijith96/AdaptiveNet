@@ -1,4 +1,5 @@
 from argparse import _MutuallyExclusiveGroup
+from tabnanny import verbose
 from scapy.all import sr1,sendp, sniff, send, Raw
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
@@ -39,32 +40,29 @@ def stop_filter(packet):
     return packet_counter >= max_packets
 
 def process_udp_packet(packet):
-    if IPv6 in packet and UDP in packet:
-        reply = "Ping Reply"
-        modified_packet = createVlaReplyPacket(packet, reply)
-        sendp(modified_packet, iface=interface)  
-    elif IPv6 in packet and packet[IPv6].nh == 48:
+    if IPv6 in packet and packet[IPv6].nh == 48:
         # Extract relevant information from the received packet
         ipPayload = IPv6ExtHdrVLA(packet[IPv6].payload)
         if(UDP in ipPayload):
             reply = "Ping Reply"
-            modified_packet = createVlaReplyPacket(packet, reply)
-            # Send the modified packet back
-            sendp(modified_packet, iface=interface)  
-            print("reply send")
-        elif (ICMPv6EchoRequest in ipPayload):
-            reply = "Ping Reply"
             modified_packet = CreateVlaPingReplyPacket(packet)
-            # print("udp found , modified packet is ", modified_packet)
-            # Send the modified packet bac
-            sendp(modified_packet, iface=interface)  
-            print("ping found , modified packet is ", modified_packet)
+            # Send the modified packet back
+            sendp(modified_packet, iface=interface, verbose = False)  
             print("reply send")
-    else:
-        print (packet.show())
-        extension_header = IPv6ExtHdrVLA(packet[Raw].load)
-        extension_header.show()
-        print("UnRecognized packet")
+            return
+        # elif (ICMPv6EchoRequest in ipPayload):
+        #     reply = "Ping Reply"
+        #     modified_packet = CreateVlaPingReplyPacket(packet)
+        #     # print("udp found , modified packet is ", modified_packet)
+        #     # Send the modified packet bac
+        #     sendp(modified_packet, iface=interface)  
+        #     print("ping found , modified packet is ", modified_packet)
+        #     print("reply send")
+    
+    print (packet.show())
+    extension_header = IPv6ExtHdrVLA(packet[Raw].load)
+    extension_header.show()
+    print("UnRecognized packet")
 
 
 def pingListener(interfaceName):
