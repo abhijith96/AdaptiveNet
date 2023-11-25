@@ -31,6 +31,11 @@ def custom_packet_filter(packet):
 interface = ""
 packet_counter = 0
 max_packets = 5
+def stop_filter(packet):
+    global packet_counter
+    global max_packets
+    packet_counter += 1
+    return packet_counter < max_packets
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
@@ -59,17 +64,12 @@ def process_udp_packet(packet):
         extension_header = IPv6ExtHdrVLA(packet[Raw].load)
         extension_header.show()
         print("UnRecognized packet")
-    global packet_counter
-    global max_packets
-    packet_counter += 1
-    return packet_counter < max_packets
-
 
 
 def pingListener(interfaceName):
     global interface
     interface = interfaceName
-    sniff(prn=process_udp_packet, lfilter=custom_packet_filter, stop_filter=lambda x: False)
+    sniff(prn=process_udp_packet, lfilter=custom_packet_filter, stop_filter=stop_filter)
     return None
 
 def main():
