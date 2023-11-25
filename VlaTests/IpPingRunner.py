@@ -140,8 +140,10 @@ def createPingListenerProcess(hostName, hostProcessId, pingListenerPythonCommand
 
 def terminatePingListenerProcesses(processList):
     for process in processList:
-        process.terminate()
-        process.wait()
+        poll = process.poll()
+        if(poll is None):
+            process.terminate()
+       
 
 
 
