@@ -365,7 +365,8 @@ public class VlaTopologyInformation {
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
        Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
        log.info("VLa rules done doing Hash Map GetNextHopRules for Devices");
-       HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+      // HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
 
        return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
 
