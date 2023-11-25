@@ -115,7 +115,7 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
 def createVlaPingPacket(ethDst, ethSrc, vlaSrc, vlaDst, vlaCurrentLevel):
     ip_src = "::2"
     ip_dst = "::2"
-    pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(nh = 48, src=ip_src, dst=ip_dst)/ICMPv6EchoRequest()
+    pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(src=ip_src, dst=ip_dst)/ICMPv6EchoRequest()
     pkt = InsertVlaHeader(pkt, vlaDst, vlaSrc, vlaCurrentLevel)
     return pkt
   
