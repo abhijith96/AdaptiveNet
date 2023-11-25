@@ -8,7 +8,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6, ICMPv6ND_NS, ICMPv6ND_NA, ICMPv6NDOptSrcLLAddr, ICMPv6NDOptDstLLAddr, ICMPv6EchoRequest, ICMPv6EchoReply
 from scapy.layers.l2 import Ether
-from Utils import createVlaPacket, getMacAddress, createIpPingPacket, IP_PING_D_PORT, IP_PING_S_PORT
+from Utils import createVlaPacket, getMacAddress, createIpPingPacket, IP_PING_D_PORT, IP_PING_S_PORT, PING_COUNT
 import time
 from scapy.all import conf
 from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultMacAddress, getDefaultInterface
@@ -17,6 +17,7 @@ import socket
 from scapy.utils import  inet_pton
 import subprocess
 
+count = PING_COUNT
 def resolve_hostname(hostname):
     try:
         ip_address = socket.gethostbyname(hostname)
@@ -103,7 +104,7 @@ def pingHandler(targetHostId, targetIp):
     if(not gatewayMacStatus):
         replyMessage = "gateway mac  address for target device {} not found".format(targetHostId)
         return (False, replyMessage, None)
-    count = 5
+    count = PING_COUNT
     pingStatus, rttAverage = doIpPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostIpAddress, targetIp, count=count)
     if(pingStatus):
         replyMessage = "Sucess"

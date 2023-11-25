@@ -2,14 +2,11 @@
 from scapy.all import sr1, srp1, srp, Raw
 import sys
 from IPv6ExtHdrVLA import IPv6ExtHdrVLA
-from scapy.all import get_if_addr6, get_if_hwaddr, get_if_list
 from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoReply
 from scapy.layers.l2 import Ether
-from Utils import createVlaPacket, getMacAddress, VLA_PING_S_PORT, VLA_PING_D_PORT, createVlaPingPacket
+from Utils import  VLA_PING_S_PORT, VLA_PING_D_PORT, createVlaPingPacket, PING_COUNT
 import time
-from scapy.all import conf
 from NRUtils import resolveHostVlaAddress, getCurrentHostVlaAddress, getDefaultMacAddress, getDefaultInterface
-import time
 
 
 def getCommandLineArguments():
@@ -80,7 +77,7 @@ def VlaPingHandler(targetHostId):
     vlaDstList = targetVlaAddress
     vlaCurrentLevel = len(hostVlaAddress) - 1
     dataPayload = "Ping Request"
-    count = 5
+    count = PING_COUNT
     status, message, rttAverage = DoVlaPingMultipleTimes(defaultInterface, ethSrc, gatewayMac, hostVlaAddress, targetVlaAddress, count)
 
     return status, message, rttAverage

@@ -5,7 +5,7 @@ from IPv6ExtHdrVLA import IPv6ExtHdrVLA
 from scapy.all import packet
 from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
-from Utils import createVlaReplyPacket, VLA_PING_D_PORT, CreateVlaPingReplyPacket
+from Utils import createVlaReplyPacket, VLA_PING_D_PORT, CreateVlaPingReplyPacket, PING_COUNT
 from NRUtils import getDefaultInterface
 
 
@@ -68,7 +68,7 @@ def process_udp_packet(packet):
 def pingListener(interfaceName):
     global interface
     interface = interfaceName
-    sniff(prn=process_udp_packet, lfilter=custom_packet_filter, stop_filter=stop_filter)
+    sniff(prn=process_udp_packet, lfilter=custom_packet_filter, count = PING_COUNT)
     return None
 
 def main():
