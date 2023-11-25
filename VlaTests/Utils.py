@@ -115,7 +115,7 @@ def createVlaPacket(ethDst, ethSrc, srcVlaAddrList, dstVlaAddrList, vlaCurrentLe
 def createVlaPingPacket(ethDst, ethSrc, vlaSrc, vlaDst, vlaCurrentLevel):
     ip_src = "::2"
     ip_dst = "::2"
-    pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(src=ip_src, dst=ip_dst)/ICMPv6EchoRequest()
+    pkt = Ether(src=ethSrc, dst=ethDst)/IPv6(src=ip_src, dst=ip_dst)/UDP(sport= VLA_PING_S_PORT, dport = VLA_PING_D_PORT)
     pkt = InsertVlaHeader(pkt, vlaDst, vlaSrc, vlaCurrentLevel)
     return pkt
   
@@ -139,7 +139,7 @@ def CreateVlaPingReplyPacket(vlaPacket):
     reply_current_level =  ipPayload[IPv6ExtHdrVLA].current_level - 1
     ethSource = vlaPacket[Ether].dst
     ethDst = vlaPacket[Ether].src
-    pkt = Ether(src=ethSource, dst=ethDst)/IPv6(src=source_ip, dst=dest_ip)/ICMPv6EchoReply()
+    pkt = Ether(src=ethSource, dst=ethDst)/IPv6(src=source_ip, dst=dest_ip)/UDP(sport= VLA_PING_D_PORT, dport = VLA_PING_S_PORT)
     pkt = InsertVlaHeader(pkt, dest_vla, source_vla, reply_current_level)
     return pkt
     # vla_dst_len = len(dest_vla)
