@@ -155,11 +155,11 @@ class VlaRouteToAnotherTreeFirstSwitch(P4RuntimeTest):
 
                 pkt = getattr(testutils, "simple_%s_packet" % pkt_type)()
                 new_packet = pkt[Ether]/pkt[IPv6]/ICMPv6EchoReply()
-                pkt = new_packet
-                pkt = insert_vla_header(pkt, sid_list, source_sid_list, current_level_index)
+                new_packet
+                new_packet = insert_vla_header(new_packet, sid_list, source_sid_list, current_level_index)
 
 
-                self.testPacket(pkt, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
+                self.testPacket(new_packet, sid_list, current_level_value, current_level_index, next_level_value,  next_hop_mac, destinationIp)
                 break
 
     @autocleanup
