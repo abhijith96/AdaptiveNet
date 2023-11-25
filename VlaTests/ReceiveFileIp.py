@@ -60,6 +60,7 @@ def receive_file(output_file_path, listening_port):
 
     with open(output_file_path, 'wb') as output_file:
         output_file.write(file_data)
+    print("Written to file {}".format(output_file_path))
 
 if __name__ == "__main__":
     output_file_path = Utils.FILE_TRANSFER_RECEIVE_FILE

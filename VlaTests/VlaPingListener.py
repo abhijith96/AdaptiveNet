@@ -48,7 +48,7 @@ def process_udp_packet(packet):
             modified_packet = CreateVlaPingReplyPacket(packet)
             # Send the modified packet back
             sendp(modified_packet, iface=interface, verbose = False)  
-            print("reply send")
+            #print("reply send")
             return
         # elif (ICMPv6EchoRequest in ipPayload):
         #     reply = "Ping Reply"
