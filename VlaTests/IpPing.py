@@ -181,7 +181,7 @@ def ip_ping(targetHostId, targetIp):
 
     # Check if a response was received
    
-    if reply:
+    if not reply is None:
         print("reply is ", reply)
         # if  UDP in reply and reply[UDP].sport == IP_PING_D_PORT:
         #     replyMessage = "Ping  successful! " + reply[Raw].load

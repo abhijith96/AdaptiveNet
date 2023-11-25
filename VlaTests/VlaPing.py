@@ -134,7 +134,7 @@ def vla_ping(targetHostId):
     # Check if a response was received
    
     print(reply)
-    if reply:
+    if not reply is None:
         if(Ether in reply and IPv6 in reply):
             if reply[IPv6].nh == 48:
                 print("reply packet is ", reply)
