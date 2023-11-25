@@ -7,12 +7,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
+import java.time.LocalDateTime;
 
 
 public class VlaTopologyInformation {
+
+
+    private final int TIMER_GAP = 60;
+
+
+    private  java.time.LocalDateTime timeStart = null;
+
+    private boolean isInitialTraversalDone = false;
 
     private final int IDENTIFIER_START_VALUE = 4096;
     ArrayList<DeviceId> deviceList;
@@ -188,6 +198,7 @@ public class VlaTopologyInformation {
        deviceIdentifierMap = new HashMap<>();
        deviceIdHostIdHashMap = new HashMap<>();
        hostIdDeviceIdHashMap = new HashMap<>();
+       isInitialTraversalDone = false;
    }
 
    public ArrayList<DeviceId> GetAllDevicesContainingHosts(){
@@ -324,15 +335,63 @@ public class VlaTopologyInformation {
        return Pair.of(new ArrayList<DeviceInfo>(), new ArrayList<HostInfo>());
    }
 
-   private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination){
+   private Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> DoInitialTraversal(){
 
-           if (deviceNeighbours.get(source).contains(destination) &&
-                   deviceNeighbours.get(destination).contains(source)) {
-               if (IsConnectedToRoot.get(source) && IsConnectedToRoot.get(destination)) {
-                   return false;
-               }
-               return IsConnectedToRoot.get(source) || IsConnectedToRoot.get(destination);
+       Queue<DeviceInfo> queue = new LinkedList<>();
+       DeviceId rootDeviceId = rootDeviceList.get(0);
+       int rootDeviceLevel = levelMap.get(rootDeviceId);
+       for(DeviceId deviceId : deviceNeighbours.get(rootDeviceId)){
+           queue.add(new DeviceInfo(deviceId, rootDeviceId, rootDeviceLevel + 1));
+       }
+
+       ArrayList<DeviceInfo> results = new ArrayList<>();
+
+       ArrayList<HostInfo> hostResults = new ArrayList<>();
+
+       HashSet<DeviceId> visited = new HashSet<>();
+       visited.add(rootDeviceId);
+
+       while(!queue.isEmpty()){
+           DeviceInfo deviceInfo = queue.peek();
+           DeviceId currentDevice = deviceInfo.deviceId;
+           visited.add(currentDevice);
+           parentMap.put(currentDevice, deviceInfo.GetParentId());
+           levelMap.put(currentDevice, deviceInfo.GetLevel());
+           int identifier = AddChild(deviceInfo.GetParentId(), currentDevice);
+           deviceIdentifierMap.put(currentDevice, identifier);
+           IsConnectedToRoot.put(currentDevice, true);
+           deviceInfo.SetLevelIdentifier(identifier);
+           deviceInfo.SetDeviceAddress(GetVlaAddress(currentDevice, deviceInfo.GetLevel()));
+           results.add(deviceInfo);
+           for(HostId hostId : deviceIdHostIdHashMap.get(currentDevice)){
+               HostInfo hostInfo = new HostInfo(hostId, currentDevice);
+               hostResults.add(hostInfo);
            }
+           log.info("hosts found during traversal of device id {} is {}", currentDevice, hostResults.size());
+           queue.poll();
+
+           for(DeviceId deviceId : deviceNeighbours.get(currentDevice)){
+               if(deviceNeighbours.get(deviceId).contains(currentDevice)){
+                   if(!visited.contains(deviceId)){
+                       queue.add(new DeviceInfo(deviceId, currentDevice, deviceInfo.GetLevel() + 1));
+                   }
+               }
+           }
+       }
+       return Pair.of(results, hostResults);
+   }
+
+   private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination) {
+
+
+       if (deviceNeighbours.get(source).contains(destination) &&
+               deviceNeighbours.get(destination).contains(source)) {
+           if (IsConnectedToRoot.get(source) && IsConnectedToRoot.get(destination)) {
+               return false;
+           }
+           return IsConnectedToRoot.get(source) || IsConnectedToRoot.get(destination);
+       }
+
 
        return false;
    }
@@ -398,11 +457,26 @@ public class VlaTopologyInformation {
 
     public  Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> AddLink(DeviceId source, DeviceId destination){
         synchronized (this){
+            if(timeStart == null){
+                timeStart = LocalDateTime.now();
+            }
             if(deviceList.contains(source) && deviceList.contains(destination)) {
                 deviceNeighbours.get(source).add(destination);
                 deviceNeighbours.get(destination).add(source);
-                if (IsValidLinkToAdd(source, destination)) {
-                    return UpdateLevels(source, destination);
+                LocalDateTime now = LocalDateTime.now();
+
+                Duration duration = Duration.between(timeStart, now);
+
+                long secondsDifference = duration.getSeconds();
+                if(secondsDifference > TIMER_GAP && !isInitialTraversalDone) {
+                    isInitialTraversalDone = true;
+                    return DoInitialTraversal();
+                }
+                else if(secondsDifference > TIMER_GAP){
+
+                    if (IsValidLinkToAdd(source, destination)) {
+                        return UpdateLevels(source, destination);
+                    }
                 }
             }
         }
