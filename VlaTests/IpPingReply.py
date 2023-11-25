@@ -4,9 +4,22 @@ from scapy.layers.inet6 import UDP, IPv6, ICMPv6EchoRequest
 from scapy.layers.l2 import Ether
 from Utils import createIpPingReplyPacket, IP_PING_D_PORT
 from NRUtils import getDefaultInterface, getDefaultMacAddress
+from VlaTests.VlaPingListener import stop_filter
 
 interface = ""
 macAddress = ""
+
+
+count = 0
+max_count = 5
+
+
+def stop_fitler(packet):
+    global count
+    global max_count
+    count += 1
+    return count >= max_count
+
 
 def custom_packet_filter(packet):
     if Ether not in packet:
@@ -39,7 +52,7 @@ def pingListener(interfaceName):
     print(macAddress)
     # sniff(prn=process_udp_packet, lfilter=custom_packet_filter)
     #filter_expression = "udp and dst port {}".format(IP_PING_D_PORT)
-    sniff(prn=process_udp_packet, lfilter = custom_packet_filter)
+    sniff(prn=process_udp_packet, lfilter = custom_packet_filter, stop_filter = stop_filter)
     return None
 
 def main():

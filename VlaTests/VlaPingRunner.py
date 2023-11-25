@@ -130,10 +130,12 @@ def runPingForHostPair(senderHostName, senderHostProcessId, receiverHostName, re
     output, errors = ping_sender_process.communicate()
 
     # Terminate the first file when the second file ends
-    ping_listener_process.terminate()
+    poll = ping_listener_process.poll()
+    if(poll is None):
+        ping_listener_process.terminate()
 
     # Optionally wait for the first file to terminate gracefully
-    ping_listener_process.wait()
+    #ping_listener_process.wait()
 
     outputString = output.decode('utf-8')
 

@@ -31,11 +31,12 @@ def custom_packet_filter(packet):
 interface = ""
 packet_counter = 0
 max_packets = 5
+
 def stop_filter(packet):
     global packet_counter
     global max_packets
     packet_counter += 1
-    return packet_counter < max_packets
+    return packet_counter >= max_packets
 
 def process_udp_packet(packet):
     if IPv6 in packet and UDP in packet:
