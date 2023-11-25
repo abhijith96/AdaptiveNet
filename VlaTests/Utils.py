@@ -141,6 +141,7 @@ def CreateVlaPingReplyPacket(vlaPacket):
     ethDst = vlaPacket[Ether].src
     pkt = Ether(src=ethSource, dst=ethDst)/IPv6(src=source_ip, dst=dest_ip)/ICMPv6EchoReply()
     pkt = InsertVlaHeader(pkt, dest_vla, source_vla, reply_current_level)
+    return pkt
     # vla_dst_len = len(dest_vla)
     # vla_src_len = len(source_vla)
     # padlen = 8 - ((2*(vla_dst_len + vla_src_len))%8)
