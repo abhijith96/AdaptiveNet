@@ -126,6 +126,7 @@ def vla_ping(targetHostId):
     end_time = time.time()
 
 
+    
     rtt = 0
 
     # Check if a response was received
