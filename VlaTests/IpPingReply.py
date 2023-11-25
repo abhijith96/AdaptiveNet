@@ -14,7 +14,7 @@ count = 0
 max_count = 5
 
 
-def stop_fitler(packet):
+def stop_filter(packet):
     global count
     global max_count
     count += 1
