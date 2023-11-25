@@ -410,7 +410,7 @@ public class Ipv6RoutingComponent {
                 mainComponent.getExecutorService().execute(() -> {
                     log.info("{} event! Configuring {}... linkSrc={}, linkDst={}",
                             event.type(), srcDev, srcDev, dstDev);
-                    setUpFabricRoutes(srcDev);
+                   // setUpFabricRoutes(srcDev);
                     setUpL2NextHopRules(srcDev);
                 });
             }
@@ -418,7 +418,7 @@ public class Ipv6RoutingComponent {
                 mainComponent.getExecutorService().execute(() -> {
                     log.info("{} event! Configuring {}... linkSrc={}, linkDst={}",
                             event.type(), dstDev, srcDev, dstDev);
-                    setUpFabricRoutes(dstDev);
+                   // setUpFabricRoutes(dstDev);
                     setUpL2NextHopRules(dstDev);
                 });
             }
@@ -776,7 +776,7 @@ public class Ipv6RoutingComponent {
                 .forEach(deviceId -> {
                     log.info("*** IPV6 ROUTING - Starting initial set up for {}...", deviceId);
                     setUpMyStationTable(deviceId);
-                    setUpFabricRoutes(deviceId);
+                    //setUpFabricRoutes(deviceId);
                     setUpL2NextHopRules(deviceId);
                     hostService.getConnectedHosts(deviceId)
                             .forEach(host -> setUpHostRules(deviceId, host));

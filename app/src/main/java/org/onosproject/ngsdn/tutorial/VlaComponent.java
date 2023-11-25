@@ -1,11 +1,19 @@
 package org.onosproject.ngsdn.tutorial;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.onlab.packet.Ip6Prefix;
+import org.onlab.packet.IpPrefix;
 import org.onlab.packet.MacAddress;
 import org.onlab.util.ItemNotFoundException;
 import org.onosproject.net.*;
+import org.onosproject.net.group.GroupDescription;
+import org.onosproject.net.group.GroupService;
 import org.onosproject.net.host.HostEvent;
 import org.onosproject.net.host.HostListener;
 import org.onosproject.net.host.HostService;
+import org.onosproject.net.host.InterfaceIpAddress;
+import org.onosproject.net.intf.Interface;
+import org.onosproject.net.intf.InterfaceService;
 import org.onosproject.net.link.LinkEvent;
 import org.onosproject.net.link.LinkListener;
 import org.onosproject.net.link.LinkService;
@@ -46,6 +54,7 @@ import org.onosproject.net.pi.model.PiMatchFieldId;
 import org.onosproject.net.pi.model.PiTableId;
 import org.onosproject.net.pi.runtime.PiAction;
 import org.onosproject.net.pi.runtime.PiActionParam;
+import org.onosproject.net.pi.runtime.PiActionProfileGroupId;
 import org.onosproject.net.pi.runtime.PiTableAction;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -61,6 +70,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.Streams.mapWithIndex;
 import static com.google.common.collect.Streams.stream;
@@ -118,12 +128,19 @@ public class VlaComponent {
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private DeviceService deviceService;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private GroupService groupService;
+
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private LinkService linkService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private HostService hostService;
+
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private InterfaceService interfaceService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private NetworkConfigService networkConfigService;
@@ -158,7 +175,8 @@ public class VlaComponent {
     private final VlaTopologyInformation vlaTopologyInformation = new VlaTopologyInformation();
 
 
-
+    private static final int DEFAULT_ECMP_GROUP_ID = 0xec3b0000;
+    private static final long GROUP_INSERT_DELAY_MILLIS = 200;
 
 
     //--------------------------------------------------------------------------
@@ -171,6 +189,8 @@ public class VlaComponent {
     @Activate
     protected void activate() {
         appId = mainComponent.getAppId();
+
+        vlaTopologyInformation.SetInterfaceService(this.interfaceService);
 
         // Register listeners to be informed about device and host events.
         deviceService.addListener(deviceListener);
@@ -212,9 +232,82 @@ public class VlaComponent {
      *
      */
 
+
+    private int macToGroupId(MacAddress mac) {
+        return mac.hashCode() & 0x7fffffff;
+    }
+
+
+
+    private void insertInOrder(GroupDescription group, Collection<FlowRule> flowRules) {
+        try {
+            groupService.addGroup(group);
+            // Wait for groups to be inserted.
+            Thread.sleep(GROUP_INSERT_DELAY_MILLIS);
+            flowRules.forEach(flowRuleService::applyFlowRules);
+        } catch (InterruptedException e) {
+            log.error("Interrupted!", e);
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private GroupDescription createNextHopGroup(int groupId,
+                                                Collection<MacAddress> nextHopMacs,
+                                                DeviceId deviceId) {
+
+        String actionProfileId = "IngressPipeImpl.ecmp_selector";
+
+        final List<PiAction> actions = Lists.newArrayList();
+
+        // Build one "set next hop" action for each next hop
+        // *** TODO EXERCISE 5
+        // Modify P4Runtime entity names to match content of P4Info file (look
+        // for the fully qualified name of tables, match fields, and actions.
+        // ---- START SOLUTION ----
+        final String tableId = "IngressPipeImpl.routing_v6_table";
+        for (MacAddress nextHopMac : nextHopMacs) {
+            final PiAction action = PiAction.builder()
+                    .withId(PiActionId.of("IngressPipeImpl.set_next_hop"))
+                    .withParameter(new PiActionParam(
+                            // Action param name.
+                            PiActionParamId.of("next_hop_mac"),
+                            // Action param value.
+                            nextHopMac.toBytes()))
+                    .build();
+
+            actions.add(action);
+        }
+        // ---- END SOLUTION ----
+
+        return Utils.buildSelectGroup(
+                deviceId, tableId, actionProfileId, groupId, actions, appId);
+    }
+
+    private FlowRule createRoutingRule(DeviceId deviceId, Ip6Prefix ip6Prefix,
+                                       int groupId) {
+
+        // *** TODO EXERCISE 5
+        // Modify P4Runtime entity names to match content of P4Info file (look
+        // for the fully qualified name of tables, match fields, and actions.
+        // ---- START SOLUTION ----
+        final String tableId = "IngressPipeImpl.routing_v6_table";
+        final PiCriterion match = PiCriterion.builder()
+                .matchLpm(
+                        PiMatchFieldId.of("hdr.ipv6.dst_addr"),
+                        ip6Prefix.address().toOctets(),
+                        ip6Prefix.prefixLength())
+                .build();
+
+        final PiTableAction action = PiActionProfileGroupId.of(groupId);
+        // ---- END SOLUTION ----
+
+        return Utils.buildFlowRule(
+                deviceId, appId, tableId, match, action);
+    }
+
     private boolean UpdateBasedOnLink(DeviceId source, DeviceId destination){
 
-        Pair<ArrayList <VlaTopologyInformation.DeviceInfo>, ArrayList<VlaTopologyInformation.HostInfo>> updates = vlaTopologyInformation.AddLink(source, destination);
+        Triple<ArrayList<VlaTopologyInformation.DeviceInfo>, ArrayList<VlaTopologyInformation.HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> updates = vlaTopologyInformation.AddLink(source, destination);
 
         ArrayList<VlaTopologyInformation.DeviceInfo> deviceUpdates = updates.getLeft();
         for(VlaTopologyInformation.DeviceInfo deviceInfo : deviceUpdates){
@@ -224,7 +317,7 @@ public class VlaComponent {
             setUpChildTable(deviceInfo.GetParentId(), deviceInfo.getDeviceId(), deviceInfo.GetLevelIdentifier());
         }
 
-        ArrayList<VlaTopologyInformation.HostInfo> hostUpdates = updates.getRight();
+        ArrayList<VlaTopologyInformation.HostInfo> hostUpdates = updates.getMiddle();
 
         for(VlaTopologyInformation.HostInfo hostInfo : hostUpdates){
             setUpChildHostTable(hostInfo.getDeviceId(), hostInfo.GetHostId(), hostInfo.getLevelIdentifier()) ;
@@ -235,6 +328,31 @@ public class VlaComponent {
             }
         }
 
+        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipRouteUpdates = updates.getRight();
+
+        for(Map.Entry<DeviceId, HashMap<Ip6Prefix, DeviceId>>  entry : ipRouteUpdates.entrySet()){
+            HashMap<Ip6Prefix, DeviceId> ipPrefixNextHopMap =   entry.getValue();
+            DeviceId currentDevice = entry.getKey();
+            for(Map.Entry<Ip6Prefix, DeviceId> subEntry : ipPrefixNextHopMap.entrySet()){
+                Ip6Prefix ip6Prefix = subEntry.getKey();
+                DeviceId nextHop = subEntry.getValue();
+
+                final MacAddress nextHopMac = getMyStationMac(nextHop);
+                final Set<Ip6Prefix> subnetsToRoute = new HashSet<Ip6Prefix>();
+                subnetsToRoute.add(ip6Prefix);
+
+                // Create a group with only one member.
+                int groupId = macToGroupId(nextHopMac);
+                GroupDescription group = createNextHopGroup(
+                        groupId, Collections.singleton(nextHopMac), currentDevice);
+
+                List<FlowRule> flowRules = subnetsToRoute.stream()
+                        .map(subnet -> createRoutingRule(currentDevice, subnet, groupId))
+                        .collect(Collectors.toList());
+
+                insertInOrder(group, flowRules);
+            }
+        }
 
         return true;
     }
@@ -706,5 +824,16 @@ public class VlaComponent {
                 .map(FabricDeviceConfig::isRoot)
                 .orElseThrow(() -> new RuntimeException(
                         "Missing mySid config for " + deviceId));
+    }
+
+    private Set<Ip6Prefix> getInterfaceIpv6Prefixes(DeviceId deviceId) {
+        return interfaceService.getInterfaces().stream()
+                .filter(iface -> iface.connectPoint().deviceId().equals(deviceId))
+                .map(Interface::ipAddressesList)
+                .flatMap(Collection::stream)
+                .map(InterfaceIpAddress::subnetAddress)
+                .filter(IpPrefix::isIp6)
+                .map(IpPrefix::getIp6Prefix)
+                .collect(Collectors.toSet());
     }
 }

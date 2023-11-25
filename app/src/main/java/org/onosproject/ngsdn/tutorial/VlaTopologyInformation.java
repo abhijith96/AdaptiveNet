@@ -1,8 +1,13 @@
 package org.onosproject.ngsdn.tutorial;
 
+import org.apache.commons.lang3.tuple.Triple;
+import org.onlab.packet.Ip6Prefix;
+import org.onlab.packet.IpPrefix;
 import org.onosproject.net.DeviceId;
-import org.onosproject.net.Host;
 import org.onosproject.net.HostId;
+import org.onosproject.net.host.InterfaceIpAddress;
+import org.onosproject.net.intf.Interface;
+import org.onosproject.net.intf.InterfaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,12 +17,13 @@ import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 
 public class VlaTopologyInformation {
 
 
-    private final int TIMER_GAP = 300;
+    private final int TIMER_GAP = 60;
 
 
     private  java.time.LocalDateTime timeStart = null;
@@ -45,6 +51,23 @@ public class VlaTopologyInformation {
 
    HashMap<HostId, DeviceId> hostIdDeviceIdHashMap;
 
+   private InterfaceService interfaceService;
+
+   public void SetInterfaceService(InterfaceService interfaceService){
+       this.interfaceService = interfaceService;
+   }
+
+    private Set<Ip6Prefix> getInterfaceIpv6Prefixes(DeviceId deviceId) {
+        return interfaceService.getInterfaces().stream()
+                .filter(iface -> iface.connectPoint().deviceId().equals(deviceId))
+                .map(Interface::ipAddressesList)
+                .flatMap(Collection::stream)
+                .map(InterfaceIpAddress::subnetAddress)
+                .filter(IpPrefix::isIp6)
+                .map(IpPrefix::getIp6Prefix)
+                .collect(Collectors.toSet());
+    }
+
     private static final Logger log = LoggerFactory.getLogger(VlaTopologyInformation.class);
 
     public class DeviceInfo{
@@ -68,6 +91,8 @@ public class VlaTopologyInformation {
         public DeviceId getDeviceId() {
             return deviceId;
         }
+
+
 
 
 
@@ -316,8 +341,9 @@ public class VlaTopologyInformation {
    }
 
 
-   private Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> UpdateLevels(DeviceId source, DeviceId dest){
+   private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> UpdateLevels(DeviceId source, DeviceId dest){
 
+        // Do Update of only Vla Part
         log.info("In Update Levels part source device {},  destination device {}", source, dest);
        if(IsValidLinkToAdd(source, dest)){
            DeviceId originalSource = source;
@@ -330,9 +356,18 @@ public class VlaTopologyInformation {
            if(!rootDeviceList.contains(originalSource)){
                parentLevel = levelMap.get(originalSource);
            }
-          return DoTraversal(originalSource, originalDestination, parentLevel);
+          Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> pairResult =  DoTraversal(originalSource, originalDestination, parentLevel);
+           return Triple.of(pairResult.getLeft(), pairResult.getRight(),new HashMap<>());
        }
-       return Pair.of(new ArrayList<DeviceInfo>(), new ArrayList<HostInfo>());
+       return Triple.of(new ArrayList<DeviceInfo>(), new ArrayList<HostInfo>(), new HashMap<>());
+   }
+
+   private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
+       Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
+       HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+
+       return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
+
    }
 
    private Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> DoInitialTraversal(){
@@ -379,6 +414,100 @@ public class VlaTopologyInformation {
            }
        }
        return Pair.of(results, hostResults);
+   }
+
+   private Optional<DeviceId> GetNextHopDevice(DeviceId source, DeviceId destination){
+       Queue<DeviceId> queue = new LinkedList<>();
+       queue.add(source);
+       HashSet<DeviceId> visited = new HashSet<>();
+       visited.add(source);
+       HashMap<DeviceId, DeviceId> parentMap = new HashMap<>();
+
+
+       while(!queue.isEmpty()){
+           DeviceId top = queue.poll();
+           for(DeviceId neighbour: deviceNeighbours.get(top)){
+               parentMap.put(neighbour, top);
+               if(neighbour == destination){
+                   break;
+               }
+               if(!visited.contains(neighbour)){
+                   queue.add(neighbour);
+               }
+           }
+       }
+
+       DeviceId currentNode = destination;
+       while(parentMap.containsKey(currentNode)){
+           DeviceId parent = parentMap.get(currentNode);
+           if(parent == source){
+               return Optional.of(currentNode);
+           }
+           currentNode = parent;
+       }
+
+       return Optional.empty();
+   }
+
+    private  boolean IsIpPrefixOfIp(byte[] ipA, byte[] ipB, int aPrefixLength, int bPrefixLength) {
+
+        if(aPrefixLength > bPrefixLength) return false;
+        if (ipA.length > ipB.length) {
+            return false;
+        }
+        int currentPrefixLength = 0;
+        for (int i = 0; i < ipA.length ; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (((ipA[i] >> j) & 1) != ((ipB[i] >> j) & 1)) {
+                    return false;
+                }
+                else{
+                    ++currentPrefixLength;
+                    if(currentPrefixLength == aPrefixLength){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+   private HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> GetNextHopsForAllDevices(){
+        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> deviceIdToIpPrefixNextHopMap;
+
+        deviceIdToIpPrefixNextHopMap = new HashMap<>();
+
+        for(DeviceId sourceDeviceId : deviceList){
+            deviceIdToIpPrefixNextHopMap.put(sourceDeviceId, new HashMap<>());
+            HashMap<Ip6Prefix, DeviceId> IpPrefixNextHopMapForSourceDevice = deviceIdToIpPrefixNextHopMap.get(sourceDeviceId);
+            for(DeviceId destinationDeviceId: deviceList){
+
+                if(destinationDeviceId != sourceDeviceId){
+                    Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
+                    if(nextHop.isPresent()){
+                        Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
+                        Set<Ip6Prefix> destInterfacesCopy = new HashSet<Ip6Prefix>(destInterfaces);
+                        if(nextHop.get() != destinationDeviceId) {
+                            Set<Ip6Prefix> nextHopInterfaces = getInterfaceIpv6Prefixes(nextHop.get());
+                            for (Ip6Prefix nextHopPrefix : nextHopInterfaces) {
+                                for (Ip6Prefix prefix : destInterfaces) {
+                                    if (destInterfacesCopy.contains(prefix)) {
+                                        if (IsIpPrefixOfIp(nextHopPrefix.address().toOctets(),
+                                                prefix.address().toOctets(), nextHopPrefix.prefixLength(), prefix.prefixLength())) {
+                                            destInterfacesCopy.remove(prefix);
+                                            destInterfacesCopy.add(nextHopPrefix);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        for(Ip6Prefix prefix : destInterfacesCopy){
+                            IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
+                        }
+                    }
+                }
+            }
+        }
+        return deviceIdToIpPrefixNextHopMap;
    }
 
    private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination) {
@@ -455,7 +584,7 @@ public class VlaTopologyInformation {
         return results;
     }
 
-    public  Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> AddLink(DeviceId source, DeviceId destination){
+    public  Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> AddLink(DeviceId source, DeviceId destination){
         synchronized (this){
             if(timeStart == null){
                 timeStart = LocalDateTime.now();
@@ -471,7 +600,7 @@ public class VlaTopologyInformation {
                 log.info("Difference in seconds {}", secondsDifference);
                 if(secondsDifference > TIMER_GAP && !isInitialTraversalDone) {
                     isInitialTraversalDone = true;
-                    return DoInitialTraversal();
+                    return  DoInitialTraversals();
                 }
                 else if(secondsDifference > TIMER_GAP){
 
@@ -481,6 +610,6 @@ public class VlaTopologyInformation {
                 }
             }
         }
-        return Pair.of(new ArrayList<>(), new ArrayList<>());
+        return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
     }
 }
