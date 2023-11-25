@@ -17,7 +17,7 @@ import socket
 from scapy.utils import  inet_pton
 import subprocess
 
-count = PING_COUNT
+
 def resolve_hostname(hostname):
     try:
         ip_address = socket.gethostbyname(hostname)
