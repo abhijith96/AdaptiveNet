@@ -341,6 +341,8 @@ public class VlaComponent {
                 final Set<Ip6Prefix> subnetsToRoute = new HashSet<Ip6Prefix>();
                 subnetsToRoute.add(ip6Prefix);
 
+                log.info("For Device {} adding ip prefix {} with next hop {}", currentDevice.toString(), ip6Prefix.toString(), nextHopMac.toString());
+
                 // Create a group with only one member.
                 int groupId = macToGroupId(nextHopMac);
                 GroupDescription group = createNextHopGroup(

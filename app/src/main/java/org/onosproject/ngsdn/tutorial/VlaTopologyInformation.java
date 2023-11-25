@@ -487,7 +487,8 @@ public class VlaTopologyInformation {
 
                 if(destinationDeviceId != sourceDeviceId){
                     Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
-                    log.info("Next hop device found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
+                    if(nextHop.isPresent())
+                        log.info("Next hop device {} found for source {} and destination {}", nextHop.get(), sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent()){
                         Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
                         Set<Ip6Prefix> destInterfacesCopy = new HashSet<>(destInterfaces);
@@ -507,6 +508,7 @@ public class VlaTopologyInformation {
                         }
                         for(Ip6Prefix prefix : destInterfacesCopy){
                             IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
+                            log.info("ip prefix hash map size {}",deviceIdToIpPrefixNextHopMap.size());
                         }
                     }
                 }
