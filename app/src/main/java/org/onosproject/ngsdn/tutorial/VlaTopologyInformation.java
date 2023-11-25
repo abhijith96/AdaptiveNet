@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class VlaTopologyInformation {
 
 
-    private final int TIMER_GAP = 60;
+    private final int TIMER_GAP = 120;
 
 
     private  java.time.LocalDateTime timeStart = null;
