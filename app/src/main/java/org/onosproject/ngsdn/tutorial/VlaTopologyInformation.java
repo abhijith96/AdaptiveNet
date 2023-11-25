@@ -364,6 +364,7 @@ public class VlaTopologyInformation {
 
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
        Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
+       log.info("VLa rules done doing Hash Map GetNextHopRules for Devices");
        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
 
        return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
@@ -426,13 +427,16 @@ public class VlaTopologyInformation {
 
        while(!queue.isEmpty()){
            DeviceId top = queue.poll();
-           for(DeviceId neighbour: deviceNeighbours.get(top)){
-               parentMap.put(neighbour, top);
-               if(neighbour == destination){
-                   break;
-               }
-               if(!visited.contains(neighbour)){
-                   queue.add(neighbour);
+           if(!visited.contains(top)) {
+               visited.add(top);
+               for (DeviceId neighbour : deviceNeighbours.get(top)) {
+                   parentMap.put(neighbour, top);
+                   if (neighbour == destination) {
+                       break;
+                   }
+                   if (!visited.contains(neighbour)) {
+                       queue.add(neighbour);
+                   }
                }
            }
        }
@@ -483,9 +487,10 @@ public class VlaTopologyInformation {
 
                 if(destinationDeviceId != sourceDeviceId){
                     Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
+                    log.info("Next hop device found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent()){
                         Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
-                        Set<Ip6Prefix> destInterfacesCopy = new HashSet<Ip6Prefix>(destInterfaces);
+                        Set<Ip6Prefix> destInterfacesCopy = new HashSet<>(destInterfaces);
                         if(nextHop.get() != destinationDeviceId) {
                             Set<Ip6Prefix> nextHopInterfaces = getInterfaceIpv6Prefixes(nextHop.get());
                             for (Ip6Prefix nextHopPrefix : nextHopInterfaces) {
