@@ -479,6 +479,8 @@ public class VlaTopologyInformation {
 
         deviceIdToIpPrefixNextHopMap = new HashMap<>();
 
+        log.info("device list size: {}", deviceList.size());
+
         for(DeviceId sourceDeviceId : deviceList){
             deviceIdToIpPrefixNextHopMap.put(sourceDeviceId, new HashMap<>());
             HashMap<Ip6Prefix, DeviceId> IpPrefixNextHopMapForSourceDevice = deviceIdToIpPrefixNextHopMap.get(sourceDeviceId);
@@ -492,7 +494,9 @@ public class VlaTopologyInformation {
                         log.info("Next hop device not found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent()){
                         Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
-                        Set<Ip6Prefix> destInterfacesCopy = new HashSet<>(destInterfaces);
+                        log.info("Ip v6 prefixes size is {} for device {}", destInterfaces.size(), destinationDeviceId);
+                        Set<Ip6Prefix> destInterfacesCopy =  new HashSet<Ip6Prefix>();
+                        destInterfacesCopy.addAll(destInterfaces);
                         if(nextHop.get() != destinationDeviceId) {
                             Set<Ip6Prefix> nextHopInterfaces = getInterfaceIpv6Prefixes(nextHop.get());
                             for (Ip6Prefix nextHopPrefix : nextHopInterfaces) {
@@ -509,12 +513,13 @@ public class VlaTopologyInformation {
                         }
                         for(Ip6Prefix prefix : destInterfacesCopy){
                             IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
-                            log.info("ip prefix hash map size {}",deviceIdToIpPrefixNextHopMap.size());
                         }
+                        log.info("ip prefix hash map size {}",IpPrefixNextHopMapForSourceDevice.size());
                     }
                 }
             }
         }
+       log.info("entire map size {}",deviceIdToIpPrefixNextHopMap.size());
         return deviceIdToIpPrefixNextHopMap;
    }
 
