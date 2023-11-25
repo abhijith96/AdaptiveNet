@@ -1153,7 +1153,7 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
         packet.emit(hdr.icmp);
         packet.emit(hdr.icmpv6);
         packet.emit(hdr.ndp);
-        packet.emit(hdr.icmp_echo)
+        packet.emit(hdr.icmp_echo);
     }
 }
 
