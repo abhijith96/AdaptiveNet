@@ -64,6 +64,9 @@ const bit<8> ICMP6_TYPE_NA = 136;
 const bit<8> ICMP6_TYPE_ND = 200;
 const bit<8> ICMP6_TYPE_ND_REPLY = 201;
 
+const bit<8> ICMP6_TYPE_ECHO_REQUEST = 128;
+const bit<8> ICMP6_TYPE_ECHO_REPLY = 129;
+
 const bit<8> NDP_OPT_TARGET_LL_ADDR = 2;
 
 const bit<8> NDP_TARGET_VLA_ADDR = 3;
@@ -180,6 +183,11 @@ header icmpv6_t {
     bit<16>  checksum;
 }
 
+header icmp_echov6_t{
+    bit<16> identifier;
+    bit<16> sequence_number;
+}
+
 header ndp_t {
     bit<32>      flags;
     ipv6_addr_t  target_ipv6_addr;
@@ -226,6 +234,7 @@ struct parsed_headers_t {
     icmp_t icmp;
     icmpv6_t icmpv6;
     ndp_t ndp;
+    icmp_echov6_t icmp_echo;
 }
 
 struct parser_local_metadata_t{
@@ -445,12 +454,19 @@ parser ParserImpl (packet_in packet,
             ICMP6_TYPE_NS: parse_ndp;
             ICMP6_TYPE_NA: parse_ndp;
             ICMP6_TYPE_ND: parse_ndp;
+            ICMP6_TYPE_ECHO_REQUEST: parse_echo;
+            ICMP6_TYPE_ECHO_REPLY: parse_echo;
             default: accept;
         }
     }
 
     state parse_ndp {
         packet.extract(hdr.ndp);
+        transition accept;
+    }
+
+    state parse_echo {
+        packet.extract(hdr.icmp_echo)
         transition accept;
     }
 
@@ -1137,6 +1153,7 @@ control DeparserImpl(packet_out packet, in parsed_headers_t hdr) {
         packet.emit(hdr.icmp);
         packet.emit(hdr.icmpv6);
         packet.emit(hdr.ndp);
+        packet.emit(hdr.icmp_echo)
     }
 }
 
