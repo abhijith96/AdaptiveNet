@@ -634,7 +634,7 @@ public class VlaTopologyInformation {
 
                 long secondsDifference = duration.getSeconds();
                 log.info("Difference in seconds {}", secondsDifference);
-                if(secondsDifference > TIMER_GAP && !(isInitialIpTraversalDone || isInitialTraversalDone)) {
+                if(secondsDifference > TIMER_GAP && !(isInitialIpTraversalDone && isInitialTraversalDone)) {
 
                     inProgress = false;
                     return  DoInitialTraversals();
