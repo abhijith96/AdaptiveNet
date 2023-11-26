@@ -403,7 +403,7 @@ public class VlaTopologyInformation {
 
        int rootDeviceLevel = levelMap.get(rootDeviceId);
        for(DeviceId deviceId : deviceNeighbours.get(rootDeviceId)){
-           queue.add(new DeviceInfo(deviceId, rootDeviceId, rootDeviceLevel + 1));
+           queue.add(new DeviceInfo(deviceId, rootDeviceId, 2));
            visited.add(deviceId);
        }
 
@@ -467,12 +467,13 @@ public class VlaTopologyInformation {
 
        DeviceId currentNode = destination;
        while(true){
+           log.info("Finding parent for {} ", currentNode);
            DeviceId parent = parentMap.get(currentNode);
+           if(parent == null){
+               break;
+           }
            if(parent == source){
                return Optional.of(currentNode);
-           }
-           else if(parent == null){
-               break;
            }
            currentNode = parent;
        }
@@ -639,8 +640,10 @@ public class VlaTopologyInformation {
                 timeStart = LocalDateTime.now();
             }
             if(deviceList.contains(source) && deviceList.contains(destination)) {
-                deviceNeighbours.get(source).add(destination);
-                deviceNeighbours.get(destination).add(source);
+                if(!deviceNeighbours.get(source).contains(destination))
+                    deviceNeighbours.get(source).add(destination);
+                if(!deviceNeighbours.get(destination).contains(source))
+                    deviceNeighbours.get(destination).add(source);
                 LocalDateTime now = LocalDateTime.now();
 
                 Duration duration = Duration.between(timeStart, now);
