@@ -407,10 +407,13 @@ public class VlaTopologyInformation {
 
            HashSet<DeviceId> visited = new HashSet<>();
 
+           HashSet<DeviceId> onQueue = new HashSet<>();
+
            int rootDeviceLevel = levelMap.get(rootDeviceId);
            for (DeviceId deviceId : deviceNeighbours.get(rootDeviceId)) {
                queue.add(new DeviceInfo(deviceId, rootDeviceId, 2));
                visited.add(deviceId);
+               onQueue.add(deviceId);
            }
 
 
@@ -439,8 +442,9 @@ public class VlaTopologyInformation {
                for (DeviceId deviceId : deviceNeighbours.get(currentDevice)) {
                    log.info("discovered neighbour {} for device{}", deviceId, currentDevice);
                    if (deviceNeighbours.get(deviceId).contains(currentDevice)) {
-                       if (!visited.contains(deviceId)) {
+                       if (!visited.contains(deviceId) && !onQueue.contains(deviceId)) {
                            queue.add(new DeviceInfo(deviceId, currentDevice, deviceInfo.GetLevel() + 1));
+                           onQueue.add(deviceId);
                        }
                    }
                }
