@@ -454,11 +454,12 @@ public class VlaTopologyInformation {
            if(!visited.contains(top)) {
                visited.add(top);
                for (DeviceId neighbour : deviceNeighbours.get(top)) {
-                   parentMap.put(neighbour, top);
                    if (neighbour == destination) {
+                       parentMap.put(neighbour, top);
                        break;
                    }
                    if (!visited.contains(neighbour)) {
+                       parentMap.put(neighbour, top);
                        queue.add(neighbour);
                    }
                }
