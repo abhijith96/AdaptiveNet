@@ -284,14 +284,14 @@ public class VlaTopologyInformation {
 
   private byte [] GetVlaAddress(DeviceId deviceId, int deviceLevel){
        String [] vlaAddress = new String [AppConstants.VLA_MAX_LEVELS];
-      log.info("Finding Levels up the tree. {}", deviceId);
+      //log.info("Finding Levels up the tree. {}", deviceId);
        int currentLevel = deviceLevel;
        DeviceId currentDevice = deviceId;
        while(currentLevel > 0){
            int currentLevelAddress =  deviceIdentifierMap.get(currentDevice);
            vlaAddress [currentLevel - 1] = String.format("%16s", Integer.toBinaryString(currentLevelAddress)).replace(' ', '0');
-           log.info("Finding levels current device {}, current Level {} address {}, address bit string {} ", currentDevice, currentLevel, currentLevelAddress,
-                   vlaAddress [currentLevel - 1]);
+//           //log.info("Finding levels current device {}, current Level {} address {}, address bit string {} ", currentDevice, currentLevel, currentLevelAddress,
+//                   vlaAddress [currentLevel - 1]);
            --currentLevel;
            currentDevice = parentMap.getOrDefault(currentDevice, null);
        }
@@ -369,6 +369,7 @@ public class VlaTopologyInformation {
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
 
        if (!isInitialTraversalDone) {
+           log.info("doing vla rules for devices initial traversal");
            Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
            HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
            isInitialTraversalDone = true;
@@ -412,6 +413,7 @@ public class VlaTopologyInformation {
 
        while(!queue.isEmpty()){
            DeviceInfo deviceInfo = queue.peek();
+           log.info("current device in queue top {}", deviceInfo);
            DeviceId currentDevice = deviceInfo.deviceId;
            visited.add(currentDevice);
            parentMap.put(currentDevice, deviceInfo.GetParentId());
@@ -545,8 +547,7 @@ public class VlaTopologyInformation {
                             IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
                         }
                         log.info("ip prefix hash map size {}",IpPrefixNextHopMapForSourceDevice.size());
-                        //debug check
-                        return deviceIdToIpPrefixNextHopMap;
+
                     }
                 }
             }
@@ -631,11 +632,6 @@ public class VlaTopologyInformation {
 
     public  Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> AddLink(DeviceId source, DeviceId destination)  {
         synchronized (this){
-            if(inProgress){
-                log.info("Another command is in progresss returning");
-                return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
-            }
-            inProgress = true;
             if(timeStart == null){
                 timeStart = LocalDateTime.now();
             }
@@ -651,14 +647,11 @@ public class VlaTopologyInformation {
                 long secondsDifference = duration.getSeconds();
                 log.info("Difference in seconds {}", secondsDifference);
                 if(secondsDifference > TIMER_GAP && !(isInitialIpTraversalDone && isInitialTraversalDone)) {
-
-                    inProgress = false;
                     return  DoInitialTraversals();
                 }
                 else if(secondsDifference > TIMER_GAP){
 
                     if (IsValidLinkToAdd(source, destination)) {
-                        inProgress = false;
                         return UpdateLevels(source, destination);
                     }
                 }
