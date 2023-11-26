@@ -30,6 +30,8 @@ public class VlaTopologyInformation {
 
     private boolean isInitialTraversalDone = false;
 
+    private  boolean isInitialIpTraversalDone = false;
+
     private final int IDENTIFIER_START_VALUE = 4096;
     ArrayList<DeviceId> deviceList;
 
@@ -365,14 +367,23 @@ public class VlaTopologyInformation {
    }
 
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
-       Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
-       log.info("VLa rules done doing Hash Map GetNextHopRules for Devices");
-        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
 
-       log.info("VLa rules done doing iP 6 traversal Devices");
-        //HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
+       if (!isInitialTraversalDone) {
+           Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
+           HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
+           isInitialTraversalDone = true;
+           return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
+       }
+       else if(!isInitialIpTraversalDone) {
 
-       return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
+           HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+
+           log.info("VLa rules done doing iP 6 traversal Devices");
+          isInitialIpTraversalDone = true;
+
+           return Triple.of(new ArrayList<>(), new ArrayList<>(), ipPart);
+       }
+       return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
 
    }
 
@@ -623,8 +634,8 @@ public class VlaTopologyInformation {
 
                 long secondsDifference = duration.getSeconds();
                 log.info("Difference in seconds {}", secondsDifference);
-                if(secondsDifference > TIMER_GAP && !isInitialTraversalDone) {
-                    isInitialTraversalDone = true;
+                if(secondsDifference > TIMER_GAP && !(isInitialIpTraversalDone || isInitialTraversalDone)) {
+
                     inProgress = false;
                     return  DoInitialTraversals();
                 }
