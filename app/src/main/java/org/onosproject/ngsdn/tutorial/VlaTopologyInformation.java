@@ -376,9 +376,11 @@ public class VlaTopologyInformation {
        }
        else if(!isInitialIpTraversalDone) {
 
+           log.info("VLa rules done doing iP 6 traversal Devices");
+
            HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
 
-           log.info("VLa rules done doing iP 6 traversal Devices");
+
           isInitialIpTraversalDone = true;
 
            return Triple.of(new ArrayList<>(), new ArrayList<>(), ipPart);
@@ -457,10 +459,13 @@ public class VlaTopologyInformation {
        }
 
        DeviceId currentNode = destination;
-       while(parentMap.containsKey(currentNode)){
+       while(true){
            DeviceId parent = parentMap.get(currentNode);
            if(parent == source){
                return Optional.of(currentNode);
+           }
+           else if(parent == null){
+               break;
            }
            currentNode = parent;
        }
@@ -503,6 +508,7 @@ public class VlaTopologyInformation {
             for(DeviceId destinationDeviceId: deviceList){
 
                 if(destinationDeviceId != sourceDeviceId){
+                    log.info("Finding next hop for {} and {}", sourceDeviceId, destinationDeviceId);
                     Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
                     if(nextHop.isPresent())
                         log.info("Next hop device {} found for source {} and destination {}", nextHop.get(), sourceDeviceId, destinationDeviceId);
