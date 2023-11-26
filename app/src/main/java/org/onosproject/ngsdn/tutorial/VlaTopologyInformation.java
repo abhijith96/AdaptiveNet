@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class VlaTopologyInformation {
 
 
-    private final int TIMER_GAP = 120;
+    private final int TIMER_GAP = 60;
 
 
     private  java.time.LocalDateTime timeStart = null;
@@ -368,119 +368,130 @@ public class VlaTopologyInformation {
 
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
 
-       if (!isInitialTraversalDone) {
-           log.info("doing vla rules for devices initial traversal");
-           Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
-           HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
-           isInitialTraversalDone = true;
-           return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
-       }
-       else if(!isInitialIpTraversalDone) {
+        synchronized (this) {
 
-           log.info("VLa rules done doing iP 6 traversal Devices");
+            if (!isInitialTraversalDone) {
+                log.info("doing vla rules for devices initial traversal");
+                Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
+                HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
+                isInitialTraversalDone = true;
+                return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
+            } else if (!isInitialIpTraversalDone) {
 
-           HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+                log.info("VLa rules done doing iP 6 traversal Devices");
+
+                HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
 
 
-          isInitialIpTraversalDone = true;
+                isInitialIpTraversalDone = true;
 
-           return Triple.of(new ArrayList<>(), new ArrayList<>(), ipPart);
-       }
-       return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
+                return Triple.of(new ArrayList<>(), new ArrayList<>(), ipPart);
+            }
+            return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
+
+        }
 
    }
 
    private Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> DoInitialTraversal(){
 
        Queue<DeviceInfo> queue = new LinkedList<>();
-       DeviceId rootDeviceId = rootDeviceList.get(0);
-       IsConnectedToRoot.put(rootDeviceId, true);
 
-       ArrayList<DeviceInfo> results = new ArrayList<>();
+       synchronized (this) {
+           DeviceId rootDeviceId = rootDeviceList.get(0);
+           IsConnectedToRoot.put(rootDeviceId, true);
 
-       ArrayList<HostInfo> hostResults = new ArrayList<>();
+           ArrayList<DeviceInfo> results = new ArrayList<>();
 
-       HashSet<DeviceId> visited = new HashSet<>();
+           ArrayList<HostInfo> hostResults = new ArrayList<>();
 
-       int rootDeviceLevel = levelMap.get(rootDeviceId);
-       for(DeviceId deviceId : deviceNeighbours.get(rootDeviceId)){
-           queue.add(new DeviceInfo(deviceId, rootDeviceId, 2));
-           visited.add(deviceId);
-       }
+           HashSet<DeviceId> visited = new HashSet<>();
 
-
-       visited.add(rootDeviceId);
-
-       while(!queue.isEmpty()){
-           DeviceInfo deviceInfo = queue.peek();
-           log.info("current device in queue top {}", deviceInfo);
-           DeviceId currentDevice = deviceInfo.deviceId;
-           visited.add(currentDevice);
-           parentMap.put(currentDevice, deviceInfo.GetParentId());
-           levelMap.put(currentDevice, deviceInfo.GetLevel());
-           int identifier = AddChild(deviceInfo.GetParentId(), currentDevice);
-           deviceIdentifierMap.put(currentDevice, identifier);
-           IsConnectedToRoot.put(currentDevice, true);
-           deviceInfo.SetLevelIdentifier(identifier);
-           deviceInfo.SetDeviceAddress(GetVlaAddress(currentDevice, deviceInfo.GetLevel()));
-           results.add(deviceInfo);
-           for(HostId hostId : deviceIdHostIdHashMap.get(currentDevice)){
-               HostInfo hostInfo = new HostInfo(hostId, currentDevice);
-               hostResults.add(hostInfo);
+           int rootDeviceLevel = levelMap.get(rootDeviceId);
+           for (DeviceId deviceId : deviceNeighbours.get(rootDeviceId)) {
+               queue.add(new DeviceInfo(deviceId, rootDeviceId, 2));
+               visited.add(deviceId);
            }
-           log.info("hosts found during traversal of device id {} is {}", currentDevice, hostResults.size());
-           queue.poll();
 
-           for(DeviceId deviceId : deviceNeighbours.get(currentDevice)){
-               if(deviceNeighbours.get(deviceId).contains(currentDevice)){
-                   if(!visited.contains(deviceId)){
-                       queue.add(new DeviceInfo(deviceId, currentDevice, deviceInfo.GetLevel() + 1));
-                       visited.add(deviceId);
+
+           visited.add(rootDeviceId);
+
+           while (!queue.isEmpty()) {
+               DeviceInfo deviceInfo = queue.peek();
+               log.info("current device in queue top {}", deviceInfo.deviceId);
+               DeviceId currentDevice = deviceInfo.deviceId;
+               visited.add(currentDevice);
+               parentMap.put(currentDevice, deviceInfo.GetParentId());
+               levelMap.put(currentDevice, deviceInfo.GetLevel());
+               int identifier = AddChild(deviceInfo.GetParentId(), currentDevice);
+               deviceIdentifierMap.put(currentDevice, identifier);
+               IsConnectedToRoot.put(currentDevice, true);
+               deviceInfo.SetLevelIdentifier(identifier);
+               deviceInfo.SetDeviceAddress(GetVlaAddress(currentDevice, deviceInfo.GetLevel()));
+               results.add(deviceInfo);
+               for (HostId hostId : deviceIdHostIdHashMap.get(currentDevice)) {
+                   HostInfo hostInfo = new HostInfo(hostId, currentDevice);
+                   hostResults.add(hostInfo);
+               }
+               log.info("hosts found during traversal of device id {} is {}", currentDevice, hostResults.size());
+               queue.poll();
+
+               for (DeviceId deviceId : deviceNeighbours.get(currentDevice)) {
+                   log.info("discovered neighbour {} for device{}", deviceId, currentDevice);
+                   if (deviceNeighbours.get(deviceId).contains(currentDevice)) {
+                       if (!visited.contains(deviceId)) {
+                           queue.add(new DeviceInfo(deviceId, currentDevice, deviceInfo.GetLevel() + 1));
+                       }
                    }
                }
            }
+
+           return Pair.of(results, hostResults);
        }
-       return Pair.of(results, hostResults);
    }
 
    private Optional<DeviceId> GetNextHopDevice(DeviceId source, DeviceId destination){
-       Queue<DeviceId> queue = new LinkedList<>();
-       queue.add(source);
-       HashSet<DeviceId> visited = new HashSet<>();
-       HashMap<DeviceId, DeviceId> parentMap = new HashMap<>();
 
 
-       while(!queue.isEmpty()){
-           DeviceId top = queue.remove();
-           if(!visited.contains(top)) {
-               visited.add(top);
-               for (DeviceId neighbour : deviceNeighbours.get(top)) {
-                   if (neighbour == destination) {
-                       parentMap.put(neighbour, top);
-                       break;
-                   }
-                   if (!visited.contains(neighbour)) {
-                       parentMap.put(neighbour, top);
-                       queue.add(neighbour);
-                   }
-               }
-           }
-       }
+        synchronized (this) {
+            Queue<DeviceId> queue = new LinkedList<>();
+            queue.add(source);
+            HashSet<DeviceId> visited = new HashSet<>();
+            HashMap<DeviceId, DeviceId> parentMap = new HashMap<>();
 
-       log.info("Checking if infinite while loop in bfs or parent finding");
 
-       DeviceId currentNode = destination;
-       while(true){
-           log.info("Finding parent for {} ", currentNode);
-           DeviceId parent = parentMap.get(currentNode);
-           if(parent == null){
-               break;
-           }
-           if(parent == source){
-               return Optional.of(currentNode);
-           }
-           currentNode = parent;
-       }
+            while (!queue.isEmpty()) {
+                DeviceId top = queue.remove();
+                if (!visited.contains(top)) {
+                    visited.add(top);
+                    for (DeviceId neighbour : deviceNeighbours.get(top)) {
+                        if (neighbour == destination) {
+                            parentMap.put(neighbour, top);
+                            break;
+                        }
+                        if (!visited.contains(neighbour)) {
+                            parentMap.put(neighbour, top);
+                            queue.add(neighbour);
+                        }
+                    }
+                }
+            }
+
+            log.info("Checking if infinite while loop in bfs or parent finding");
+
+            DeviceId currentNode = destination;
+            while (true) {
+                log.info("Finding parent for {} ", currentNode);
+                DeviceId parent = parentMap.get(currentNode);
+                if (parent == null) {
+                    break;
+                }
+                if (parent == source) {
+                    return Optional.of(currentNode);
+                }
+                currentNode = parent;
+            }
+        }
 
        return Optional.empty();
    }
@@ -508,54 +519,61 @@ public class VlaTopologyInformation {
         return false;
     }
    private HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> GetNextHopsForAllDevices(){
-        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> deviceIdToIpPrefixNextHopMap;
 
-        deviceIdToIpPrefixNextHopMap = new HashMap<>();
 
-        log.info("device list size: {}", deviceList.size());
+            HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> deviceIdToIpPrefixNextHopMap;
 
-        for(DeviceId sourceDeviceId : deviceList){
-            deviceIdToIpPrefixNextHopMap.put(sourceDeviceId, new HashMap<>());
-            HashMap<Ip6Prefix, DeviceId> IpPrefixNextHopMapForSourceDevice = deviceIdToIpPrefixNextHopMap.get(sourceDeviceId);
-            for(DeviceId destinationDeviceId: deviceList){
+            deviceIdToIpPrefixNextHopMap = new HashMap<>();
 
-                if(destinationDeviceId != sourceDeviceId){
-                    log.info("Finding next hop for {} and {}", sourceDeviceId, destinationDeviceId);
-                    Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
-                    if(nextHop.isPresent())
-                        log.info("Next hop device {} found for source {} and destination {}", nextHop.get(), sourceDeviceId, destinationDeviceId);
-                    else
-                        log.info("Next hop device not found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
-                    if(nextHop.isPresent()){
-                        Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
-                        log.info("Ip v6 prefixes size is {} for device {}", destInterfaces.size(), destinationDeviceId);
-                        Set<Ip6Prefix> destInterfacesCopy =  new HashSet<Ip6Prefix>();
-                        destInterfacesCopy.addAll(destInterfaces);
-                        if(nextHop.get() != destinationDeviceId) {
-                            Set<Ip6Prefix> nextHopInterfaces = getInterfaceIpv6Prefixes(nextHop.get());
-                            for (Ip6Prefix nextHopPrefix : nextHopInterfaces) {
-                                for (Ip6Prefix prefix : destInterfaces) {
-                                    if (destInterfacesCopy.contains(prefix)) {
-                                        if (IsIpPrefixOfIp(nextHopPrefix.address().toOctets(),
-                                                prefix.address().toOctets(), nextHopPrefix.prefixLength(), prefix.prefixLength())) {
-                                            destInterfacesCopy.remove(prefix);
-                                            destInterfacesCopy.add(nextHopPrefix);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        for(Ip6Prefix prefix : destInterfacesCopy){
-                            IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
-                        }
-                        log.info("ip prefix hash map size {}",IpPrefixNextHopMapForSourceDevice.size());
+       synchronized (this) {
 
-                    }
-                }
-            }
-        }
-       log.info("entire map size {}",deviceIdToIpPrefixNextHopMap.size());
-        return deviceIdToIpPrefixNextHopMap;
+           log.info("device list size: {}", deviceList.size());
+
+           for (DeviceId sourceDeviceId : deviceList) {
+               deviceIdToIpPrefixNextHopMap.put(sourceDeviceId, new HashMap<>());
+               HashMap<Ip6Prefix, DeviceId> IpPrefixNextHopMapForSourceDevice = deviceIdToIpPrefixNextHopMap.get(sourceDeviceId);
+               for (DeviceId destinationDeviceId : deviceList) {
+
+                   if (destinationDeviceId != sourceDeviceId) {
+                       log.info("Finding next hop for {} and {}", sourceDeviceId, destinationDeviceId);
+                       Optional<DeviceId> nextHop = GetNextHopDevice(sourceDeviceId, destinationDeviceId);
+                       if (nextHop.isPresent())
+                           log.info("Next hop device {} found for source {} and destination {}", nextHop.get(), sourceDeviceId, destinationDeviceId);
+                       else
+                           log.info("Next hop device not found for source {} and destination {}", sourceDeviceId, destinationDeviceId);
+                       if (nextHop.isPresent()) {
+                           Set<Ip6Prefix> destInterfaces = getInterfaceIpv6Prefixes(destinationDeviceId);
+                           log.info("Ip v6 prefixes size is {} for device {}", destInterfaces.size(), destinationDeviceId);
+                           Set<Ip6Prefix> destInterfacesCopy = new HashSet<Ip6Prefix>();
+                           destInterfacesCopy.addAll(destInterfaces);
+                           if (nextHop.get() != destinationDeviceId) {
+                               Set<Ip6Prefix> nextHopInterfaces = getInterfaceIpv6Prefixes(nextHop.get());
+                               for (Ip6Prefix nextHopPrefix : nextHopInterfaces) {
+                                   for (Ip6Prefix prefix : destInterfaces) {
+                                       if (destInterfacesCopy.contains(prefix)) {
+                                           if (IsIpPrefixOfIp(nextHopPrefix.address().toOctets(),
+                                                   prefix.address().toOctets(), nextHopPrefix.prefixLength(), prefix.prefixLength())) {
+                                               destInterfacesCopy.remove(prefix);
+                                               destInterfacesCopy.add(nextHopPrefix);
+                                           }
+                                       }
+                                   }
+                               }
+                           }
+                           for (Ip6Prefix prefix : destInterfacesCopy) {
+                               IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
+                           }
+                           log.info("ip prefix hash map size {}", IpPrefixNextHopMapForSourceDevice.size());
+
+                       }
+                   }
+               }
+           }
+
+           log.info("entire map size {}", deviceIdToIpPrefixNextHopMap.size());
+       }
+            return deviceIdToIpPrefixNextHopMap;
+
    }
 
    private boolean IsValidLinkToAdd(DeviceId source, DeviceId destination) {
