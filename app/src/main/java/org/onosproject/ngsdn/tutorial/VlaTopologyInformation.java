@@ -435,6 +435,7 @@ public class VlaTopologyInformation {
                if(deviceNeighbours.get(deviceId).contains(currentDevice)){
                    if(!visited.contains(deviceId)){
                        queue.add(new DeviceInfo(deviceId, currentDevice, deviceInfo.GetLevel() + 1));
+                       visited.add(deviceId);
                    }
                }
            }
