@@ -99,6 +99,21 @@ public class MainComponent {
         compCfgService.preSetProperty("org.onosproject.provider.lldp.impl.LldpLinkProvider",
                                       "useBddp", "false", false);
 
+        compCfgService.preSetProperty("org.onosproject.provider.lldp.impl.LldpLinkProvider",
+                "staleLinkAge", "100000", false);
+
+        compCfgService.preSetProperty("org.onosproject.provider.lldp.impl.LldpLinkProvider",
+                "probeRate", "10000", false);
+
+        compCfgService.preSetProperty("org.onosproject.net.topology.impl.DefaultTopologyProvider",
+                "maxBatchMs", "5000");
+
+        compCfgService.preSetProperty("org.onosproject.net.topology.impl.DefaultTopologyProvider",
+                "maxIdleMs", "5000");
+
+        compCfgService.preSetProperty("org.onosproject.core.impl.CoreManager",
+                "maxEventTimeLimit", "10000");
+
         configRegistry.registerConfigFactory(fabricConfigFactory);
         log.info("Started");
     }
