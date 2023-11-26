@@ -443,7 +443,7 @@ public class VlaTopologyInformation {
 
 
        while(!queue.isEmpty()){
-           DeviceId top = queue.poll();
+           DeviceId top = queue.remove();
            if(!visited.contains(top)) {
                visited.add(top);
                for (DeviceId neighbour : deviceNeighbours.get(top)) {
@@ -457,6 +457,8 @@ public class VlaTopologyInformation {
                }
            }
        }
+
+       log.info("Checking if infinite while loop in bfs or parent finding");
 
        DeviceId currentNode = destination;
        while(true){
