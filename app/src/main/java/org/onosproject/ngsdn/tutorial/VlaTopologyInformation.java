@@ -32,6 +32,8 @@ public class VlaTopologyInformation {
 
     private final int IDENTIFIER_START_VALUE = 4096;
     ArrayList<DeviceId> deviceList;
+
+    private  boolean inProgress = false;
     ArrayList<DeviceId> rootDeviceList;
 
    HashMap<DeviceId, Integer> deviceChildIdentifierCounter;
@@ -365,8 +367,10 @@ public class VlaTopologyInformation {
    private Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> DoInitialTraversals(){
        Pair<ArrayList<DeviceInfo>, ArrayList<HostInfo>> vlaPart = DoInitialTraversal();
        log.info("VLa rules done doing Hash Map GetNextHopRules for Devices");
-      // HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
-        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
+        HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = GetNextHopsForAllDevices();
+
+       log.info("VLa rules done doing iP 6 traversal Devices");
+        //HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>> ipPart = new HashMap<>();
 
        return Triple.of(vlaPart.getLeft(), vlaPart.getRight(), ipPart);
 
@@ -598,8 +602,13 @@ public class VlaTopologyInformation {
         return results;
     }
 
-    public  Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> AddLink(DeviceId source, DeviceId destination){
+    public  Triple<ArrayList<DeviceInfo>, ArrayList<HostInfo>, HashMap<DeviceId, HashMap<Ip6Prefix, DeviceId>>> AddLink(DeviceId source, DeviceId destination)  {
         synchronized (this){
+            if(inProgress){
+                log.info("Another command is in progresss returning");
+                return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
+            }
+            inProgress = true;
             if(timeStart == null){
                 timeStart = LocalDateTime.now();
             }
@@ -614,16 +623,19 @@ public class VlaTopologyInformation {
                 log.info("Difference in seconds {}", secondsDifference);
                 if(secondsDifference > TIMER_GAP && !isInitialTraversalDone) {
                     isInitialTraversalDone = true;
+                    inProgress = false;
                     return  DoInitialTraversals();
                 }
                 else if(secondsDifference > TIMER_GAP){
 
                     if (IsValidLinkToAdd(source, destination)) {
+                        inProgress = false;
                         return UpdateLevels(source, destination);
                     }
                 }
             }
         }
+        inProgress = false;
         return Triple.of(new ArrayList<>(), new ArrayList<>(), new HashMap<>());
     }
 }
