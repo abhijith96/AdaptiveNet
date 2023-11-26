@@ -393,16 +393,21 @@ public class VlaTopologyInformation {
 
        Queue<DeviceInfo> queue = new LinkedList<>();
        DeviceId rootDeviceId = rootDeviceList.get(0);
-       int rootDeviceLevel = levelMap.get(rootDeviceId);
-       for(DeviceId deviceId : deviceNeighbours.get(rootDeviceId)){
-           queue.add(new DeviceInfo(deviceId, rootDeviceId, rootDeviceLevel + 1));
-       }
+       IsConnectedToRoot.put(rootDeviceId, true);
 
        ArrayList<DeviceInfo> results = new ArrayList<>();
 
        ArrayList<HostInfo> hostResults = new ArrayList<>();
 
        HashSet<DeviceId> visited = new HashSet<>();
+
+       int rootDeviceLevel = levelMap.get(rootDeviceId);
+       for(DeviceId deviceId : deviceNeighbours.get(rootDeviceId)){
+           queue.add(new DeviceInfo(deviceId, rootDeviceId, rootDeviceLevel + 1));
+           visited.add(deviceId);
+       }
+
+
        visited.add(rootDeviceId);
 
        while(!queue.isEmpty()){
