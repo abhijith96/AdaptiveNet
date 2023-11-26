@@ -520,6 +520,8 @@ public class VlaTopologyInformation {
                             IpPrefixNextHopMapForSourceDevice.put(prefix, nextHop.get());
                         }
                         log.info("ip prefix hash map size {}",IpPrefixNextHopMapForSourceDevice.size());
+                        //debug check
+                        return deviceIdToIpPrefixNextHopMap;
                     }
                 }
             }
