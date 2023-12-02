@@ -2,7 +2,7 @@
 
 A custom network layer protocol, with variable length addresses implemented on SDN using ONOS and P4.
 
-"https://github.com/opennetworkinglab/ngsdn-tutorial" NGSDN Tutorial by ONF was referenced a lot for developing this project. Some of the code and project structure is borrowed from there. 
+"https://github.com/opennetworkinglab/ngsdn-tutorial" NGSDN Tutorial by ONF was referenced a lot for developing this project. Some of the code and project structure is borrowed from there. This repo is actually a detached fork of NGSDN Tutorial.
 
 The following are dependencies:
 
