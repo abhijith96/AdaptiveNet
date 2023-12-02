@@ -5,6 +5,7 @@ import org.onlab.packet.Ip6Prefix;
 import org.onlab.packet.IpPrefix;
 import org.onlab.packet.MacAddress;
 import org.onlab.util.ItemNotFoundException;
+import org.onlab.util.KryoNamespace;
 import org.onosproject.net.*;
 import org.onosproject.net.group.GroupDescription;
 import org.onosproject.net.group.GroupService;
@@ -44,6 +45,9 @@ import org.onosproject.net.config.NetworkConfigService;
 import org.onosproject.net.device.DeviceEvent;
 import org.onosproject.net.device.DeviceListener;
 import org.onosproject.net.device.DeviceService;
+import org.onosproject.store.service.ConsistentMap;
+import org.onosproject.store.service.Serializer;
+import org.onosproject.store.service.StorageService;
 import org.onosproject.net.flow.FlowRule;
 import org.onosproject.net.flow.FlowRuleOperations;
 import org.onosproject.net.flow.FlowRuleService;
@@ -123,6 +127,9 @@ public class VlaComponent {
     private FlowRuleService flowRuleService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
+    private StorageService storageService;
+
+    @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private MastershipService mastershipService;
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
@@ -153,6 +160,14 @@ public class VlaComponent {
     private final LinkListener linkListener = new VlaComponent.InternalLinkListener();
 
     private final HostListener hostListener = new VlaComponent.InternalHostListener();
+
+    private ConsistentMap<String, String> myDataStore = storageService.<String, String>consistentMapBuilder()
+            .withName("myDataStore")
+            .withSerializer(Serializer.using(KryoNamespace.newBuilder()
+                    .register(KryoNamespace.)
+                    .register(MyDataObject.class) // Register your data class
+                    .build()))
+            .build();
 
 
 

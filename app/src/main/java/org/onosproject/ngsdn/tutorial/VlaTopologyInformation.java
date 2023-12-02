@@ -8,6 +8,7 @@ import org.onosproject.net.HostId;
 import org.onosproject.net.host.InterfaceIpAddress;
 import org.onosproject.net.intf.Interface;
 import org.onosproject.net.intf.InterfaceService;
+import org.onosproject.store.service.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,13 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+import static org.onosproject.cli.AbstractShellCommand.get;
+
 
 public class VlaTopologyInformation {
+
+
+    StorageService storageService = get(StorageService.class);
 
 
     private final int TIMER_GAP = 60;
