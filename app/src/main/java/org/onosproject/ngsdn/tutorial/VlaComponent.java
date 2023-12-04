@@ -95,25 +95,6 @@ import static org.onosproject.ngsdn.tutorial.AppConstants.VLA_MAX_LEVELS;
 )
 public class VlaComponent {
 
-    class DeviceLevelPair{
-
-        DeviceId deviceId;
-        Integer level;
-
-       public DeviceLevelPair(DeviceId deviceId, Integer level){
-            this.deviceId = deviceId;
-            this.level = level;
-        }
-
-        public DeviceId getDeviceId() {
-            return deviceId;
-        }
-
-        public Integer GetLevel(){
-           return level;
-        }
-    }
-
     private static final Logger log = LoggerFactory.getLogger(VlaComponent.class);
 
     //--------------------------------------------------------------------------
@@ -161,13 +142,7 @@ public class VlaComponent {
 
     private final HostListener hostListener = new VlaComponent.InternalHostListener();
 
-    private ConsistentMap<String, String> myDataStore = storageService.<String, String>consistentMapBuilder()
-            .withName("myDataStore")
-            .withSerializer(Serializer.using(KryoNamespace.newBuilder()
-                    .register(KryoNamespace.)
-                    .register(MyDataObject.class) // Register your data class
-                    .build()))
-            .build();
+
 
 
 
@@ -187,7 +162,7 @@ public class VlaComponent {
     private Optional<DeviceId> rootDeviceId  = Optional.empty();
 
 
-    private final VlaTopologyInformation vlaTopologyInformation = new VlaTopologyInformation();
+    private VlaTopologyInformation vlaTopologyInformation;
 
 
     private static final int DEFAULT_ECMP_GROUP_ID = 0xec3b0000;
@@ -213,6 +188,8 @@ public class VlaComponent {
         linkService.addListener(linkListener);
 
         hostService.addListener(hostListener);
+
+        vlaTopologyInformation =  new VlaTopologyInformation(storageService);
 
 
 

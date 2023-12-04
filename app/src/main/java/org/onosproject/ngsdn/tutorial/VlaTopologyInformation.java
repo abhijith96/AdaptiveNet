@@ -20,13 +20,24 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
+
+
+import org.onosproject.store.serializers.KryoNamespaces;
+import org.onosproject.store.service.ConsistentMap;
+import org.onosproject.store.service.DistributedSet;
+import org.onosproject.store.service.Serializer;
+import org.onosproject.store.service.StorageService;
+import org.onosproject.store.service.Versioned;
+
 import static org.onosproject.cli.AbstractShellCommand.get;
 
 
 public class VlaTopologyInformation {
 
 
-    StorageService storageService = get(StorageService.class);
+    StorageService storageService;
+
+
 
 
     private final int TIMER_GAP = 60;
@@ -47,6 +58,8 @@ public class VlaTopologyInformation {
    HashMap<DeviceId, Integer> deviceChildIdentifierCounter;
 
    HashMap<DeviceId, ArrayList<DeviceId>> deviceNeighbours;
+
+   private ConsistentMap<DeviceId, ArrayList<DeviceId>> deviceNeighbours_two;
 
    HashMap<DeviceId, Boolean> IsConnectedToRoot;
 
@@ -221,7 +234,8 @@ public class VlaTopologyInformation {
     }
 
 
-   public VlaTopologyInformation(){
+   public VlaTopologyInformation(StorageService storageService){
+        this.storageService = storageService;
        deviceList = new ArrayList<>();
        rootDeviceList = new ArrayList<>();
        deviceChildIdentifierCounter = new HashMap<>();
@@ -234,6 +248,17 @@ public class VlaTopologyInformation {
        deviceIdHostIdHashMap = new HashMap<>();
        hostIdDeviceIdHashMap = new HashMap<>();
        isInitialTraversalDone = false;
+       deviceNeighbours_two = storageService.<DeviceId, ArrayList<DeviceId>>consistentMapBuilder()
+               .withName("onos-vla-neighbors")
+               .withSerializer(Serializer.using(
+                       new KryoNamespace.Builder()
+                               .register(KryoNamespaces.API)
+                               .register(
+                                       ArrayList.class,
+                                       DeviceId.class
+                                      )
+                               .build("vla")))
+               .build();
    }
 
    public ArrayList<DeviceId> GetAllDevicesContainingHosts(){
