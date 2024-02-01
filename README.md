@@ -1,4 +1,4 @@
-# VLA Protocol 
+# AdaptiveNet
 
 A custom network layer protocol, with variable length addresses implemented on SDN using ONOS and P4.
 
@@ -12,8 +12,7 @@ The following are dependencies:
 * Bash-like Unix shell
 * Wireshark (optional)
 
-**Note for Windows users**: all scripts have been tested on macOS and Ubuntu.
-Although we think they should work on Windows, we have not tested it.
+
 
 ## Get this repo or pull latest changes
 
