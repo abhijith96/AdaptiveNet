@@ -2,7 +2,7 @@
 
 A custom network layer protocol, with variable length addresses implemented on SDN using ONOS and P4.
 
-"https://github.com/opennetworkinglab/ngsdn-tutorial" NGSDN Tutorial by ONF was referenced a lot for developing this project. Some of the code and project structure is borrowed from there. This repo is actually a detached fork of NGSDN Tutorial.
+"https://github.com/opennetworkinglab/ngsdn-tutorial" NGSDN Tutorial by ONF was referenced a lot for developing this project. Some of the starter code and project structure is borrowed from there. This repo is actually a detached fork of NGSDN Tutorial.
 
 The following are dependencies:
 
@@ -20,34 +20,8 @@ To work on the exercises you will need to clone this repo:
 
     git pull origin vla_dev
 
-## Download / upgrade dependencies
 
-The VM may have shipped with an older version of the dependencies than we would
-like to use for the exercises. You can upgrade to the latest version using the
-following command:
-
-    cd ~/ngsdn-tutorial
-    make deps
-
-This command will download all necessary Docker images (~1.5 GB) allowing you to
-work off-line. For this reason, we recommend running this step ahead of the
-tutorial, with a reliable Internet connection.
-
-
-
-## Repo structure
-
-This repo is structured as follows:
-
- * `p4src/` P4 implementation
- * `yang/` Yang model used in exercise 2
- * `app/` custom ONOS app Java implementation
- * `mininet/` Mininet script to emulate a 2x2 leaf-spine fabric topology of
-   `stratum_bmv2` devices
- * `util/` Utility scripts
- * `ptf/` P4 data plane unit tests based on Packet Test Framework (PTF)
-
-## commands
+## commands (borrowed from ngsdn repo)
 
 To build and debug the system we provide a set of make-based commands
 to control the different aspects of the system:
